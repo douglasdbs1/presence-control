@@ -2,709 +2,710 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Controle de Go-Lives — Restaura Jeans</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Presence Control</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #edebe8;
-  --surface: #ffffff;
-  --surface2: #f0ede8;
-  --border: #dedad2;
-  --border2: #c8c4bb;
-  --text: #111110;
-  --text2: #5c5a56;
-  --text3: #8f8d87;
-  --teal: #0a5c47;
-  --teal-bg: #d6f0e6;
-  --teal-mid: #158a61;
-  --amber: #2d3a8c;
-  --amber-bg: #e0e4f8;
-  --amber-mid: #4f5fc4;
-  --red: #8b1a1a;
-  --red-bg: #fce4e4;
-  --blue: #103d7c;
-  --blue-bg: #dceafa;
-  --purple: #3d1a8b;
-  --purple-bg: #e8e0fa;
-  --font: 'Inter', system-ui, sans-serif;
-  --hero-bg1: #f5f4f1; --hero-bg2: #edecea; --hero-bg3: #e8f0ec;
-  --hband-border: rgba(0,0,0,0.08);
-  --hband-glow: rgba(21,138,97,0.05);
-  --hpill-border: rgba(0,0,0,0.1);
-  --hpill-bg: rgba(0,0,0,0.04);
-  --hname-color: #1a1917;
-  --hdivider: rgba(0,0,0,0.1);
-  --htitle-h1: #1a1917;
-  --htitle-sub: #9b9a92;
-  --hmeta: #9b9a92;
-  --htoggle-border: rgba(0,0,0,0.1);
-  --htoggle-bg: rgba(0,0,0,0.04);
-  --htoggle-color: #6b6960;
-  --mc-bg: #ffffff;
-  --mc-border: #e0ddd5;
-  --mc-lbl: #9b9a92;
-  --mc-val: #111110;
-  --mc-sub: #9b9a92;
-  --sp-inner: #e0ddd5;
-  --sp-item: #f0ede8;
-  --sp-loja: #111110;
-  --sp-sub: #9b9a92;
-  --sp-empty: #9b9a92;
-  --odd: #ffffff; --even: #f8f7f4; --hover: #e8f5ee;
-  --codd: #f6f5f2; --ceven: #efede9;
+:root{
+  --bg:#f2f0ec;--surface:#fff;--surface2:#f7f5f1;--border:#e0ddd5;--border2:#c8c4bb;
+  --text:#111110;--text2:#5c5a56;--text3:#9b9a92;
+  --teal:#0a5c47;--teal-bg:#e0f5ec;--teal-mid:#158a61;
+  --indigo:#2d3a8c;--indigo-bg:#e0e4f8;
+  --red:#8b1a1a;--red-bg:#fce4e4;
+  --blue:#103d7c;--blue-bg:#dceafa;
+  --font:'Inter',system-ui,sans-serif;
 }
-
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;min-height:100vh;}
 
-/* ── HERO ── */
-.hero-band{background:linear-gradient(135deg,var(--hero-bg1) 0%,var(--hero-bg2) 55%,var(--hero-bg3) 100%);position:sticky;top:0;z-index:101;border-bottom:none;}
-.hero-band::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 140% at 65% 50%,var(--hband-glow) 0%,transparent 70%);pointer-events:none;}
-header{position:relative;max-width:1360px;margin:0 auto;padding:.8rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:16px;}
-.header-left{display:flex;align-items:center;gap:12px;}
-.brand-pill{display:flex;align-items:center;gap:7px;padding:4px 12px;border:1px solid var(--hpill-border);background:var(--hpill-bg);backdrop-filter:blur(6px);}
-.brand-pill.rj{background:linear-gradient(135deg,rgba(180,20,20,.75) 0%,rgba(180,20,20,.75) 30%,rgba(25,35,110,.75) 70%,rgba(25,35,110,.75) 100%);border-color:rgba(255,255,255,0.18);}
-.brand-pill.ml{background:rgba(0,85,190,.65);border-color:rgba(255,255,255,0.18);}
-.brand-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
-.brand-dot.rj{background:#ff6b6b;box-shadow:0 0 6px rgba(255,107,107,.7);}
-.brand-dot.ml{background:#0055be;box-shadow:0 0 5px rgba(0,85,190,.4);}
-.brand-name{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;}
-.brand-pill.rj .brand-name{color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,.4);}
-.brand-pill.rj .brand-name .rj-restaura{color:#ffffff;}
-.brand-pill.rj .brand-name .rj-jeans{color:#ffffff;}
-.brand-pill.ml .brand-name{color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,.3);}
-.header-divider{width:1px;height:24px;background:var(--hdivider);}
-.header-title h1{font-size:13px;font-weight:600;color:var(--htitle-h1);}
-.header-title span{font-size:11px;color:var(--htitle-sub);}
-.header-meta{font-size:11px;color:var(--hmeta);white-space:nowrap;}
-.header-right{display:flex;align-items:center;gap:10px;}
+/* HEADER */
+.topbar{background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;display:flex;align-items:center;padding:0 24px;gap:10px;height:52px;}
+.brand-pill{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;}
+.brand-pill.rj{background:linear-gradient(90deg,rgba(176,18,18,.08),rgba(20,30,100,.08));color:#1a1917;}
+.brand-pill.ml{background:rgba(0,85,190,.07);color:#1a1917;}
+.brand-dot{width:6px;height:6px;border-radius:50%;}
+.brand-dot.rj{background:linear-gradient(135deg,#c0392b,#19236e);}
+.brand-dot.ml{background:#0055be;}
+.divider{width:1px;height:22px;background:var(--border);margin:0 4px;}
+.sys-title{font-size:13px;font-weight:600;color:var(--text);}
+.sys-sub{font-size:11px;color:var(--text3);margin-left:6px;}
+.spacer{flex:1;}
+.topbar-date{font-size:11px;color:var(--text3);margin-right:4px;}
+.btn-save-all{display:flex;align-items:center;gap:5px;font-family:var(--font);font-size:11px;font-weight:600;padding:5px 12px;border:1px solid var(--teal-mid);background:var(--teal-bg);color:var(--teal);border-radius:6px;cursor:pointer;}
+.btn-save-all:hover{background:var(--teal-mid);color:#fff;}
 
-/* ── METRICS BAND ── */
-.metrics-band{background:linear-gradient(135deg,var(--hero-bg1) 0%,var(--hero-bg2) 55%,var(--hero-bg3) 100%);border-bottom:1px solid var(--hband-border);position:relative;}
-.metrics-band::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 140% at 65% 50%,var(--hband-glow) 0%,transparent 70%);pointer-events:none;}
-.metrics-inner{position:relative;max-width:1360px;margin:0 auto;padding:.9rem 2rem 1.3rem;display:grid;grid-template-columns:4fr 8fr;gap:10px;align-items:stretch;}
-.metrics-left{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:8px;}
-.metrics-right{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+/* PAGE NAV */
+.page-nav{background:#fff;border-bottom:1px solid var(--border);position:sticky;top:52px;z-index:99;display:flex;padding:0 24px;}
+.pnav-btn{font-family:var(--font);font-size:12px;font-weight:500;padding:10px 14px;border:none;background:transparent;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;display:flex;align-items:center;gap:5px;transition:color .15s;}
+.pnav-btn:hover{color:var(--text2);}
+.pnav-btn.on{color:var(--teal-mid);border-bottom-color:var(--teal-mid);font-weight:600;}
+.pnav-btn.disabled{cursor:default;opacity:.4;}
 
-/* stat cards */
-.metric{padding:15px 17px;background:var(--mc-bg);border:1px solid var(--mc-border);backdrop-filter:blur(8px);display:flex;flex-direction:column;justify-content:space-between;}
-.metric .lbl{font-size:9px;font-weight:600;color:var(--mc-lbl);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
-.metric .val{font-size:30px;font-weight:700;line-height:1;color:var(--mc-val);}
-.metric .sub{font-size:10px;color:var(--mc-sub);margin-top:4px;}
-.metric .val.green{color:var(--teal-mid);}
-.metric .val.amber{color:#4f5fc4;}
-.metric .val.blue{color:var(--blue);}
-.metric .val.purple{color:var(--purple);}
+/* CONTENT */
+.content{max-width:1360px;margin:0 auto;padding:20px 24px 60px;}
 
-/* spotlight */
-.spotlight{background:var(--mc-bg);border:1px solid var(--mc-border);backdrop-filter:blur(8px);display:flex;flex-direction:column;overflow:hidden;}
-.spotlight-hdr{padding:9px 15px 8px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--sp-inner);}
-.s-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
-.s-dot.gl{background:#e05555;box-shadow:0 0 5px rgba(224,85,85,.6);}
-.s-dot.pgl{background:#f5a623;box-shadow:0 0 5px rgba(245,166,35,.6);}
-.s-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--mc-lbl);}
-.spotlight-item{display:flex;align-items:center;justify-content:space-between;padding:10px 15px;gap:8px;border-bottom:1px solid var(--sp-item);flex:1;}
-.spotlight-item:last-child{border-bottom:none;}
-.s-loja{font-size:12px;font-weight:600;color:var(--sp-loja);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.s-loja small{display:block;font-size:10px;font-weight:400;color:var(--sp-sub);margin-top:1px;}
-.s-date{font-size:12px;font-weight:700;white-space:nowrap;flex-shrink:0;}
-.s-date.gl{color:#c0392b;} .s-date.pgl{color:#4f5fc4;}
-.spotlight-empty{padding:13px 15px;font-size:11px;color:var(--sp-empty);font-style:italic;}
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+.stat{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.stat .lbl{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
+.stat .val{font-size:28px;font-weight:700;color:var(--text);line-height:1;}
+.stat .sub{font-size:11px;color:var(--text3);margin-top:3px;}
+.val.g{color:var(--teal-mid);}.val.i{color:var(--indigo);}.val.b{color:var(--blue);}
 
-/* ── MAIN ── */
-main{max-width:1360px;margin:0 auto;padding:1.5rem 2rem 3rem;}
-.toolbar{display:flex;gap:7px;margin-bottom:1rem;align-items:center;flex-wrap:wrap;}
-.toolbar input,.toolbar select{font-family:var(--font);font-size:12px;padding:6px 10px;border:1px solid var(--border2);background:var(--surface);color:var(--text);outline:none;transition:border .15s;}
-.toolbar input:focus,.toolbar select:focus{border-color:var(--teal-mid);}
-.toolbar input{width:180px;}
-.tabs{display:flex;background:var(--surface2);border:1px solid var(--border);overflow:hidden;}
-.tab{font-family:var(--font);font-size:12px;font-weight:500;padding:6px 13px;border:none;background:transparent;cursor:pointer;color:var(--text2);transition:background .15s,color .15s;}
-.tab.on{background:var(--surface);color:var(--text);}
-.btn-add{margin-left:auto;font-family:var(--font);font-size:12px;font-weight:600;padding:6px 15px;border:1px solid var(--teal-mid);background:var(--teal-bg);color:var(--teal);cursor:pointer;}
+/* SPOTLIGHT */
+.spot-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.spot-card{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.spot-hdr{padding:8px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px;}
+.spot-dot{width:6px;height:6px;border-radius:50%;}
+.spot-ttl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);}
+.spot-item{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid #f7f5f1;gap:8px;}
+.spot-item:last-child{border-bottom:none;}
+.spot-name{font-size:12px;font-weight:600;color:var(--text);}
+.spot-name small{display:block;font-size:10px;font-weight:400;color:var(--text3);margin-top:1px;}
+.spot-date{font-size:12px;font-weight:700;white-space:nowrap;}
+.spot-empty{padding:11px 14px;font-size:11px;color:var(--text3);font-style:italic;}
+
+/* TOOLBAR */
+.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:14px;}
+.view-tabs{display:flex;background:var(--surface2);border:1px solid var(--border);border-radius:7px;overflow:hidden;}
+.vtab{font-family:var(--font);font-size:11px;font-weight:500;padding:6px 12px;border:none;background:transparent;cursor:pointer;color:var(--text2);}
+.vtab.on{background:#fff;color:var(--text);}
+input.tb,select.tb{font-family:var(--font);font-size:12px;padding:6px 10px;border:1px solid var(--border2);background:#fff;color:#111110;border-radius:6px;outline:none;caret-color:#111110;}
+input.tb{width:180px;color:#111110;}
+input.tb:focus,select.tb:focus{border-color:var(--teal-mid);}
+.btn-sm{font-family:var(--font);font-size:11px;padding:5px 10px;border:1px solid var(--border2);background:#fff;color:var(--text2);border-radius:6px;cursor:pointer;}
+.btn-sm:hover{background:var(--surface2);}
+.btn-add{margin-left:auto;font-family:var(--font);font-size:12px;font-weight:600;padding:6px 14px;border:1px solid var(--teal-mid);background:var(--teal-bg);color:var(--teal);border-radius:6px;cursor:pointer;}
 .btn-add:hover{background:var(--teal-mid);color:#fff;}
-.btn-export{font-family:var(--font);font-size:12px;padding:6px 12px;border:1px solid var(--border2);background:var(--surface);color:var(--text2);cursor:pointer;display:inline-flex;align-items:center;gap:4px;}
-.btn-export:hover{background:var(--surface2);}
 
-/* ── TABLE ── */
-.table-wrap{background:var(--surface);border:1px solid var(--border);overflow:hidden;}
-table{width:100%;border-collapse:collapse;font-size:12px;}
-thead th{background:var(--surface2);padding:8px 11px;text-align:left;font-weight:600;font-size:10px;color:var(--text2);border-bottom:1px solid var(--border);white-space:nowrap;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;user-select:none;}
-thead th:hover{background:var(--border);}
-thead th.sorted .sa{color:var(--teal-mid);opacity:1;}
-.sa{font-size:9px;margin-left:3px;opacity:.3;}
-tbody tr{border-bottom:1px solid var(--border);transition:background .08s;cursor:pointer;}
-tbody tr:nth-child(odd){background:var(--odd);}
-tbody tr:nth-child(even){background:var(--even);}
-tbody tr:last-child{border-bottom:none;}
-tbody tr:hover{background:var(--hover)!important;}
-tbody tr.overdue{border-left:3px solid #e05555;}
-tbody tr.overdue td:first-child{padding-left:9px;}
-td{padding:8px 11px;vertical-align:middle;}
-td.loja-cell{font-weight:600;min-width:130px;}
-td.loja-cell .sub{font-size:10px;font-weight:400;color:var(--text3);}
-td.num-cell{color:var(--text3);font-size:11px;white-space:nowrap;}
-td.obs-cell{color:var(--text3);font-size:11px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-td.days-cell{font-size:11px;white-space:nowrap;font-weight:600;}
-td.days-cell.overdue{color:#e05555;}
-td.days-cell.soon{color:#6366f1;}
-td.days-cell.ok{color:var(--teal-mid);}
-td.days-cell.none{color:var(--text3);font-weight:400;}
+/* KANBAN */
+.kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:start;}
+.kb-col{background:#f0ede8;border-radius:10px;padding:10px;}
+.kb-col-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
+.kb-col-name{font-size:11px;font-weight:600;color:var(--text2);}
+.kb-col-cnt{font-size:10px;background:#fff;border:1px solid var(--border);border-radius:20px;padding:1px 7px;color:var(--text3);}
+.kb-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 11px;margin-bottom:6px;cursor:pointer;transition:border-color .12s;}
+.kb-card:last-child{margin-bottom:0;}
+.kb-card:hover{border-color:var(--teal-mid);}
+.kb-card.overdue{border-left:3px solid #c0392b;}
+.kb-name{font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px;}
+.kb-meta{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:5px;}
+.kb-date{font-size:10px;color:var(--text3);}
+.kb-date.today{color:var(--teal-mid);font-weight:700;}
+.kb-prog{height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.kb-prog-f{height:100%;background:var(--teal-mid);}
+.kb-empty{padding:10px;text-align:center;font-size:11px;color:var(--text3);}
 
-/* BADGE */
-.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 8px;white-space:nowrap;letter-spacing:.02em;}
+/* TAGS */
+.tag-rj{font-size:9px;font-weight:700;padding:1px 5px;background:linear-gradient(90deg,#b41414,#19236e);color:#fff;}
+.tag-ml{font-size:9px;font-weight:700;padding:1px 5px;background:#0055be;color:#fff;}
+.tag-mega{font-size:9px;font-weight:700;padding:1px 5px;background:#0a5c47;color:#fff;}
+.tag-resp{font-size:9px;font-weight:600;padding:1px 6px;background:var(--indigo-bg);color:var(--indigo);border-radius:3px;}
+.badge{display:inline-flex;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;}
+.badge.aberto{background:var(--indigo-bg);color:var(--indigo);}
 .badge.agendado{background:var(--teal-bg);color:var(--teal);}
-.badge.aberto{background:var(--amber-bg);color:var(--amber);}
 .badge.concluido{background:var(--blue-bg);color:var(--blue);}
 
-/* RESPONSIBLE badge */
-.resp-badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 7px;background:var(--purple-bg);color:var(--purple);white-space:nowrap;}
+/* TABLE */
+.table-wrap{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead th{background:var(--surface2);padding:8px 11px;text-align:left;font-weight:600;font-size:10px;color:var(--text3);border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.05em;cursor:pointer;white-space:nowrap;}
+thead th.sorted .sa{color:var(--teal-mid);opacity:1;}
+.sa{font-size:9px;margin-left:3px;opacity:.3;}
+tbody tr{border-bottom:1px solid var(--border);cursor:pointer;}
+tbody tr:nth-child(odd){background:#fff;}
+tbody tr:nth-child(even){background:#faf9f6;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:#eef9f4!important;}
+tbody tr.over{border-left:3px solid #c0392b;}
+td{padding:8px 11px;vertical-align:middle;}
+td.lc{font-weight:600;}
+td.lc .sub{font-size:10px;font-weight:400;color:var(--text3);}
+td.nc,td.oc{color:var(--text3);font-size:11px;}
+td.oc{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.flow-dots{display:flex;gap:2px;}
+.fd{width:11px;height:11px;border-radius:2px;border:1.5px solid var(--border2);background:#fff;}
+.fd.done{background:var(--teal-mid);border-color:var(--teal-mid);}
+.fd.next{border-color:var(--indigo);}
+.days-ok{color:var(--teal-mid);font-weight:600;font-size:11px;}
+.days-near{color:var(--indigo);font-weight:600;font-size:11px;}
+.days-over{color:#c0392b;font-weight:600;font-size:11px;}
+.days-none{color:var(--text3);font-size:11px;}
 
-/* FLOW */
-.flow{display:flex;align-items:center;}
-.step{display:flex;align-items:center;}
-.step-box{width:20px;height:20px;border:2px solid var(--border2);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s;flex-shrink:0;}
-.step-box.done{background:var(--teal-mid);border-color:var(--teal-mid);color:#fff;}
-.step-box.locked{background:var(--surface2);border-color:var(--border);color:var(--text3);cursor:not-allowed;}
-.step-box.next{border-color:var(--amber-mid);background:var(--amber-bg);color:var(--amber);}
-.step-connector{width:8px;height:2px;background:var(--border2);flex-shrink:0;}
-.step-connector.done{background:var(--teal-mid);}
-
-/* PROGRESS */
-.prog-wrap{display:none;}
-
-/* FASE VIEW */
+/* FASE */
 .fase-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.fase-card{background:var(--surface);border:1px solid var(--border);overflow:hidden;}
+.fase-card{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
 .fase-hdr{padding:9px 13px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-.fase-hdr .ftitle{font-size:12px;font-weight:600;}
-.fase-hdr .fcounts{font-size:10px;color:var(--text3);}
+.fase-hdr .ft{font-size:12px;font-weight:600;}
+.fase-hdr .fc{font-size:10px;color:var(--text3);}
 .fase-row{display:flex;align-items:center;justify-content:space-between;padding:7px 13px;border-bottom:1px solid var(--border);font-size:11px;}
 .fase-row:last-child{border-bottom:none;}
 .fase-row .fn{font-weight:500;}
 .fase-sem{padding:7px 13px;font-size:11px;color:var(--text3);font-style:italic;}
 
+/* TIMELINE */
+.tl-month{margin-bottom:1.25rem;}
+.tl-hdr{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);padding-bottom:6px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+.tl-item{display:flex;align-items:center;gap:12px;padding:8px 12px;background:#fff;border:1px solid var(--border);border-radius:8px;margin-bottom:6px;cursor:pointer;}
+.tl-item:hover{border-color:var(--teal-mid);}
+.tl-dt{width:44px;font-size:13px;font-weight:700;flex-shrink:0;}
+.tl-name{flex:1;font-size:12px;font-weight:600;}
+.tl-name small{display:block;font-size:10px;font-weight:400;color:var(--text3);}
+
 /* CONCLUDED */
-.concluded-section{margin-top:2rem;}
-.concluded-toggle{display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 0 8px;border-top:1px solid var(--border);user-select:none;}
-.concluded-toggle .ct-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;}
-.concluded-toggle .ct-count{font-size:10px;background:var(--blue-bg);color:var(--blue);padding:2px 8px;font-weight:600;}
-.concluded-toggle .ct-arrow{font-size:11px;color:var(--text3);margin-left:auto;transition:transform .2s;}
-.concluded-toggle.open .ct-arrow{transform:rotate(180deg);}
-.concluded-body{display:none;}
-.concluded-body.open{display:block;}
-.concluded-table tbody tr:nth-child(odd){background:var(--codd);}
-.concluded-table tbody tr:nth-child(even){background:var(--ceven);}
-.concluded-table td{color:var(--text3);}
-.concluded-table td.loja-cell{color:var(--text2);}
+.conc-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;padding:9px 0;border-top:1px solid var(--border);margin-top:1.5rem;user-select:none;}
+.conc-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;}
+.conc-cnt{font-size:10px;background:var(--blue-bg);color:var(--blue);padding:1px 7px;border-radius:20px;font-weight:600;}
+.conc-arrow{font-size:10px;color:var(--text3);margin-left:auto;transition:transform .2s;}
+.conc-toggle.open .conc-arrow{transform:rotate(180deg);}
+.conc-body{display:none;}
+.conc-body.open{display:block;}
+.conc-table tbody tr:nth-child(odd){background:#f7f6f3;}
+.conc-table tbody tr:nth-child(even){background:#f1efeb;}
+.conc-table td{color:var(--text3);}
+.conc-table td.lc{color:var(--text2);}
+
+/* DB */
+.db-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+.db-stat{background:#fff;border:1px solid var(--border);border-radius:10px;padding:13px 15px;}
+.db-stat .lbl{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+.db-stat .val{font-size:24px;font-weight:700;}
+.rede-rj{display:inline-flex;font-size:10px;font-weight:700;padding:2px 8px;background:linear-gradient(135deg,rgba(180,20,20,1) 30%,rgba(25,35,110,1) 70%);color:#fff;}
+.rede-ml{display:inline-flex;font-size:10px;font-weight:700;padding:2px 8px;background:#0055be;color:#fff;}
+.rede-mega{display:inline-flex;font-size:10px;font-weight:700;padding:2px 8px;background:#0a5c47;color:#fff;}
+.status-db{display:inline-flex;font-size:10px;font-weight:700;padding:2px 8px;}
+.status-db.antigo{background:#f0ede8;color:#6b6960;}
+.status-db.transicao{background:var(--indigo-bg);color:var(--indigo);}
+.status-db.ativo{background:var(--teal-bg);color:var(--teal);}
+.rede-toggle{display:flex;border:1px solid var(--border2);border-radius:6px;overflow:hidden;}
+.rede-opt{font-family:var(--font);font-size:12px;font-weight:500;padding:6px 12px;border:none;background:transparent;cursor:pointer;color:var(--text2);}
+.rede-opt.on{background:var(--teal-mid);color:#fff;}
 
 /* MODAL */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;}
 .overlay.open{display:flex;}
-.modal{background:var(--surface);width:660px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 12px 50px rgba(0,0,0,.25);}
-.mhdr{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-.mhdr h2{font-size:15px;font-weight:700;}
-.mhdr .xbtn{font-size:22px;cursor:pointer;color:var(--text3);border:none;background:none;line-height:1;padding:0 5px;}
-.mhdr .xbtn:hover{background:var(--surface2);}
-.mbody{padding:20px;}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:16px;}
+.modal{background:#fff;width:620px;max-width:96vw;max-height:92vh;overflow-y:auto;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,.15);}
+.mhdr{padding:16px 20px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.mhdr h2{font-size:14px;font-weight:700;}
+.xbtn{font-size:20px;cursor:pointer;color:var(--text3);border:none;background:none;line-height:1;padding:0 5px;border-radius:4px;}
+.xbtn:hover{background:var(--surface2);}
+.mbody{padding:18px 20px;}
+.fg-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:14px;}
 .fg{display:flex;flex-direction:column;gap:4px;}
 .fg.full{grid-column:1/-1;}
 .fg label{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;}
-.fg input,.fg select{font-family:var(--font);font-size:12px;padding:7px 9px;border:1px solid var(--border2);background:var(--surface);color:var(--text);outline:none;transition:border .15s;}
+.fg input,.fg select{font-family:var(--font);font-size:12px;padding:7px 9px;border:1px solid var(--border2);background:#fff;color:var(--text);border-radius:6px;outline:none;}
 .fg input:focus,.fg select:focus{border-color:var(--teal-mid);}
-.fg textarea{font-family:var(--font);font-size:12px;padding:9px 11px;border:1px solid var(--border2);background:var(--surface);color:var(--text);outline:none;resize:vertical;min-height:140px;line-height:1.65;transition:border .15s;}
+.fg textarea{font-family:var(--font);font-size:12px;padding:8px 10px;border:1px solid var(--border2);background:#fff;color:var(--text);border-radius:6px;outline:none;resize:vertical;min-height:80px;line-height:1.55;}
 .fg textarea:focus{border-color:var(--teal-mid);}
-.log-entry{font-size:12px;line-height:1.6;padding:8px 0;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:4px;}
+/* log */
+.log-sec{border:1px solid var(--border);min-height:120px;max-height:220px;overflow-y:auto;padding:4px 10px;margin-top:5px;background:var(--surface2);border-radius:6px;}
+.log-entry{font-size:11px;line-height:1.6;padding:7px 0;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:3px;}
 .log-entry:last-child{border-bottom:none;}
 .log-ts{font-size:10px;color:var(--text3);font-weight:600;}
-.log-text{color:var(--text2);}
-.log-entry-actions{display:flex;gap:6px;margin-top:2px;}
-.log-btn{font-family:var(--font);font-size:10px;padding:2px 8px;border:1px solid var(--border2);background:transparent;color:var(--text3);cursor:pointer;}
-.log-btn:hover{background:var(--surface2);color:var(--text);}
-.log-btn.del:hover{background:var(--red-bg);color:var(--red);border-color:var(--red-bg);}
-.log-edit-area{font-family:var(--font);font-size:12px;padding:6px 8px;border:1px solid var(--teal-mid);background:var(--surface);color:var(--text);resize:vertical;min-height:52px;width:100%;line-height:1.5;outline:none;}
-.log-section{border:1px solid var(--border);min-height:160px;max-height:260px;overflow-y:auto;padding:4px 10px;margin-top:6px;background:var(--surface2);}
-.add-note-row{display:flex;gap:6px;margin-top:8px;}
-.add-note-row textarea{flex:1;font-family:var(--font);font-size:12px;padding:7px 9px;border:1px solid var(--border2);background:var(--surface);color:var(--text);outline:none;resize:none;min-height:56px;line-height:1.5;}
-.add-note-row textarea:focus{border-color:var(--teal-mid);}
-.btn-note{font-family:var(--font);font-size:11px;font-weight:600;padding:7px 12px;border:1px solid var(--teal-mid);background:var(--teal-bg);color:var(--teal);cursor:pointer;white-space:nowrap;align-self:flex-end;}
+.log-txt{color:var(--text2);}
+.log-acts{display:flex;gap:5px;margin-top:2px;}
+.lbtn{font-family:var(--font);font-size:10px;padding:2px 7px;border:1px solid var(--border2);background:transparent;color:var(--text3);border-radius:4px;cursor:pointer;}
+.lbtn:hover{background:var(--surface2);color:var(--text);}
+.lbtn.del:hover{background:var(--red-bg);color:var(--red);border-color:var(--red-bg);}
+.log-edit-area{font-family:var(--font);font-size:11px;padding:5px 8px;border:1px solid var(--teal-mid);background:#fff;color:var(--text);resize:vertical;min-height:46px;width:100%;border-radius:4px;outline:none;}
+.add-note{display:flex;gap:6px;margin-top:7px;}
+.add-note textarea{flex:1;font-family:var(--font);font-size:12px;padding:6px 8px;border:1px solid var(--border2);background:#fff;color:var(--text);border-radius:6px;resize:none;min-height:46px;outline:none;}
+.add-note textarea:focus{border-color:var(--teal-mid);}
+.btn-note{font-family:var(--font);font-size:11px;font-weight:600;padding:6px 11px;border:1px solid var(--teal-mid);background:var(--teal-bg);color:var(--teal);border-radius:6px;cursor:pointer;align-self:flex-end;white-space:nowrap;}
 .btn-note:hover{background:var(--teal-mid);color:#fff;}
-.flow-section{margin-bottom:18px;}
-.flow-section-title{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:9px;}
-.flow-steps-modal{display:flex;flex-direction:column;gap:0;border:1px solid var(--border);overflow:hidden;}
-.fstep{display:flex;align-items:flex-start;gap:11px;padding:11px 14px;border-bottom:1px solid var(--border);transition:background .15s;}
+/* flow */
+.flow-sec{margin-bottom:16px;}
+.flow-sec-title{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;}
+.flow-steps{border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.fstep{display:flex;align-items:flex-start;gap:10px;padding:10px 13px;border-bottom:1px solid var(--border);}
 .fstep:last-child{border-bottom:none;}
-.fstep.done-step{background:#eef9f4;}
-.fstep.locked-step{background:var(--surface2);opacity:.55;}
-.fstep.next-step{background:#f0f1fc;}
-.fstep-check{margin-top:1px;flex-shrink:0;}
-.fstep-check input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--teal-mid);}
-.fstep-check input[type=checkbox]:disabled{cursor:not-allowed;}
+.fstep.done{background:#f0faf5;}
+.fstep.locked{background:var(--surface2);opacity:.55;}
+.fstep.next{background:#f5f7ff;}
+.fstep-chk{margin-top:1px;flex-shrink:0;}
+.fstep-chk input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--teal-mid);}
+.fstep-chk input:disabled{cursor:not-allowed;}
 .fstep-info{flex:1;}
-.fstep-label{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:6px;}
-.step-num{font-size:9px;font-weight:700;background:var(--surface2);border:1px solid var(--border);color:var(--text3);padding:1px 5px;}
+.fstep-label{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:5px;}
+.step-num{font-size:9px;font-weight:700;background:var(--surface2);border:1px solid var(--border);color:var(--text3);padding:1px 5px;border-radius:3px;}
 .lock-msg{font-size:10px;font-weight:400;color:var(--text3);font-style:italic;}
-.fstep-date input{font-family:var(--font);font-size:11px;padding:4px 8px;border:1px solid var(--border2);background:var(--surface);color:var(--text);outline:none;width:180px;}
+.fstep-date input{font-family:var(--font);font-size:11px;padding:4px 8px;border:1px solid var(--border2);background:#fff;color:var(--text);border-radius:5px;outline:none;width:180px;}
 .fstep-date input:focus{border-color:var(--teal-mid);}
 .fstep-date input:disabled{background:var(--surface2);color:var(--text3);cursor:not-allowed;}
-.mfooter{padding:11px 20px 17px;display:flex;gap:7px;justify-content:flex-end;border-top:1px solid var(--border);}
-.btn-save{font-family:var(--font);font-size:12px;font-weight:600;padding:7px 20px;border:none;background:var(--teal-mid);color:#fff;cursor:pointer;}
+/* footer */
+.mfooter{padding:10px 20px 16px;display:flex;gap:7px;justify-content:flex-end;border-top:1px solid var(--border);}
+.btn-save{font-family:var(--font);font-size:12px;font-weight:600;padding:7px 20px;border:none;border-radius:6px;background:var(--teal-mid);color:#fff;cursor:pointer;}
 .btn-save:hover{background:var(--teal);}
-.btn-cancel{font-family:var(--font);font-size:12px;padding:7px 14px;border:1px solid var(--border2);background:var(--surface);color:var(--text2);cursor:pointer;}
-.btn-del{font-family:var(--font);font-size:12px;padding:7px 14px;border:1px solid var(--red-bg);background:var(--red-bg);color:var(--red);cursor:pointer;margin-right:auto;}
+.btn-cancel{font-family:var(--font);font-size:12px;padding:7px 14px;border:1px solid var(--border2);background:#fff;color:var(--text2);border-radius:6px;cursor:pointer;}
+.btn-del{font-family:var(--font);font-size:12px;padding:7px 14px;border:1px solid var(--red-bg);background:var(--red-bg);color:var(--red);border-radius:6px;cursor:pointer;margin-right:auto;}
+.del-confirm{display:flex;gap:6px;align-items:center;margin-top:4px;}
 .no-results{padding:3rem;text-align:center;color:var(--text3);}
 
-@media(max-width:900px){
-  .metrics-inner{grid-template-columns:1fr;padding:0 1rem 1rem;}
-  .fase-grid{grid-template-columns:1fr;}
-  .db-stats{grid-template-columns:repeat(2,1fr);}
-  main{padding:1rem;}
-  header{padding:.75rem 1rem;}
-  .page-nav-inner{padding:0 1rem;}
+@media(max-width:800px){
+  .stats-row,.db-stats{grid-template-columns:repeat(2,1fr);}
+  .spot-row,.kanban,.fase-grid{grid-template-columns:1fr;}
+  .content{padding:12px;}
 }
-
-/* ── PAGE NAV ── */
-.page-nav-band{background:linear-gradient(135deg,var(--hero-bg1) 0%,var(--hero-bg2) 55%,var(--hero-bg3) 100%);border-bottom:1px solid var(--hband-border);position:sticky;z-index:100;}
-.page-nav-inner{max-width:1360px;margin:0 auto;padding:0 2rem;display:flex;gap:0;}
-.page-tab{font-family:var(--font);font-size:12px;font-weight:500;padding:10px 18px;border:none;background:transparent;cursor:pointer;color:var(--text2);display:flex;align-items:center;gap:6px;border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .15s,border-color .15s;}
-.page-tab:hover{color:var(--text);}
-.page-tab.on{color:var(--teal);border-bottom-color:var(--teal);font-weight:600;}
-.page-tab.disabled{cursor:default;opacity:.45;}
-
-/* ── DATABASE ── */
-.db-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1.25rem;}
-.db-stat{background:var(--surface);border:1px solid var(--border);padding:13px 15px;}
-.db-stat .lbl{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
-.db-stat .val{font-size:24px;font-weight:700;color:var(--text);}
-.db-stat .val.green{color:var(--teal-mid);}
-.db-stat .val.indigo{color:#4f5fc4;}
-.db-stat .val.gray{color:var(--text3);}
-.db-stat .sub{font-size:10px;color:var(--text3);margin-top:3px;}
-.db-toolbar{display:flex;gap:7px;margin-bottom:1rem;align-items:center;flex-wrap:wrap;}
-.db-toolbar input,.db-toolbar select{font-family:var(--font);font-size:12px;padding:6px 10px;border:1px solid var(--border2);background:var(--surface);color:var(--text);outline:none;}
-.db-toolbar input:focus,.db-toolbar select:focus{border-color:var(--teal-mid);}
-.db-toolbar input{width:200px;}
-.rede-rj{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:3px 9px;background:linear-gradient(135deg,rgba(180,20,20,1) 0%,rgba(180,20,20,1) 30%,rgba(25,35,110,1) 70%,rgba(25,35,110,1) 100%);color:#ffffff;letter-spacing:.04em;}
-.rede-ml{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:3px 9px;background:rgba(0,85,190,1);color:#ffffff;letter-spacing:.04em;}
-.rede-mega{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:3px 9px;background:#0a5c47;color:#ffffff;letter-spacing:.04em;}
-.btn-save-all{display:flex;align-items:center;gap:6px;padding:5px 13px;border:1px solid rgba(21,138,97,0.35);background:rgba(21,138,97,0.1);backdrop-filter:blur(6px);cursor:pointer;font-family:var(--font);font-size:11px;font-weight:600;color:#0a5c47;letter-spacing:.03em;transition:background .2s;}
-.btn-save-all:hover{background:var(--teal-mid);color:#fff;}
-.status-db{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 8px;}
-.status-db.antigo{background:#f0ede8;color:#6b6960;}
-.status-db.transicao{background:#e0e4f8;color:#2d3a8c;}
-.status-db.ativo{background:var(--teal-bg);color:var(--teal);}
-.rede-toggle{display:flex;gap:0;border:1px solid var(--border2);overflow:hidden;width:fit-content;}
-.rede-opt{font-family:var(--font);font-size:12px;font-weight:500;padding:6px 16px;border:none;background:transparent;cursor:pointer;color:var(--text2);transition:background .15s,color .15s;}
-.rede-opt.on{background:var(--teal-mid);color:#fff;}
 </style>
 </head>
 <body>
 
-<div class="hero-band">
-  <header>
-    <div class="header-left">
-      <div class="brand-pill rj"><div class="brand-dot rj"></div><span class="brand-name"><span class="rj-restaura">Restaura</span> <span class="rj-jeans">Jeans</span></span></div>
-      <div class="brand-pill ml"><div class="brand-dot ml"></div><span class="brand-name">Minha Lavanderia</span></div>
-      <div class="header-divider"></div>
-      <div class="header-title">
-        <h1>Controle de Go-Lives</h1>
-        <span>Implantações em andamento</span>
+<div class="topbar">
+  <div class="brand-pill rj"><div class="brand-dot rj"></div><span class="rj-r">RESTAURA</span>&nbsp;<span class="rj-j">JEANS</span></div>
+  <div class="brand-pill ml"><div class="brand-dot ml"></div>MINHA LAVANDERIA</div>
+  <div class="divider"></div>
+  <span class="sys-title">Presence Control</span>
+  <span class="sys-sub">Implantações em andamento</span>
+  <div class="spacer"></div>
+  <span class="topbar-date" id="hdate"></span>
+  <button class="btn-save-all" onclick="saveAll()">↓ Salvar tudo</button>
+</div>
+
+<nav class="page-nav">
+  <button class="pnav-btn on" id="pnav-gl" onclick="setPage('gl')">⚡ Go-Live</button>
+  <button class="pnav-btn" id="pnav-db" onclick="setPage('db')">🏪 Lojas</button>
+  <button class="pnav-btn disabled">? Suporte <small style="font-size:9px;opacity:.5">em breve</small></button>
+</nav>
+
+<div class="content" id="content"></div>
+
+<!-- MODAL DB -->
+<div class="overlay" id="ov-db" onclick="if(event.target===this)closeDbModal()">
+<div class="modal">
+  <div class="mhdr"><h2 id="db-mtitle">Nova loja</h2><button class="xbtn" onclick="closeDbModal()">×</button></div>
+  <div class="mbody">
+    <input type="hidden" id="db-idx" value="-1">
+    <div class="fg-grid">
+      <div class="fg"><label>Nome da loja</label><input id="db-nome" placeholder="Ex: CURITIBA"></div>
+      <div class="fg"><label>Nº da loja</label><input id="db-num" placeholder="Ex: 2350"></div>
+      <div class="fg full"><label>Rede</label>
+        <div class="rede-toggle">
+          <button class="rede-opt on" id="db-rj" onclick="setRede('rj')">Restaura Jeans</button>
+          <button class="rede-opt" id="db-ml" onclick="setRede('ml')">Minha Lavanderia</button>
+          <button class="rede-opt" id="db-both" onclick="setRede('both')">Ambas (MEGA)</button>
+        </div>
+        <input type="hidden" id="db-rede" value="rj">
       </div>
-    </div>
-    <div class="header-right">
-      <div class="header-meta" id="hdate"></div>
-      <button class="btn-save-all" onclick="saveAll()" title="Salvar tudo">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Salvar tudo
-      </button>
-      
-    </div>
-  </header>
-</div>
-
-<!-- PAGE NAV -->
-<div class="page-nav-band">
-  <div class="page-nav-inner">
-    <button class="page-tab on" id="ptab-gl" onclick="setPage('gl')">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-      Go-Live
-    </button>
-    <button class="page-tab" id="ptab-db" onclick="setPage('db')">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-6h16l1 6"/><path d="M3 9a2 2 0 0 0 2 2 2 2 0 0 0 2-2 2 2 0 0 0 2 2 2 2 0 0 0 2-2 2 2 0 0 0 2 2 2 2 0 0 0 2-2"/><path d="M5 11v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8"/><line x1="9" y1="21" x2="9" y2="15"/><line x1="15" y1="21" x2="15" y2="15"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-      Lojas
-    </button>
-    <button class="page-tab disabled" id="ptab-sup" title="Em breve">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      Suporte <span style="font-size:9px;opacity:.5;margin-left:3px">em breve</span>
-    </button>
-  </div>
-</div>
-
-<div class="metrics-band">
-  <div class="metrics-inner" id="metrics"></div>
-</div>
-
-<main>
-  <div class="toolbar">
-    <div class="tabs">
-      <button class="tab on" onclick="setView('lista')" id="tab-lista">Lista</button>
-      <button class="tab" onclick="setView('fase')" id="tab-fase">Por fase</button>
-      <button class="tab" onclick="setView('timeline')" id="tab-tl">Timeline</button>
-    </div>
-    <input type="text" id="q-busca" placeholder="Buscar loja, franqueado..." oninput="render()" />
-    <select id="q-status" onchange="render()">
-      <option value="">Todos os status</option>
-      <option value="agendado">Cronograma</option>
-      <option value="aberto">Aguardando</option>
-      <option value="concluido">Go-Live Finalizado</option>
-    </select>
-    <select id="q-resp" onchange="render()">
-      <option value="">Todos os consultores</option>
-    </select>
-    <select id="q-mes" onchange="render()">
-      <option value="">Todos os meses</option>
-      <option value="4">Maio/2026</option>
-      <option value="5">Junho/2026</option>
-      <option value="6">Julho/2026</option>
-    </select>
-    <button class="btn-export" onclick="exportCSV()"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>CSV</button>
-    <button class="btn-export" onclick="saveJSON()"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Salvar</button>
-    <button class="btn-export" onclick="document.getElementById('json-input').click()"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Carregar</button>
-    <input type="file" id="json-input" accept=".json" style="display:none" onchange="loadJSON(event)">
-    <button class="btn-add" onclick="openModal()">+ Nova loja</button>
-  </div>
-  <div id="main-content"></div>
-</main>
-
-<!-- MODAL DATABASE -->
-<div class="overlay" id="overlay-db" onclick="closeDbOut(event)">
-  <div class="modal" style="width:480px;">
-    <div class="mhdr">
-      <h2 id="db-mtitle">Nova loja</h2>
-      <button class="xbtn" onclick="closeDbModal()">×</button>
-    </div>
-    <div class="mbody">
-      <input type="hidden" id="db-idx" value="-1">
-      <div class="form-grid">
-        <div class="fg"><label>Nome da loja</label><input id="db-nome" placeholder="Ex: CURITIBA"></div>
-        <div class="fg"><label>Nº da loja</label><input id="db-num" placeholder="Ex: 2350"></div>
-        <div class="fg full"><label>Rede</label>
-          <div class="rede-toggle">
-            <button class="rede-opt on" id="db-rj" onclick="setRede('rj')">Restaura Jeans</button>
-            <button class="rede-opt" id="db-ml" onclick="setRede('ml')">Minha Lavanderia</button>
-            <button class="rede-opt" id="db-both" onclick="setRede('both')">Ambas (MEGA)</button>
-          </div>
-          <input type="hidden" id="db-rede" value="rj">
-        </div>
-        <div class="fg full"><label>Status da migração</label>
-          <select id="db-status">
-            <option value="antigo">Sistema Antigo</option>
-            <option value="transicao">Em Transição</option>
-            <option value="ativo">Presence Ativo</option>
-          </select>
-        </div>
-        <div class="fg full"><label>Observações</label>
-          <textarea id="db-obs" style="min-height:80px;" placeholder="Informações adicionais..."></textarea>
-        </div>
-        <div class="fg full" style="flex-direction:row;align-items:center;gap:10px;">
-          <input type="checkbox" id="db-alerta" style="width:16px;height:16px;accent-color:#e05555;cursor:pointer;">
-          <label for="db-alerta" style="font-size:12px;font-weight:500;color:var(--text);cursor:pointer;text-transform:none;letter-spacing:0;">⚠ Dificuldade de contato</label>
-        </div>
+      <div class="fg full"><label>Status</label>
+        <select id="db-status">
+          <option value="antigo">Sistema Antigo / Contrato Pendente</option>
+          <option value="transicao">Em Transição</option>
+          <option value="ativo">Presence Ativo</option>
+        </select>
       </div>
-    </div>
-    <div class="mfooter">
-      <button class="btn-del" id="db-btn-del" onclick="deleteDbLoja()" style="display:none">Excluir</button>
-      <button class="btn-cancel" onclick="closeDbModal()">Cancelar</button>
-      <button class="btn-save" onclick="saveDbLoja()">Salvar</button>
+      <div class="fg full">
+        <input type="checkbox" id="db-alerta" style="width:15px;height:15px;accent-color:#c0392b;cursor:pointer;">
+        <label for="db-alerta" style="font-size:12px;font-weight:500;cursor:pointer;margin-left:6px;text-transform:none;letter-spacing:0;">⚠ Dificuldade de contato</label>
+      </div>
+      <div class="fg full"><label>Observações</label><textarea id="db-obs" style="min-height:70px;" placeholder="Observações..."></textarea></div>
     </div>
   </div>
-</div>
-
-<!-- MODAL -->
-<div class="overlay" id="overlay" onclick="closeOut(event)">
-  <div class="modal">
-    <div class="mhdr">
-      <h2 id="mtitle">Nova loja</h2>
-      <button class="xbtn" onclick="closeModal()">×</button>
-    </div>
-    <div class="mbody">
-      <input type="hidden" id="f-idx" value="-1">
-      <div class="form-grid">
-        <div class="fg"><label>Nome da loja</label><input id="f-loja" placeholder="Ex: CURITIBA CENTRO"></div>
-        <div class="fg"><label>Nº da loja</label><input id="f-num" placeholder="Ex: 2350"></div>
-        <div class="fg"><label>Grupo / Rede</label><input id="f-grupo" placeholder="Ex: Franquias Restaura Jeans"></div>
-        <div class="fg"><label>Franqueado</label><input id="f-franqueado" placeholder="Ex: Milton Silva"></div>
-        <div class="fg"><label>Consultor</label>
-          <select id="f-resp">
-            <option value="">— Sem consultor —</option>
-          </select>
-        </div>
-        <div class="fg"><label>Status</label>
-          <select id="f-status">
-            <option value="aberto">Aguardando</option>
-            <option value="agendado">Cronograma</option>
-            <option value="concluido">Go-Live Finalizado</option>
-          </select>
-        </div>
-        <div class="fg"><label>Data prevista inauguração</label><input id="f-inauguracao" placeholder="DD/MM/AAAA" style="display:none"></div>
-        <div class="fg"><label>Tickets / Chamados</label><input id="f-tickets" placeholder="Ex: #716986 #718239" style="display:none"></div>
-      </div>
-
-      <div class="flow-section">
-        <div class="flow-section-title">Fluxo de implementação</div>
-        <div class="flow-steps-modal" id="flow-steps"></div>
-      </div>
-
-      <div class="fg full" style="margin-bottom:14px;">
-        <label>Histórico de anotações</label>
-        <div class="log-section" id="log-view"></div>
-        <div class="add-note-row">
-          <textarea id="f-note-input" placeholder="Nova anotação..."></textarea>
-          <button class="btn-note" onclick="addNote()">+ Registrar</button>
-        </div>
-      </div>
-    </div>
-    <div class="mfooter">
-      <button class="btn-del" id="btn-del" onclick="deleteLoja()" style="display:none">Excluir loja</button>
-      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
-      <button class="btn-save" onclick="saveLoja()">Salvar</button>
-    </div>
+  <div class="mfooter">
+    <button class="btn-del" id="db-btn-del" onclick="deleteDbLoja()" style="display:none">Excluir</button>
+    <button class="btn-cancel" onclick="closeDbModal()">Cancelar</button>
+    <button class="btn-save" onclick="saveDbLoja()">Salvar</button>
   </div>
 </div>
+</div>
 
+<!-- MODAL GL -->
+<div class="overlay" id="ov-gl" onclick="if(event.target===this)closeModal()">
+<div class="modal">
+  <div class="mhdr"><h2 id="gl-mtitle">Nova loja</h2><button class="xbtn" onclick="closeModal()">×</button></div>
+  <div class="mbody">
+    <input type="hidden" id="f-idx" value="-1">
+    <div class="fg-grid">
+      <div class="fg"><label>Nome da loja</label><input id="f-loja" placeholder="Ex: CURITIBA CENTRO"></div>
+      <div class="fg"><label>Nº da loja</label><input id="f-num" placeholder="Ex: 2350"></div>
+      <div class="fg"><label>Grupo / Rede</label><input id="f-grupo" placeholder="Ex: Franquias Restaura Jeans"></div>
+      <div class="fg"><label>Consultor</label>
+        <select id="f-resp">
+          <option value="">— Sem consultor —</option>
+          <option value="Marcelo">Marcelo</option>
+          <option value="Maiara">Maiara</option>
+          <option value="Glávio">Glávio</option>
+          <option value="Bruno">Bruno</option>
+        </select>
+      </div>
+      <div class="fg"><label>Status</label>
+        <select id="f-status">
+          <option value="aberto">Aguardando</option>
+          <option value="agendado">Cronograma</option>
+          <option value="concluido">Sistema Presence Ativo</option>
+        </select>
+      </div>
+      <div class="fg"></div>
+    </div>
+    <div class="flow-sec">
+      <div class="flow-sec-title">Fluxo de implementação</div>
+      <div class="flow-steps" id="flow-steps"></div>
+    </div>
+    <div class="fg full" style="margin-bottom:14px;">
+      <label>Histórico de anotações</label>
+      <div class="log-sec" id="log-view"></div>
+      <div class="add-note">
+        <select id="f-note-type" class="tb" style="width:130px;align-self:flex-start"><option>Geral</option><option>Contato</option><option>Contrato</option><option>Instalação</option><option>Treinamento</option><option>Go-live</option><option>Pendência</option><option>Franqueadora</option><option>Suporte</option></select>
+        <textarea id="f-note" placeholder="Nova anotação..."></textarea>
+        <button class="btn-note" onclick="addNote()">+ Registrar</button>
+      </div>
+    </div>
+  </div>
+  <div class="mfooter">
+    <button class="btn-del" id="f-btn-del" onclick="deleteLoja()" style="display:none">Excluir</button>
+    <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+    <button class="btn-save" onclick="saveLoja()">Salvar</button>
+  </div>
+</div>
+</div>
+
+<input type="file" id="json-input" accept=".json" style="display:none" onchange="loadJSON(event)">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// ── SUPABASE CONFIG ──
+const SUPABASE_URL = "https://pwyouusvaxbyxtsiycvb.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_OtUjDdX6GbNjFFY7XyGLoQ_sOCikmgr";
+const SUPABASE_TABLE = "presence_control_state";
+const SUPABASE_STATE_KEY = "main";
+let supabaseClient = null;
+let supabaseEnabled = false;
+let isBooting = true;
+function hasSupabaseConfig(){
+  return SUPABASE_URL.startsWith("https://") && SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.startsWith("COLE_AQUI");
+}
+function initSupabase(){
+  if(!hasSupabaseConfig() || !window.supabase) return false;
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  supabaseEnabled = true;
+  return true;
+}
+function statePayload(){
+  return {version:1, updatedAt:new Date().toISOString(), golive:lojas, lojas:dbExtra};
+}
+async function loadFromSupabase(){
+  if(!supabaseEnabled) return false;
+  const {data,error}=await supabaseClient.from(SUPABASE_TABLE).select("payload").eq("key",SUPABASE_STATE_KEY).maybeSingle();
+  if(error){console.error(error);showToast("Não consegui carregar do Supabase. Usando dados locais.",true);return false;}
+  if(data && data.payload){
+    lojas = data.payload.golive || [];
+    dbExtra = data.payload.lojas || [];
+    return true;
+  }
+  await saveToSupabase(true);
+  return true;
+}
+async function saveToSupabase(silent=false){
+  if(isBooting) return;
+  saveLocal(); saveDbLocal();
+  if(!supabaseEnabled){ if(!silent) showToast("Salvo localmente. Configure o Supabase para salvar online."); return; }
+  const {error}=await supabaseClient.from(SUPABASE_TABLE).upsert({key:SUPABASE_STATE_KEY,payload:statePayload(),updated_at:new Date().toISOString()},{onConflict:"key"});
+  if(error){console.error(error); if(!silent) showToast("Erro ao salvar no Supabase. Backup local mantido.",true);}
+  else if(!silent) showToast("Salvo no Supabase.");
+}
+async function initApp(){
+  load(); loadDb(); initSupabase();
+  if(supabaseEnabled) await loadFromSupabase();
+  isBooting=false;
+  setPage("gl");
+}
+
+// ── DATA ──
+const EMBEDDED_GOLIVE = [{"loja": "SC TUBARÃO", "grupo": "Franquias Restaura Jeans", "num": "2307", "status": "agendado", "franqueado": "", "instalacao": "1", "responsavel": "Glávio", "inauguracao": "", "tickets": "", "treinLoja": "1", "treinRetag": "1", "preGoLive": "1", "goLive": "16/06/2026 09:00", "log": "[01/06/2026 09:00] Pendente retorno da franqueadora sobre go live. Sugerido 1 mês após alinhamento (28/05)."}, {"loja": "PR PONTA GROSSA", "grupo": "Franquias Restaura Jeans", "num": "2322", "status": "agendado", "franqueado": "", "instalacao": "1", "responsavel": "Glávio", "inauguracao": "", "tickets": "#716986", "treinLoja": "1", "treinRetag": "1", "preGoLive": "1", "goLive": "18/06/2026 09:00", "log": "[01/06/2026 09:00] Solicitado vídeo de treinamento sobre costura - em preparação."}, {"loja": "RS PORTO ALEGRE MOINHOS", "grupo": "Franquias Restaura Jeans", "num": "2317", "status": "aberto", "franqueado": "Milton Rodrigues", "instalacao": "", "responsavel": "Maiara", "inauguracao": "", "tickets": "#713634", "treinLoja": "27/05/2026 10:00", "treinRetag": "", "preGoLive": "", "goLive": "", "log": "[01/06/2026 09:00] Aguardar agendar go live de azenha e moinho do vento. Contrato Molinho pendente."}, {"loja": "SP JAÇANÃ", "grupo": "Franquias Restaura Jeans", "num": "2324", "status": "agendado", "franqueado": "", "instalacao": "1", "responsavel": "Marcelo", "inauguracao": "15/06/2026", "tickets": "#717270", "treinLoja": "1", "treinRetag": "1", "preGoLive": "1", "goLive": "18/06/2026 09:00", "log": "[01/06/2026 09:00] Aguardando retorno franqueadora."}, {"loja": "PR FRANCISCO BELTRÃO", "grupo": "Franquias Restaura Jeans", "num": "2310", "status": "aberto", "franqueado": "", "instalacao": "", "responsavel": "Glávio", "inauguracao": "", "tickets": "#714799", "treinLoja": "", "treinRetag": "26/05/2026 14:00", "preGoLive": "", "goLive": "", "log": "[01/06/2026 09:00] Cronograma confirmado - exceto go live. Colocamos para 26/05."}, {"loja": "RS PORTO ALEGRE AZENHA", "grupo": "Franquias Restaura Jeans", "num": "2317", "status": "aberto", "franqueado": "Milton Rodrigues", "instalacao": "", "responsavel": "Maiara", "inauguracao": "", "tickets": "#713634 #713620", "treinLoja": "26/05/2026 10:00", "treinRetag": "", "preGoLive": "", "goLive": "", "log": "[01/06/2026 09:00] Aguardar agendamento — ticket unidade Azenha / Franqueado Milton + Moinho do Vento."}, {"loja": "RJ CAMPOS DOS GOYTACAZES", "grupo": "Minha Lavanderia", "num": "2280", "status": "aberto", "franqueado": "", "instalacao": "", "responsavel": "Maiara", "inauguracao": "", "tickets": "", "treinLoja": "", "treinRetag": "", "preGoLive": "", "goLive": "", "log": "[01/06/2026 09:00] Cliente notificado em 18/05. Retornar 20/05 para nova tentativa de agendamento."}, {"loja": "SP PIRASSUNUNGA", "grupo": "Franquias Restaura Jeans", "num": "2320", "status": "agendado", "franqueado": "", "instalacao": "1", "responsavel": "Bruno", "inauguracao": "", "tickets": "#716531", "treinLoja": "1", "treinRetag": "1", "preGoLive": "1", "goLive": "17/06/2026 09:00", "log": "[01/06/2026 09:00] Cronograma confirmado. Solicitado a partir de 09/06."}, {"loja": "SP PIRACICABA", "grupo": "Franquias Restaura Jeans", "num": "2303", "status": "concluido", "franqueado": "", "instalacao": "", "responsavel": "Bruno", "inauguracao": "", "tickets": "#709397", "treinLoja": "", "treinRetag": "", "preGoLive": "", "goLive": "", "log": "[20/05/2026 10:00] Go live realizado com sucesso."}, {"loja": "RS PELOTAS", "grupo": "Franquias Restaura Jeans", "num": "2323", "status": "concluido", "franqueado": "", "instalacao": "1", "responsavel": "Marcelo", "inauguracao": "", "tickets": "#717264", "treinLoja": "1", "treinRetag": "1", "preGoLive": "1", "goLive": "23/07/2026 09:00", "log": "[01/06/2026 09:00] Confirmado — a partir de julho, fora da operação no momento."}, {"loja": "SC JARAGUÁ DO SUL", "grupo": "Franquias Restaura Jeans", "num": "2330", "status": "agendado", "franqueado": "", "instalacao": "1", "responsavel": "Glávio", "inauguracao": "", "tickets": "#718226", "treinLoja": "1", "treinRetag": "1", "preGoLive": "1", "goLive": "11/06/2026 09:00", "log": "[01/06/2026 09:00] Cronograma confirmado 22/05."}, {"loja": "RS PORTO ALEGRE BOM FIM", "num": "2321", "grupo": "Franquias Restaura Jeans", "franqueado": "", "responsavel": "Maiara", "status": "agendado", "inauguracao": "", "tickets": "#716534", "log": "[01/06/2026 09:00] Confirmado. Instalação: 22/05 14:30, GL: 03/06 09:00.", "instalacao": "1", "treinLoja": "1", "treinRetag": "1", "preGoLive": "1", "goLive": "09/06/2026 09:00"}, {"loja": "RS PORTO ALEGRE PETRÓPOLIS", "grupo": "Franquias Restaura Jeans", "num": "2317", "status": "agendado", "franqueado": "", "instalacao": "1", "responsavel": "Maiara", "inauguracao": "", "tickets": "#713634", "treinLoja": "1", "treinRetag": "1", "preGoLive": "1", "goLive": "08/06/2026 09:00", "log": "[01/06/2026 09:00] Treinamentos ok — pendente confirmação go live."}, {"loja": "SP CAMPINAS JD. AURÉLIA", "grupo": "Franquias Restaura Jeans", "num": "2328", "status": "agendado", "franqueado": "", "instalacao": "1", "responsavel": "Bruno", "inauguracao": "", "tickets": "#718071", "treinLoja": "1", "treinRetag": "1", "preGoLive": "1", "goLive": "12/06/2026 09:00", "log": "[01/06/2026 09:00] Cronograma confirmado."}, {"loja": "RS TEUTÔNIA", "grupo": "Minha Lavanderia", "num": "2327", "status": "concluido", "franqueado": "", "instalacao": "1", "responsavel": "Marcelo", "inauguracao": "", "tickets": "#718239", "treinLoja": "1", "treinRetag": "1", "preGoLive": "1", "goLive": "10/06/2026 09:00", "log": "[01/06/2026 09:00] Treino Loja: 28/05 10:00, Instalação: 28/05 13:30, Treino Retag: 29/05 10:00."}];
+const EMBEDDED_LOJAS  = [{"nome": "AM MANAUS", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "ES LINHARES", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "GO CATALÃO", "num": "", "rede": "rj", "status": "transicao", "alerta": false, "responsavel": "Maiara", "obs": "Contrato assinado 02/06/2026 — iniciar treinamento e instalação"}, {"nome": "GO GOIÂNIA JD. GOIÁS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "GO MINEIROS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "GO OESTE", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "GO PARQUE AMAZÔNIA", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "MT CUIABÁ", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "PB JOÃO PESSOA", "num": "", "rede": "rj", "status": "antigo", "alerta": true, "responsavel": "Maiara", "obs": "Dificuldade de comunicação"}, {"nome": "PB JOÃO PESSOA", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "PB TAMBAÚ", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "RJ DUQUE DE CAXIAS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "RJ JACAREPAGUÁ", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "RJ RECREIO", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "RJ VILA ISABEL", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "RS BENTO GONÇALVES", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Serra"}, {"nome": "RS CACHOEIRINHA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Metropolitana"}, {"nome": "RS CANELA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Serra"}, {"nome": "RS CANOAS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Metropolitana"}, {"nome": "RS CAXIAS", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Serra"}, {"nome": "RS CAXIAS CENTRO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Serra"}, {"nome": "RS CAXIAS SÃO PELEGRINO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Serra"}, {"nome": "RS FARROUPILHA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Serra"}, {"nome": "RS GRAVATAÍ", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Metropolitana"}, {"nome": "RS MORADA DO VALE I", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Gravataí"}, {"nome": "RS NOVO HAMBURGO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Vale do Sinos"}, {"nome": "RS PORTO ALEGRE CRISTAL", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Porto Alegre - ZS"}, {"nome": "RS PORTO ALEGRE LINDOIA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Porto Alegre - ZN"}, {"nome": "RS SÃO LEOPOLDO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Vale do Sinos"}, {"nome": "SP SÃO ROQUE", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "SP VARGEM GRANDE", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "RJ MARICÁ", "num": "2304", "rede": "rj", "status": "ativo", "alerta": false, "responsavel": "Maiara", "obs": "Go-Live Finalizado"}, {"nome": "GO CRISTALINA", "num": "2272", "rede": "ml", "status": "ativo", "alerta": false, "responsavel": "Maiara", "obs": "Go-Live Finalizado"}, {"nome": "AL MACEIÓ", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "BA BARREIRAS", "num": "2274", "rede": "ml", "status": "ativo", "alerta": false, "responsavel": "Marcelo", "obs": "Presence Ativo"}, {"nome": "BA SALVADOR", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "BA SALVADOR", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "MA BALSAS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "MS CAMPO GRANDE", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "PA BELÉM", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "PA PARAUAPEBAS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "PE CARPINA", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "PE RECIFE", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "PE RECIFE AFONSO FALCÃO", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "PE RECIFE MADALENA", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "PI PICOS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "RN MOSSORÓ", "num": "", "rede": "ml", "status": "antigo", "alerta": true, "responsavel": "Marcelo", "obs": "Dificuldade de comunicação"}, {"nome": "RS CAMAQUÃ", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Sul/Costa Doce"}, {"nome": "RS CARAZINHO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Norte"}, {"nome": "RS CASSINO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Extremo Sul"}, {"nome": "RS CRUZ ALTA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Noroeste"}, {"nome": "RS HORIZONTINA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Noroeste - Uma das mais distantes"}, {"nome": "RS IJUÍ", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Noroeste"}, {"nome": "RS LAJEADO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Vale do Taquari"}, {"nome": "RS LIVRAMENTO MEGA", "num": "", "rede": "both", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Fronteira Oeste"}, {"nome": "RS PASSO FUNDO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Norte"}, {"nome": "RS PASSO FUNDO SÃO CRISTÓVÃO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Norte"}, {"nome": "RS SANTA CRUZ DO SUL", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Vale do Rio Pardo"}, {"nome": "RS SANTA MARIA MEGA", "num": "", "rede": "both", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Central"}, {"nome": "RS SANTA ROSA MEGA", "num": "", "rede": "both", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Noroeste"}, {"nome": "RS SANTO ÂNGELO", "num": "2337", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Missões"}, {"nome": "SP HIGIENÓPOLIS MEGA", "num": "", "rede": "both", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "SP CASA VERDE", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "SP JARDINS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "SP MOEMA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "SP PARQUE SÃO JORGE", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "SP PENHA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "SP PONTE RASA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "SP SAÚDE", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "SP SILVA BUENO", "num": "", "rede": "rj", "status": "antigo", "alerta": true, "responsavel": "Marcelo", "obs": "Dificuldade de comunicação"}, {"nome": "SP VILA CARRÃO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "SP VILA MATILDE", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "MG ALFENAS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "MG BELO HORIZONTE", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "MG CORONEL FABRÍCIANO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "MG MONTES CLAROS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "MG MURIAÉ", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP AMERICANA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP BARRETOS", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP BOTUCATU", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP CAMPINAS CAMBUÍ", "num": "", "rede": "both", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP CAMPINAS D. PEDRO", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": "Já assinou contrato"}, {"nome": "SP FRANCA", "num": "", "rede": "both", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP GUARULHOS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP IBIUNA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP INDAIATUBA", "num": "", "rede": "rj", "status": "antigo", "alerta": true, "responsavel": "Bruno", "obs": "Dificuldade de comunicação"}, {"nome": "SP INDAIATUBA", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP LIMEIRA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP SÃO JOSÉ DOS CAMPOS JD SATÉLITE", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP SOROCABA", "num": "2300", "rede": "rj", "status": "ativo", "alerta": false, "responsavel": "Bruno", "obs": "Go-Live efetuado"}, {"nome": "SP SOROCABA", "num": "", "rede": "ml", "status": "ativo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP TAUBATÉ JD NAÇÕES", "num": "2278", "rede": "ml", "status": "ativo", "alerta": false, "responsavel": "Bruno", "obs": "Go-Live efetuado"}, {"nome": "SP TAUBATÉ", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP VALINHOS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP ATIBAIA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SC XANXERÊ", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC VIDEIRA", "num": "2313", "rede": "both", "status": "ativo", "alerta": false, "responsavel": "Glávio", "obs": "Go-Live efetuado"}, {"nome": "SC SÃO JOSÉ", "num": "2269", "rede": "both", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC PORTO UNIÃO", "num": "", "rede": "both", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC PALHOÇA", "num": "2275", "rede": "ml", "status": "ativo", "alerta": false, "responsavel": "Glávio", "obs": "Go-Live efetuado"}, {"nome": "SC NAVEGANTES", "num": "2287", "rede": "rj", "status": "ativo", "alerta": false, "responsavel": "Glávio", "obs": "Go-Live efetuado - Inauguração"}, {"nome": "SC LAGUNA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": "Já assinou contrato"}, {"nome": "SC LAGES", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC JOINVILLE", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC JOAÇABA", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC ITAPEMA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC ITAJAÍ", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC IMBITUBA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC GAROPABA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC FRAIBURGO", "num": "", "rede": "both", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC FLORIANÓPOLIS", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC FLORIANÓPOLIS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC CRICIÚMA", "num": "2209", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC CONCÓRDIA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC CHAPECÓ", "num": "", "rede": "rj", "status": "antigo", "alerta": true, "responsavel": "Glávio", "obs": "Dificuldade de comunicação"}, {"nome": "SC CAÇADOR", "num": "", "rede": "both", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": "Já assinou contrato"}, {"nome": "SC BLUMENAU", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC BALNEÁRIO CAMBORIÚ", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "PR TOLEDO", "num": "", "rede": "rj", "status": "ativo", "alerta": false, "responsavel": "Glávio", "obs": "Go-Live efetuado"}, {"nome": "PR PINHAIS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "PR LONDRINA VITÓRIA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "PR LONDRINA AURORA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "PR LONDRINA ALPHAVILLE", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "PR LONDRINA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "PR GUARAPUAVA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "PR GUAÍRA", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "PR CURITIBA", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "PR CURITIBA PORTÃO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "PR CASCAVEL", "num": "2260", "rede": "rj", "status": "ativo", "alerta": false, "responsavel": "Glávio", "obs": "Go-Live efetuado"}, {"nome": "PR CAMPO LARGO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "PR ARAPONGAS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SP BELENZINHO", "num": "", "rede": "rj", "status": "antigo", "alerta": true, "responsavel": "Marcelo", "obs": "Dificuldade de comunicação"}, {"nome": "SC BRUSQUE", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SP PIRACICABA", "num": "2277", "rede": "ml", "status": "ativo", "alerta": false, "responsavel": "Bruno", "obs": "Go-Live efetuado"}, {"nome": "SP JUNDIAÍ", "num": "2305", "rede": "rj", "status": "ativo", "alerta": false, "responsavel": "Maiara", "obs": "Go-Live Finalizado — loja nova já veio com Presence"}, {"nome": "PR FOZ DO IGUAÇU", "num": "", "rede": "rj", "status": "antigo", "alerta": true, "responsavel": "Glávio", "obs": "Dificuldade de comunicação"}];
+
 const TODAY = new Date(); TODAY.setHours(0,0,0,0);
+const TEAM  = ['Marcelo','Maiara','Glávio','Bruno'];
 const FASES = [
-  { key:'instalacao',  label:'Instalação do Sistema', checkOnly: true },
-  { key:'treinLoja',  label:'Treinamento de Loja' },
-  { key:'treinRetag', label:'Treinamento de Retaguarda' },
-  { key:'preGoLive',  label:'Pré go-live' },
-  { key:'goLive',     label:'Go-live' },
+  {key:'instalacao', label:'Instalação do Sistema', checkOnly:true},
+  {key:'treinLoja',  label:'Treinamento de Loja',             dateOptional:true},
+  {key:'treinRetag', label:'Treinamento de Retaguarda',       dateOptional:true},
+  {key:'preGoLive',  label:'Pré go-live',                     dateOptional:true},
+  {key:'goLive',     label:'Go-live'},
 ];
-const FASE_DEFAULTS = ['', '', '', '17:30', '09:00'];
-const TEAM = ['Marcelo','Maiara','Glávio','Bruno'];
+const FASE_DEFAULTS = ['','','','17:30','09:00'];
 
-let lojas = [
-  { loja:'SC TUBARÃO', grupo:'Franquias Restaura Jeans', num:'2307', status:'aberto', franqueado:'', instalacao:'', responsavel:'Glávio', inauguracao:'', tickets:'', treinLoja:'', treinRetag:'', preGoLive:'', goLive:'', log:'[01/06/2026 09:00] Pendente retorno da franqueadora sobre go live. Sugerido 1 mês após alinhamento (28/05).' },
-  { loja:'PR PONTA GROSSA', grupo:'Franquias Restaura Jeans', num:'2322', status:'aberto', franqueado:'', instalacao:'', responsavel:'Glávio', inauguracao:'', tickets:'#716986', treinLoja:'20/05/2026 10:00', treinRetag:'21/05/2026 11:00', preGoLive:'', goLive:'', log:'[01/06/2026 09:00] Solicitado vídeo de treinamento sobre costura - em preparação.' },
-  { loja:'RS PORTO ALEGRE MOINHOS', grupo:'Franquias Restaura Jeans', num:'2317', status:'aberto', franqueado:'Milton Rodrigues', instalacao:'', responsavel:'', inauguracao:'', tickets:'#713634', treinLoja:'27/05/2026 10:00', treinRetag:'', preGoLive:'', goLive:'', log:'[01/06/2026 09:00] Aguardar agendar go live de azenha e moinho do vento. Contrato Molinho pendente.' },
-  { loja:'SP JAÇANÃ', grupo:'Franquias Restaura Jeans', num:'2324', status:'aberto', franqueado:'', instalacao:'', responsavel:'', inauguracao:'15/06/2026', tickets:'#717270', treinLoja:'26/05/2026 10:00', treinRetag:'26/05/2026 14:00', preGoLive:'', goLive:'', log:'[01/06/2026 09:00] Aguardando retorno franqueadora.' },
-  { loja:'PR FRANCISCO BELTRÃO', grupo:'Franquias Restaura Jeans', num:'2310', status:'aberto', franqueado:'', instalacao:'', responsavel:'Glávio', inauguracao:'', tickets:'#714799', treinLoja:'', treinRetag:'26/05/2026 14:00', preGoLive:'', goLive:'', log:'[01/06/2026 09:00] Cronograma confirmado - exceto go live. Colocamos para 26/05.' },
-  { loja:'SP CERQUILHO', grupo:'Franquias Restaura Jeans', num:'2331', status:'aberto', franqueado:'', instalacao:'', responsavel:'', inauguracao:'', tickets:'#719395', treinLoja:'', treinRetag:'', preGoLive:'', goLive:'', log:'[01/06/2026 09:00] Unidade irá inaugurar — previsto 2ª semana de julho.' },
-  { loja:'RS PORTO ALEGRE AZENHA', grupo:'Franquias Restaura Jeans', num:'2317', status:'aberto', franqueado:'Milton Rodrigues', instalacao:'', responsavel:'', inauguracao:'', tickets:'#713634 #713620', treinLoja:'26/05/2026 10:00', treinRetag:'', preGoLive:'', goLive:'', log:'[01/06/2026 09:00] Aguardar agendamento — ticket unidade Azenha / Franqueado Milton + Moinho do Vento.' },
-  { loja:'RJ CAMPOS DOS GOYTACAZES', grupo:'Minha Lavanderia', num:'2280', status:'aberto', franqueado:'', instalacao:'', responsavel:'', inauguracao:'', tickets:'', treinLoja:'', treinRetag:'', preGoLive:'', goLive:'', log:'[01/06/2026 09:00] Cliente notificado em 18/05. Retornar 20/05 para nova tentativa de agendamento.' },
-  { loja:'SP PIRASSUNUNGA', grupo:'Franquias Restaura Jeans', num:'2320', status:'aberto', franqueado:'', instalacao:'', responsavel:'', inauguracao:'', tickets:'#716531', treinLoja:'10/06/2026 10:00', treinRetag:'11/06/2026 11:00', preGoLive:'', goLive:'', log:'[01/06/2026 09:00] Cronograma confirmado. Solicitado a partir de 09/06.' },
-  { loja:'SP PIRACICABA', grupo:'Franquias Restaura Jeans', num:'2303', status:'aberto', franqueado:'', instalacao:'', responsavel:'Bruno', inauguracao:'', tickets:'#709397', treinLoja:'', treinRetag:'', preGoLive:'', goLive:'', log:'[20/05/2026 10:00] Go live realizado com sucesso.' },
-  { loja:'RS PELOTAS', grupo:'Franquias Restaura Jeans', num:'2323', status:'aberto', franqueado:'', instalacao:'', responsavel:'Marcelo', inauguracao:'', tickets:'#717264', treinLoja:'15/07/2026 10:00', treinRetag:'16/07/2026 10:00', preGoLive:'', goLive:'', log:'[01/06/2026 09:00] Confirmado — a partir de julho, fora da operação no momento.' },
-  { loja:'SC JARAGUÁ DO SUL', grupo:'Franquias Restaura Jeans', num:'2330', status:'aberto', franqueado:'', instalacao:'', responsavel:'Glávio', inauguracao:'', tickets:'#718226', treinLoja:'28/05/2026 10:00', treinRetag:'29/05/2026 14:00', preGoLive:'', goLive:'', log:'[01/06/2026 09:00] Cronograma confirmado 22/05.' },
-  { loja:'RS PORTO ALEGRE BOM FIM', grupo:'Franquias Restaura Jeans', num:'2321', status:'aberto', franqueado:'', instalacao:'', responsavel:'Maiara', inauguracao:'', tickets:'#716534', treinLoja:'25/05/2026 10:00', treinRetag:'26/05/2026 11:00', preGoLive:'', goLive:'', log:'[01/06/2026 09:00] Confirmado. Instalação: 22/05 14:30, GL: 03/06 09:00.' },
-  { loja:'RS PORTO ALEGRE PETRÓPOLIS', grupo:'Franquias Restaura Jeans', num:'2317', status:'aberto', franqueado:'', instalacao:'', responsavel:'Maiara', inauguracao:'', tickets:'#713634', treinLoja:'20/05/2026 10:00', treinRetag:'', preGoLive:'', goLive:'', log:'[01/06/2026 09:00] Treinamentos ok — pendente confirmação go live.' },
-  { loja:'SP CAMPINAS JD. AURÉLIA', grupo:'Franquias Restaura Jeans', num:'2328', status:'aberto', franqueado:'', instalacao:'', responsavel:'Bruno', inauguracao:'', tickets:'#718071', treinLoja:'02/06/2026 10:00', treinRetag:'03/06/2026 10:00', preGoLive:'', goLive:'', log:'[01/06/2026 09:00] Cronograma confirmado.' },
-  { loja:'TEUTÔNIA', grupo:'Minha Lavanderia', num:'2327', status:'aberto', franqueado:'', instalacao:'', responsavel:'Marcelo', inauguracao:'', tickets:'#718239', treinLoja:'28/05/2026 10:00', treinRetag:'29/05/2026 10:00', preGoLive:'', goLive:'', log:'[01/06/2026 09:00] Treino Loja: 28/05 10:00, Instalação: 28/05 13:30, Treino Retag: 29/05 10:00.' },
-];
+let lojas   = [];
+let dbExtra = [];
 
-function stepsDone(l) {
-  let done = [];
-  for (let i=0;i<FASES.length;i++) { const p=i===0||done[i-1]; done.push(p&&!!l[FASES[i].key]); }
-  return done;
-}
-function countDone(l) { return stepsDone(l).filter(Boolean).length; }
-
-function save() { localStorage.setItem('golive_v8', JSON.stringify(lojas)); }
-// ── EMBEDDED BACKUP (2026-06-03) ──
-const EMBEDDED_GOLIVE = [{"loja": "SC TUBARÃO", "grupo": "Franquias Restaura Jeans", "num": "2307", "status": "aberto", "franqueado": "", "instalacao": "", "responsavel": "Glávio", "inauguracao": "", "tickets": "", "treinLoja": "", "treinRetag": "", "preGoLive": "", "goLive": "", "log": "[01/06/2026 09:00] Pendente retorno da franqueadora sobre go live. Sugerido 1 mês após alinhamento (28/05)."}, {"loja": "PR PONTA GROSSA", "grupo": "Franquias Restaura Jeans", "num": "2322", "status": "aberto", "franqueado": "", "instalacao": "", "responsavel": "Glávio", "inauguracao": "", "tickets": "#716986", "treinLoja": "20/05/2026 10:00", "treinRetag": "21/05/2026 11:00", "preGoLive": "", "goLive": "", "log": "[01/06/2026 09:00] Solicitado vídeo de treinamento sobre costura - em preparação."}, {"loja": "RS PORTO ALEGRE MOINHOS", "grupo": "Franquias Restaura Jeans", "num": "2317", "status": "aberto", "franqueado": "Milton Rodrigues", "instalacao": "", "responsavel": "Maiara", "inauguracao": "", "tickets": "#713634", "treinLoja": "27/05/2026 10:00", "treinRetag": "", "preGoLive": "", "goLive": "", "log": "[01/06/2026 09:00] Aguardar agendar go live de azenha e moinho do vento. Contrato Molinho pendente."}, {"loja": "SP JAÇANÃ", "grupo": "Franquias Restaura Jeans", "num": "2324", "status": "aberto", "franqueado": "", "instalacao": "", "responsavel": "Marcelo", "inauguracao": "15/06/2026", "tickets": "#717270", "treinLoja": "26/05/2026 10:00", "treinRetag": "26/05/2026 14:00", "preGoLive": "", "goLive": "", "log": "[01/06/2026 09:00] Aguardando retorno franqueadora."}, {"loja": "PR FRANCISCO BELTRÃO", "grupo": "Franquias Restaura Jeans", "num": "2310", "status": "aberto", "franqueado": "", "instalacao": "", "responsavel": "Glávio", "inauguracao": "", "tickets": "#714799", "treinLoja": "", "treinRetag": "26/05/2026 14:00", "preGoLive": "", "goLive": "", "log": "[01/06/2026 09:00] Cronograma confirmado - exceto go live. Colocamos para 26/05."}, {"loja": "RS PORTO ALEGRE AZENHA", "grupo": "Franquias Restaura Jeans", "num": "2317", "status": "aberto", "franqueado": "Milton Rodrigues", "instalacao": "", "responsavel": "Maiara", "inauguracao": "", "tickets": "#713634 #713620", "treinLoja": "26/05/2026 10:00", "treinRetag": "", "preGoLive": "", "goLive": "", "log": "[01/06/2026 09:00] Aguardar agendamento — ticket unidade Azenha / Franqueado Milton + Moinho do Vento."}, {"loja": "RJ CAMPOS DOS GOYTACAZES", "grupo": "Minha Lavanderia", "num": "2280", "status": "aberto", "franqueado": "", "instalacao": "", "responsavel": "Maiara", "inauguracao": "", "tickets": "", "treinLoja": "", "treinRetag": "", "preGoLive": "", "goLive": "", "log": "[01/06/2026 09:00] Cliente notificado em 18/05. Retornar 20/05 para nova tentativa de agendamento."}, {"loja": "SP PIRASSUNUNGA", "grupo": "Franquias Restaura Jeans", "num": "2320", "status": "aberto", "franqueado": "", "instalacao": "", "responsavel": "Bruno", "inauguracao": "", "tickets": "#716531", "treinLoja": "10/06/2026 10:00", "treinRetag": "11/06/2026 11:00", "preGoLive": "", "goLive": "", "log": "[01/06/2026 09:00] Cronograma confirmado. Solicitado a partir de 09/06."}, {"loja": "SP PIRACICABA", "grupo": "Franquias Restaura Jeans", "num": "2303", "status": "concluido", "franqueado": "", "instalacao": "", "responsavel": "Bruno", "inauguracao": "", "tickets": "#709397", "treinLoja": "", "treinRetag": "", "preGoLive": "", "goLive": "", "log": "[20/05/2026 10:00] Go live realizado com sucesso."}, {"loja": "RS PELOTAS", "grupo": "Franquias Restaura Jeans", "num": "2323", "status": "concluido", "franqueado": "", "instalacao": "", "responsavel": "Marcelo", "inauguracao": "", "tickets": "#717264", "treinLoja": "15/07/2026 10:00", "treinRetag": "16/07/2026 10:00", "preGoLive": "", "goLive": "", "log": "[01/06/2026 09:00] Confirmado — a partir de julho, fora da operação no momento."}, {"loja": "SC JARAGUÁ DO SUL", "grupo": "Franquias Restaura Jeans", "num": "2330", "status": "aberto", "franqueado": "", "instalacao": "", "responsavel": "Glávio", "inauguracao": "", "tickets": "#718226", "treinLoja": "28/05/2026 10:00", "treinRetag": "29/05/2026 14:00", "preGoLive": "", "goLive": "", "log": "[01/06/2026 09:00] Cronograma confirmado 22/05."}, {"loja": "RS PORTO ALEGRE BOM FIM", "num": "2321", "grupo": "Franquias Restaura Jeans", "franqueado": "", "responsavel": "Maiara", "status": "aberto", "inauguracao": "", "tickets": "#716534", "log": "[01/06/2026 09:00] Confirmado. Instalação: 22/05 14:30, GL: 03/06 09:00.", "instalacao": "", "treinLoja": "", "treinRetag": "", "preGoLive": "", "goLive": ""}, {"loja": "RS PORTO ALEGRE PETRÓPOLIS", "grupo": "Franquias Restaura Jeans", "num": "2317", "status": "aberto", "franqueado": "", "instalacao": "", "responsavel": "Maiara", "inauguracao": "", "tickets": "#713634", "treinLoja": "20/05/2026 10:00", "treinRetag": "", "preGoLive": "", "goLive": "", "log": "[01/06/2026 09:00] Treinamentos ok — pendente confirmação go live."}, {"loja": "SP CAMPINAS JD. AURÉLIA", "grupo": "Franquias Restaura Jeans", "num": "2328", "status": "aberto", "franqueado": "", "instalacao": "", "responsavel": "Bruno", "inauguracao": "", "tickets": "#718071", "treinLoja": "02/06/2026 10:00", "treinRetag": "03/06/2026 10:00", "preGoLive": "", "goLive": "", "log": "[01/06/2026 09:00] Cronograma confirmado."}, {"loja": "RS TEUTÔNIA", "grupo": "Minha Lavanderia", "num": "2327", "status": "concluido", "franqueado": "", "instalacao": "", "responsavel": "Marcelo", "inauguracao": "", "tickets": "#718239", "treinLoja": "28/05/2026 10:00", "treinRetag": "29/05/2026 10:00", "preGoLive": "", "goLive": "", "log": "[01/06/2026 09:00] Treino Loja: 28/05 10:00, Instalação: 28/05 13:30, Treino Retag: 29/05 10:00."}];
-const EMBEDDED_LOJAS = [{"nome": "AM MANAUS", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "ES LINHARES", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "GO CATALÃO", "num": "", "rede": "rj", "status": "transicao", "alerta": false, "responsavel": "Maiara", "obs": "Contrato assinado 02/06/2026 — iniciar treinamento e instalação"}, {"nome": "GO GOIÂNIA JD. GOIÁS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "GO MINEIROS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "GO OESTE", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "GO PARQUE AMAZÔNIA", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "MT CUIABÁ", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "PB JOÃO PESSOA", "num": "", "rede": "rj", "status": "antigo", "alerta": true, "responsavel": "Maiara", "obs": "Dificuldade de comunicação"}, {"nome": "PB JOÃO PESSOA", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "PB TAMBAÚ", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "RJ DUQUE DE CAXIAS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "RJ JACAREPAGUÁ", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "RJ RECREIO", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "RJ VILA ISABEL", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "RS BENTO GONÇALVES", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Serra"}, {"nome": "RS CACHOEIRINHA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Metropolitana"}, {"nome": "RS CANELA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Serra"}, {"nome": "RS CANOAS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Metropolitana"}, {"nome": "RS CAXIAS", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Serra"}, {"nome": "RS CAXIAS CENTRO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Serra"}, {"nome": "RS CAXIAS SÃO PELEGRINO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Serra"}, {"nome": "RS FARROUPILHA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Serra"}, {"nome": "RS GRAVATAÍ", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Metropolitana"}, {"nome": "RS MORADA DO VALE I", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Gravataí"}, {"nome": "RS NOVO HAMBURGO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Vale do Sinos"}, {"nome": "RS PORTO ALEGRE CRISTAL", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Porto Alegre - ZS"}, {"nome": "RS PORTO ALEGRE LINDOIA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Porto Alegre - ZN"}, {"nome": "RS SÃO LEOPOLDO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Vale do Sinos"}, {"nome": "SP SÃO ROQUE", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "SP VARGEM GRANDE", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": ""}, {"nome": "RJ MARICÁ", "num": "", "rede": "rj", "status": "ativo", "alerta": false, "responsavel": "Maiara", "obs": "Go-Live Finalizado"}, {"nome": "GO CRISTALINA", "num": "", "rede": "ml", "status": "ativo", "alerta": false, "responsavel": "Maiara", "obs": "Go-Live Finalizado"}, {"nome": "AL MACEIÓ", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "BA BARREIRAS", "num": "", "rede": "ml", "status": "ativo", "alerta": false, "responsavel": "Marcelo", "obs": "Presence Ativo"}, {"nome": "BA SALVADOR", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "BA SALVADOR", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "MA BALSAS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "MS CAMPO GRANDE", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "PA BELÉM", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "PA PARAUAPEBAS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "PE CARPINA", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "PE RECIFE", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "PE RECIFE AFONSO FALCÃO", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "PE RECIFE MADALENA", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "PI PICOS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "RN MOSSORÓ", "num": "", "rede": "ml", "status": "antigo", "alerta": true, "responsavel": "Marcelo", "obs": "Dificuldade de comunicação"}, {"nome": "RS CAMAQUÃ", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Sul/Costa Doce"}, {"nome": "RS CARAZINHO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Norte"}, {"nome": "RS CASSINO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Extremo Sul"}, {"nome": "RS CRUZ ALTA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Noroeste"}, {"nome": "RS HORIZONTINA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Noroeste - Uma das mais distantes"}, {"nome": "RS IJUÍ", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Noroeste"}, {"nome": "RS LAJEADO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Vale do Taquari"}, {"nome": "RS LIVRAMENTO MEGA", "num": "", "rede": "both", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Fronteira Oeste"}, {"nome": "RS PASSO FUNDO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Norte"}, {"nome": "RS PASSO FUNDO SÃO CRISTÓVÃO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Norte"}, {"nome": "RS SANTA CRUZ DO SUL", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Vale do Rio Pardo"}, {"nome": "RS SANTA MARIA MEGA", "num": "", "rede": "both", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Central"}, {"nome": "RS SANTA ROSA MEGA", "num": "", "rede": "both", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Noroeste"}, {"nome": "RS SANTO ÂNGELO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Missões"}, {"nome": "SP HIGIENÓPOLIS MEGA", "num": "", "rede": "both", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "SP CASA VERDE", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "SP JARDINS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "SP MOEMA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "SP PARQUE SÃO JORGE", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "SP PENHA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "SP PONTE RASA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "SP SAÚDE", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "SP SILVA BUENO", "num": "", "rede": "rj", "status": "antigo", "alerta": true, "responsavel": "Marcelo", "obs": "Dificuldade de comunicação"}, {"nome": "SP VILA CARRÃO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "SP VILA MATILDE", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": ""}, {"nome": "MG ALFENAS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "MG BELO HORIZONTE", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "MG CORONEL FABRÍCIANO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "MG MONTES CLAROS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "MG MURIAÉ", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP AMERICANA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP BARRETOS", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP BOTUCATU", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP CAMPINAS CAMBUÍ", "num": "", "rede": "both", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP CAMPINAS D. PEDRO", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": "Já assinou contrato"}, {"nome": "SP FRANCA", "num": "", "rede": "both", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP GUARULHOS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP IBIUNA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP INDAIATUBA", "num": "", "rede": "rj", "status": "antigo", "alerta": true, "responsavel": "Bruno", "obs": "Dificuldade de comunicação"}, {"nome": "SP INDAIATUBA", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP LIMEIRA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP SÃO JOSÉ DOS CAMPOS JD SATÉLITE", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP SOROCABA", "num": "", "rede": "rj", "status": "ativo", "alerta": false, "responsavel": "Bruno", "obs": "Go-Live efetuado"}, {"nome": "SP SOROCABA", "num": "", "rede": "ml", "status": "ativo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP TAUBATÉ JD NAÇÕES", "num": "", "rede": "ml", "status": "ativo", "alerta": false, "responsavel": "Bruno", "obs": "Go-Live efetuado"}, {"nome": "SP TAUBATÉ", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP VALINHOS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SP ATIBAIA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Bruno", "obs": ""}, {"nome": "SC XANXERÊ", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC VIDEIRA", "num": "", "rede": "both", "status": "ativo", "alerta": false, "responsavel": "Glávio", "obs": "Go-Live efetuado"}, {"nome": "SC SÃO JOSÉ", "num": "", "rede": "both", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC PORTO UNIÃO", "num": "", "rede": "both", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC PALHOÇA", "num": "", "rede": "ml", "status": "ativo", "alerta": false, "responsavel": "Glávio", "obs": "Go-Live efetuado"}, {"nome": "SC NAVEGANTES", "num": "", "rede": "rj", "status": "ativo", "alerta": false, "responsavel": "Glávio", "obs": "Go-Live efetuado - Inauguração"}, {"nome": "SC LAGUNA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": "Já assinou contrato"}, {"nome": "SC LAGES", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC JOINVILLE", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC JOAÇABA", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC ITAPEMA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC ITAJAÍ", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC IMBITUBA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC GAROPABA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC FRAIBURGO", "num": "", "rede": "both", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC FLORIANÓPOLIS", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC FLORIANÓPOLIS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC CRICIÚMA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC CONCÓRDIA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC CHAPECÓ", "num": "", "rede": "rj", "status": "antigo", "alerta": true, "responsavel": "Glávio", "obs": "Dificuldade de comunicação"}, {"nome": "SC CAÇADOR", "num": "", "rede": "both", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": "Já assinou contrato"}, {"nome": "SC BLUMENAU", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SC BALNEÁRIO CAMBORIÚ", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "PR TOLEDO", "num": "", "rede": "rj", "status": "ativo", "alerta": false, "responsavel": "Glávio", "obs": "Go-Live efetuado"}, {"nome": "PR PINHAIS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "PR LONDRINA VITÓRIA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "PR LONDRINA AURORA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "PR LONDRINA ALPHAVILLE", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "PR LONDRINA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "PR GUARAPUAVA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "PR GUAÍRA", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "PR CURITIBA", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "PR CURITIBA PORTÃO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "PR CASCAVEL", "num": "", "rede": "rj", "status": "ativo", "alerta": false, "responsavel": "Glávio", "obs": "Go-Live efetuado"}, {"nome": "PR CAMPO LARGO", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "PR ARAPONGAS", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "SP BELENZINHO", "num": "", "rede": "rj", "status": "antigo", "alerta": true, "responsavel": "Marcelo", "obs": "Dificuldade de comunicação"}, {"nome": "ES VILA VELHA", "num": "", "rede": "rj", "status": "antigo", "alerta": false, "responsavel": "Maiara", "obs": "Fechou contrato"}, {"nome": "PI TERESINA", "num": "", "rede": "both", "status": "antigo", "alerta": false, "responsavel": "Marcelo", "obs": "Fechou contrato"}, {"nome": "SC BRUSQUE", "num": "", "rede": "ml", "status": "antigo", "alerta": false, "responsavel": "Glávio", "obs": ""}, {"nome": "PR FOZ DO IGUAÇU", "num": "", "rede": "rj", "status": "antigo", "alerta": true, "responsavel": "Glávio", "obs": "Dificuldade de comunicação"}];
-
-function load() {
-  const v4 = localStorage.getItem('golive_v8');
-  if(v4) { lojas = JSON.parse(v4); return; }
-  // no local data — use embedded backup
-  lojas = JSON.parse(JSON.stringify(EMBEDDED_GOLIVE));
-  save();
-}
-load();
+function saveLocal()   { localStorage.setItem('pc_gl_v1',  JSON.stringify(lojas));   }
+function saveDbLocal() { localStorage.setItem('pc_db_v1',  JSON.stringify(dbExtra)); }
+function save(){ saveToSupabase(); }
+function saveDb(){ saveToSupabase(); }
+function load()   { lojas   = JSON.parse(localStorage.getItem('pc_gl_v1') || 'null') || JSON.parse(JSON.stringify(EMBEDDED_GOLIVE)); }
+function loadDb() { dbExtra = JSON.parse(localStorage.getItem('pc_db_v1') || 'null') || JSON.parse(JSON.stringify(EMBEDDED_LOJAS));  }
 
 function saveAll() {
-  const data = {
-    version: 1,
-    exportedAt: new Date().toISOString(),
-    golive: lojas,
-    lojas: dbExtra,
-  };
-  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'presence_backup_' + new Date().toISOString().slice(0,10) + '.json';
-  a.click();
-  URL.revokeObjectURL(a.href);
-  showToast('Backup completo salvo!');
-}
-
-function saveJSON() {
-  const blob=new Blob([JSON.stringify(lojas,null,2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download='golives_'+new Date().toISOString().slice(0,10)+'.json'; a.click();
-  URL.revokeObjectURL(a.href);
+  const d={version:1,exportedAt:new Date().toISOString(),golive:lojas,lojas:dbExtra};
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:'application/json'}));
+  a.download='presence_backup_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click(); URL.revokeObjectURL(a.href);
+  showToast('Backup salvo!');
 }
 function loadJSON(e) {
-  const file=e.target.files[0]; if(!file) return;
+  const f=e.target.files[0]; if(!f) return;
   const r=new FileReader();
-  r.onload=ev=>{
+  r.onload=async ev=>{
     try {
       const d=JSON.parse(ev.target.result);
-      // unified backup format
-      if(d.golive && d.lojas) {
-        lojas = d.golive;
-        dbExtra = d.lojas;
-        save(); saveDb();
-        render();
-        showToast(`Backup restaurado: ${lojas.length} go-lives, ${dbExtra.length} lojas.`);
-      } else if(Array.isArray(d)) {
-        // legacy: go-live only
-        lojas=d; save(); render();
-        showToast(lojas.length+' go-lives carregados.');
-      } else throw 0;
-    } catch { showToast('Arquivo inválido.',true); }
+      if(d.golive&&d.lojas){lojas=d.golive;dbExtra=d.lojas;await saveToSupabase(true);renderPage();showToast(lojas.length+' go-lives, '+dbExtra.length+' lojas carregados e salvos.');}
+      else if(Array.isArray(d)){lojas=d;await saveToSupabase(true);renderPage();showToast(d.length+' go-lives carregados e salvos.');}
+      else throw 0;
+    } catch{showToast('Arquivo inválido.',true);}
     e.target.value='';
   };
-  r.readAsText(file);
+  r.readAsText(f);
 }
-function showToast(msg,err=false) {
+function showToast(msg,err=false){
   const t=document.createElement('div');
   t.textContent=msg;
-  t.style.cssText=`position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:${err?'#8b1a1a':'#158a61'};color:#fff;font-family:var(--font);font-size:12px;padding:9px 18px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.25);pointer-events:none;opacity:1;transition:opacity .4s;`;
+  t.style.cssText=`position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:${err?'#8b1a1a':'#158a61'};color:#fff;font-family:var(--font);font-size:12px;padding:8px 18px;z-index:9999;border-radius:6px;pointer-events:none;`;
   document.body.appendChild(t);
-  setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),400);},2600);
+  setTimeout(()=>t.remove(),2600);
 }
 
-function parseDate(s) {
+// ── UTILS ──
+function parseDate(s){
   if(!s) return null;
   const p=s.trim().split(' ')[0].split('/');
   if(p.length<3) return null;
-  const d = new Date(parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0]));
-  return d;
+  return new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0]));
 }
-function fmtDate(s) {
-  if(!s) return null; const d=parseDate(s); if(!d) return s;
+function fmtDate(s){
+  if(!s||s==='1') return null;
+  const d=parseDate(s); if(!d) return s;
   const day=String(d.getDate()).padStart(2,'0');
   const mon=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'][d.getMonth()];
-  const time=s.includes(' ')?' '+s.trim().split(' ')[1]:'';
-  return `${day}/${mon}${time}`;
+  const t=s.includes(' ')?' '+s.trim().split(' ')[1]:'';
+  return `${day}/${mon}${t}`;
 }
-function daysDiff(s) { const d=parseDate(s); if(!d) return null; return Math.round((d-TODAY)/86400000); }
-function isOverdue(l) { return l.status!=='concluido' && l.goLive && daysDiff(l.goLive)<0; }
-
-function daysCell(s) {
-  if(!s) return `<td class="days-cell none">—</td>`;
-  const d=daysDiff(s);
-  if(d===null) return `<td class="days-cell none">—</td>`;
-  if(d<0) return `<td class="days-cell overdue">atrasado ${Math.abs(d)}d</td>`;
-  if(d===0) return `<td class="days-cell soon">hoje</td>`;
-  if(d<=7) return `<td class="days-cell soon">em ${d}d</td>`;
-  return `<td class="days-cell ok">em ${d}d</td>`;
-}
-
-function badgeHtml(s) {
-  const m={agendado:'Cronograma',aberto:'Aguardando',concluido:'Go-Live Finalizado'};
-  return `<span class="badge ${s}">${m[s]||s}</span>`;
-}
-function respHtml(r) {
-  if(!r) return '';
-  return `<span class="resp-badge">${r.split(' ')[0]}</span>`;
-}
-
-function flowHtml(l) {
-  const done=stepsDone(l);
-  let h='<div class="flow">';
+function daysDiff(s){if(!s||s==='1')return null;const d=parseDate(s);if(!d)return null;return Math.round((d-TODAY)/86400000);}
+function isOverdue(l){return l.status!=='concluido'&&l.goLive&&daysDiff(l.goLive)<0;}
+function stepsDone(l){
+  let done=[];
   for(let i=0;i<FASES.length;i++){
-    if(i>0) h+=`<div class="step-connector${done[i-1]?' done':''}"></div>`;
-    const isDone=done[i],isNext=!isDone&&(i===0||done[i-1]);
-    const cls=isDone?'done':isNext?'next':'locked';
-    const icon=isDone?'✓':isNext?'·':'·';
-    h+=`<div class="step"><div class="step-box ${cls}" title="${FASES[i].label}${l[FASES[i].key]?' — '+fmtDate(l[FASES[i].key]):''}">${icon}</div></div>`;
+    const prev=i===0||done[i-1];
+    done.push(prev&&!!l[FASES[i].key]);
   }
-  return h+'</div>';
+  return done;
 }
-function progHtml(l) {
-  const n=countDone(l),pct=Math.round(n/FASES.length*100);
-  return `<div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div><div class="prog-lbl">${n}/5</div></div>`;
+function countDone(l){return stepsDone(l).filter(Boolean).length;}
+function badgeHtml(s){const m={aberto:'Aguardando',agendado:'Cronograma',concluido:'Presence Ativo'};return `<span class="badge ${s}">${m[s]||s}</span>`;}
+function redeLabel(r){
+  if(r==='both') return '<span class="rede-mega">Mega</span>';
+  return r==='ml'?'<span class="rede-ml">Minha Lavanderia</span>':'<span class="rede-rj">Restaura Jeans</span>';
+}
+function statusDbLabel(s){const m={antigo:'Sistema Antigo / Contrato Pendente',transicao:'Em Transição',ativo:'Presence Ativo'};return `<span class="status-db ${s}">${m[s]||s}</span>`;}
+function ufFromName(nome){const m=(nome||'').trim().match(/^([A-Z]{2})\s+/);return m?m[1]:'';}
+function cidadeFromName(nome){return (nome||'').replace(/^[A-Z]{2}\s+/, '').trim();}
+function redeFromGrupo(grupo,rede){if(rede)return rede;const g=(grupo||'').toLowerCase();if(g.includes('minha lavanderia'))return 'ml';if(g.includes('mega'))return 'both';return 'rj';}
+function isMegaStore(l){return (l.rede==='both') || (l.grupo||'').toLowerCase().includes('mega');}
+function hasPresenceNumber(l){return !!(l.num||'').trim();}
+function inNextDays(dateStr,days){const d=daysDiff(dateStr);return d!==null&&d>=0&&d<=days;}
+function getDatabase(){
+  const fromGL=lojas.map(l=>({
+    _glIdx:lojas.indexOf(l),nome:l.loja,num:l.num,
+    rede:l.grupo&&l.grupo.toLowerCase().includes('minha lavanderia')?'ml':'rj',
+    status:l.status==='concluido'?'ativo':'transicao',
+    alerta:!!l.alerta,responsavel:l.responsavel||'',obs:'',_fromGL:true
+  }));
+  const extras=dbExtra.map((l,i)=>({...l,_extraIdx:i,_fromGL:false}));
+  return [...fromGL,...extras].sort((a,b)=>a.nome.localeCompare(b.nome,'pt'));
 }
 
-function populateTeamSelects() {
-  const opts=TEAM.map(t=>`<option value="${t}">${t}</option>`).join('');
-  document.getElementById('q-resp').innerHTML=`<option value="">Todos os consultores</option>${opts}`;
-  document.getElementById('f-resp').innerHTML=`<option value="">— Sem consultor —</option>${opts}`;
+// ── PAGE NAV ──
+let currentPage='gl';
+function setPage(p){
+  currentPage=p;
+  document.getElementById('pnav-gl').className='pnav-btn'+(p==='gl'?' on':'');
+  document.getElementById('pnav-db').className='pnav-btn'+(p==='db'?' on':'');
+  renderPage();
 }
-populateTeamSelects();
+function renderPage(){if(currentPage==='gl')renderGL();else renderDB();}
 
-function getFiltered() {
-  const q=document.getElementById('q-busca').value.toLowerCase();
-  const st=document.getElementById('q-status').value;
-  const resp=document.getElementById('q-resp').value;
-  const mes=document.getElementById('q-mes').value;
+// ── GO-LIVE PAGE ──
+let glView='kanban',sortCol='goLive',sortAsc=true;
+function getFiltered(){
+  const q=(document.getElementById('gl-q')||{value:''}).value.toLowerCase();
+  const st=(document.getElementById('gl-st')||{value:''}).value;
+  const resp=(document.getElementById('gl-resp')||{value:''}).value;
+  const uf=(document.getElementById('gl-uf')||{value:''}).value;
+  const rede=(document.getElementById('gl-rede')||{value:''}).value;
+  const prazo=(document.getElementById('gl-prazo')||{value:''}).value;
+  const numero=(document.getElementById('gl-numero')||{value:''}).value;
   return lojas.filter(l=>{
-    if(q&&!l.loja.toLowerCase().includes(q)&&!l.grupo.toLowerCase().includes(q)&&!(l.franqueado||'').toLowerCase().includes(q)&&!l.num.includes(q)) return false;
+    const txt=((l.loja||'')+' '+(l.grupo||'')+' '+(l.franqueado||'')+' '+(l.num||'')+' '+(l.tickets||'')).toLowerCase();
+    if(q&&!txt.includes(q)) return false;
     if(st&&l.status!==st) return false;
     if(resp&&l.responsavel!==resp) return false;
-    if(mes){const d=parseDate(l.goLive);if(!d||d.getMonth()!==parseInt(mes)) return false;}
+    if(uf&&ufFromName(l.loja)!==uf) return false;
+    if(rede&&redeFromGrupo(l.grupo)!==rede) return false;
+    if(numero==='com'&&!hasPresenceNumber(l)) return false;
+    if(numero==='sem'&&hasPresenceNumber(l)) return false;
+    if(prazo&& !inNextDays(l.goLive,parseInt(prazo))) return false;
     return true;
   }).sort((a,b)=>{
     const da=parseDate(a.goLive),db=parseDate(b.goLive);
-    if(!da&&!db) return 0; if(!da) return 1; if(!db) return -1;
+    if(!da&&!db)return 0;if(!da)return 1;if(!db)return -1;
     return da-db;
   });
 }
 
-function renderMetrics(list) {
-  const ag=list.filter(l=>l.status==='agendado').length;
-  const ab=list.filter(l=>l.status==='aberto').length;
-  const co=list.filter(l=>l.status==='concluido').length;
-  const at=list.filter(l=>isOverdue(l)).length;
-  const proxGL=list.filter(l=>l.goLive&&daysDiff(l.goLive)>=0).sort((a,b)=>parseDate(a.goLive)-parseDate(b.goLive)).slice(0,2);
-  const proxPGL=list.filter(l=>l.preGoLive&&daysDiff(l.preGoLive)>=0).sort((a,b)=>parseDate(a.preGoLive)-parseDate(b.preGoLive)).slice(0,2);
-  const glItems=proxGL.length?proxGL.map(l=>{
-    const isToday = daysDiff(l.goLive)===0;
-    const time = l.goLive.includes(' ') ? l.goLive.trim().split(' ')[1] : '';
-    const dateLabel = isToday
-      ? `<span style="color:#158a61;font-size:11px;font-weight:800;letter-spacing:.04em;">HOJE${time?' — '+time:''}</span>`
-      : fmtDate(l.goLive);
-    return `<div class="spotlight-item"><div class="s-loja">${l.loja}<small>${l.responsavel||l.grupo}</small></div><div class="s-date gl">${dateLabel}</div></div>`;
-  }).join(''):`<div class="spotlight-empty">Nenhum agendado.</div>`;
-  const pglItems=proxPGL.length?proxPGL.map(l=>`<div class="spotlight-item"><div class="s-loja">${l.loja}<small>${l.responsavel||l.grupo}</small></div><div class="s-date pgl">${fmtDate(l.preGoLive)}</div></div>`).join(''):`<div class="spotlight-empty">Nenhum agendado.</div>`;
-  document.getElementById('metrics').innerHTML=`
-    <div class="metrics-left">
-      <div class="metric"><div class="lbl">Lojas</div><div class="val">${list.length}</div><div class="sub">em implantação</div></div>
-      <div class="metric"><div class="lbl">Cronograma</div><div class="val green">${ag}</div><div class="sub">confirmado</div></div>
-      <div class="metric"><div class="lbl">Aguardando</div><div class="val amber">${ab}</div><div class="sub">pendente</div></div>
-      <div class="metric"><div class="lbl">Go-Live Finalizado</div><div class="val blue">${co}</div><div class="sub">${at>0?`<span style="color:#f07070">▲ ${at} atrasado${at>1?'s':''}</span>`:'em dia'}</div></div>
+function renderGL(){
+  const all=lojas;
+  const ag=all.filter(l=>l.status==='agendado').length;
+  const ab=all.filter(l=>l.status==='aberto').length;
+  const co=all.filter(l=>l.status==='concluido').length;
+  const proxGL=all.filter(l=>l.goLive&&daysDiff(l.goLive)>=0).sort((a,b)=>parseDate(a.goLive)-parseDate(b.goLive)).slice(0,2);
+  const proxPGL=all.filter(l=>l.preGoLive&&daysDiff(l.preGoLive)>=0).sort((a,b)=>parseDate(a.preGoLive)-parseDate(b.preGoLive)).slice(0,2);
+
+  const glSpot=proxGL.length?proxGL.map(l=>{
+    const d=daysDiff(l.goLive),t=l.goLive.includes(' ')?l.goLive.trim().split(' ')[1]:'';
+    const lbl=d===0?`<span style="color:var(--teal-mid);font-weight:800">HOJE${t?' — '+t:''}</span>`:`<span style="color:#c0392b">${fmtDate(l.goLive)}</span>`;
+    return `<div class="spot-item"><div class="spot-name">${l.loja}<small>${l.responsavel||l.grupo}</small></div>${lbl}</div>`;
+  }).join(''):'<div class="spot-empty">Nenhum agendado.</div>';
+  const pglSpot=proxPGL.length?proxPGL.map(l=>`<div class="spot-item"><div class="spot-name">${l.loja}<small>${l.responsavel||l.grupo}</small></div><span class="spot-date" style="color:var(--indigo)">${fmtDate(l.preGoLive)}</span></div>`).join(''):'<div class="spot-empty">Nenhum agendado.</div>';
+
+  document.getElementById('content').innerHTML=`
+    <div class="stats-row">
+      <div class="stat"><div class="lbl">Lojas</div><div class="val">${all.length}</div><div class="sub">em implantação</div></div>
+      <div class="stat"><div class="lbl">Cronograma</div><div class="val g">${ag}</div><div class="sub">confirmado</div></div>
+      <div class="stat"><div class="lbl">Aguardando</div><div class="val i">${ab}</div><div class="sub">pendente</div></div>
+      <div class="stat"><div class="lbl">Presence Ativo</div><div class="val b">${co}</div><div class="sub">concluído</div></div>
     </div>
-    <div class="metrics-right">
-      <div class="spotlight"><div class="spotlight-hdr"><div class="s-dot gl"></div><span class="s-title">Próximos go-lives</span></div>${glItems}</div>
-      <div class="spotlight"><div class="spotlight-hdr"><div class="s-dot pgl"></div><span class="s-title">Próximos pré go-lives</span></div>${pglItems}</div>
-    </div>`;
+    <div class="spot-row">
+      <div class="spot-card"><div class="spot-hdr"><div class="spot-dot" style="background:#c0392b"></div><span class="spot-ttl">Próximos go-lives</span></div>${glSpot}</div>
+      <div class="spot-card"><div class="spot-hdr"><div class="spot-dot" style="background:var(--indigo)"></div><span class="spot-ttl">Próximos pré go-lives</span></div>${pglSpot}</div>
+    </div>
+    <div class="toolbar">
+      <div class="view-tabs">
+        <button class="vtab${glView==='kanban'?' on':''}" onclick="setGLView('kanban')">Kanban</button>
+        <button class="vtab${glView==='lista'?' on':''}" onclick="setGLView('lista')">Lista</button>
+        <button class="vtab${glView==='fase'?' on':''}" onclick="setGLView('fase')">Por fase</button>
+        <button class="vtab${glView==='tl'?' on':''}" onclick="setGLView('tl')">Timeline</button>
+      </div>
+      <input class="tb" id="gl-q" placeholder="Buscar loja..." oninput="renderGLContent()">
+      <select class="tb" id="gl-st" onchange="renderGLContent()">
+        <option value="">Todos os status</option>
+        <option value="agendado">Cronograma</option>
+        <option value="aberto">Aguardando</option>
+        <option value="concluido">Sistema Presence Ativo</option>
+      </select>
+      <select class="tb" id="gl-resp" onchange="renderGLContent()">
+        <option value="">Todos consultores</option>
+        ${TEAM.map(t=>`<option value="${t}">${t}</option>`).join('')}
+      </select>
+      <select class="tb" id="gl-uf" onchange="renderGLContent()">
+        <option value="">Todos UF</option>
+        ${[...new Set(lojas.map(l=>ufFromName(l.loja)).filter(Boolean))].sort().map(u=>`<option value="${u}">${u}</option>`).join('')}
+      </select>
+      <select class="tb" id="gl-rede" onchange="renderGLContent()">
+        <option value="">Todas redes</option><option value="rj">Restaura Jeans</option><option value="ml">Minha Lavanderia</option><option value="both">Mega</option>
+      </select>
+      <select class="tb" id="gl-numero" onchange="renderGLContent()">
+        <option value="">Com/sem nº</option><option value="com">Com nº Presence</option><option value="sem">Sem nº Presence</option>
+      </select>
+      <select class="tb" id="gl-prazo" onchange="renderGLContent()">
+        <option value="">Qualquer prazo</option><option value="7">Go-live em 7 dias</option><option value="15">Go-live em 15 dias</option><option value="30">Go-live em 30 dias</option>
+      </select>
+      <button class="btn-sm" onclick="exportCSV()">CSV</button>
+      <button class="btn-sm" onclick="document.getElementById('json-input').click()">Carregar</button>
+      <button class="btn-add" onclick="openModal()">+ Nova loja</button>
+    </div>
+    <div id="gl-content"></div>
+  `;
+  renderGLContent();
 }
 
-let currentView='lista',sortCol='goLive',sortAsc=true;
-function setView(v){
-  currentView=v;
-  ['lista','fase','tl'].forEach(t=>document.getElementById('tab-'+t).className='tab'+(v===({'lista':'lista','fase':'fase','timeline':'tl'}[v]||v)?(' on'):' on'[v===t?0:1]||''));
-  document.getElementById('tab-lista').className='tab'+(v==='lista'?' on':'');
-  document.getElementById('tab-fase').className='tab'+(v==='fase'?' on':'');
-  document.getElementById('tab-tl').className='tab'+(v==='timeline'?' on':'');
-  render();
+function setGLView(v){glView=v;renderGL();}
+
+function renderGLContent(){
+  const list=getFiltered();
+  const st=(document.getElementById('gl-st')||{value:''}).value;
+  const active=list.filter(l=>l.status!=='concluido');
+  const concluded=list.filter(l=>l.status==='concluido');
+  const el=document.getElementById('gl-content');
+  if(!el)return;
+  let html='';
+  if(st==='concluido'){
+    html=glView==='lista'?renderLista(concluded):glView==='fase'?renderFase(concluded):renderTL(concluded);
+  } else {
+    if(glView==='kanban') html=renderKanban(active,concluded);
+    else if(glView==='lista') html=renderLista(active)+(concluded.length?renderConcluded(concluded):'');
+    else if(glView==='fase') html=renderFase(active)+(concluded.length?renderConcluded(concluded):'');
+    else html=renderTL(list);
+  }
+  el.innerHTML=html;
 }
-function sortBy(col){sortAsc=sortCol===col?!sortAsc:true;sortCol=col;render();}
+
+function renderKanban(active,concluded){
+  const cols=[
+    {key:'aberto',label:'Aguardando'},
+    {key:'agendado',label:'Cronograma'},
+  ];
+  return `<div class="kanban">${cols.map(col=>{
+    const items=active.filter(l=>l.status===col.key).sort((a,b)=>{
+      const da=parseDate(a.goLive),db=parseDate(b.goLive);
+      if(!da&&!db)return 0;if(!da)return 1;if(!db)return -1;return da-db;
+    });
+    return `<div class="kb-col">
+      <div class="kb-col-hdr"><span class="kb-col-name">${col.label}</span><span class="kb-col-cnt">${items.length}</span></div>
+      ${items.length?items.map(l=>{
+        const idx=lojas.indexOf(l);
+        const pct=Math.round(countDone(l)/FASES.length*100);
+        const od=isOverdue(l);
+        const diff=daysDiff(l.goLive);
+        const dateLabel=!l.goLive?'<span class="kb-date">sem data</span>':diff===0?'<span class="kb-date today">HOJE</span>':diff!==null&&diff<0?`<span class="kb-date" style="color:#c0392b">atrasado ${Math.abs(diff)}d</span>`:`<span class="kb-date">${fmtDate(l.goLive)}</span>`;
+        const rede=l.grupo&&l.grupo.toLowerCase().includes('minha lavanderia')?'<span class="tag-ml">ML</span>':'<span class="tag-rj">RJ</span>';
+        return `<div class="kb-card${od?' overdue':''}" onclick="openModal(${idx})">
+          <div class="kb-name">${l.loja}${l.alerta?'<span style="color:#c0392b;font-size:11px"> ⚠</span>':''}</div>
+          <div class="kb-meta">${rede}${l.num?`<span class="nc" style="font-size:10px">${l.num}</span>`:''}${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:''}${dateLabel}</div>
+          <div class="kb-prog"><div class="kb-prog-f" style="width:${pct}%"></div></div>
+        </div>`;
+      }).join(''):'<div class="kb-empty">Nenhuma loja</div>'}
+    </div>`;
+  }).join('')}
+  <div class="kb-col">
+    <div class="kb-col-hdr"><span class="kb-col-name">Sistema Presence Ativo</span><span class="kb-col-cnt">${concluded.length}</span></div>
+    ${concluded.length?concluded.map(l=>{
+      const idx=lojas.indexOf(l);
+      const rede=l.grupo&&l.grupo.toLowerCase().includes('minha lavanderia')?'<span class="tag-ml">ML</span>':'<span class="tag-rj">RJ</span>';
+      return `<div class="kb-card" onclick="openModal(${idx})">
+        <div class="kb-name">${l.loja}</div>
+        <div class="kb-meta">${rede}${l.num?`<span class="nc" style="font-size:10px">${l.num}</span>`:''}${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:''}<span class="kb-date today">${fmtDate(l.goLive)?'✓ '+fmtDate(l.goLive):'—'}</span></div>
+        <div class="kb-prog"><div class="kb-prog-f" style="width:100%"></div></div>
+      </div>`;
+    }).join(''):'<div class="kb-empty">Nenhuma loja</div>'}
+  </div>
+  </div>`;
+}
+
+function flowDotsHtml(l){
+  const done=stepsDone(l);
+  return `<div class="flow-dots">${FASES.map((f,i)=>{
+    const isDone=done[i],isNext=!isDone&&(i===0||done[i-1]);
+    return `<div class="fd${isDone?' done':isNext?' next':''}"></div>`;
+  }).join('')}</div>`;
+}
+
+function daysCell(s){
+  if(!s) return '<td class="days-none">—</td>';
+  const d=daysDiff(s);
+  if(d===null) return '<td class="days-none">—</td>';
+  if(d<0) return `<td class="days-over">atrasado ${Math.abs(d)}d</td>`;
+  if(d===0) return '<td class="days-near">hoje</td>';
+  if(d<=7) return `<td class="days-near">em ${d}d</td>`;
+  return `<td class="days-ok">em ${d}d</td>`;
+}
 
 function renderLista(list){
-  if(!list.length) return `<div class="table-wrap"><div class="no-results">Nenhuma loja encontrada.</div></div>`;
+  if(!list.length) return '<div class="table-wrap"><div class="no-results">Nenhuma loja encontrada.</div></div>';
   const sorted=[...list].sort((a,b)=>{
     let va=a[sortCol]||'',vb=b[sortCol]||'';
-    if(['goLive','treinLoja','treinRetag','preGoLive'].includes(sortCol)){
+    if(['goLive','treinLoja','treinRetag','preGoLive','instalacao'].includes(sortCol)){
       const da=parseDate(va),db=parseDate(vb);
-      if(!da&&!db) return 0; if(!da) return 1; if(!db) return -1;
+      if(!da&&!db)return 0;if(!da)return 1;if(!db)return -1;
       return sortAsc?da-db:db-da;
     }
     return sortAsc?va.localeCompare(vb,'pt'):vb.localeCompare(va,'pt');
@@ -712,573 +713,353 @@ function renderLista(list){
   const th=(col,lbl)=>{const on=sortCol===col?' sorted':'';const arr=sortCol===col?(sortAsc?'▲':'▼'):'⇅';return `<th class="${on}" onclick="sortBy('${col}')">${lbl}<span class="sa">${arr}</span></th>`;};
   const rows=sorted.map(l=>{
     const idx=lojas.indexOf(l);
-    const od=isOverdue(l)?' overdue':'';
-    return `<tr class="${od}" onclick="openModal(${idx})">
-      <td class="loja-cell">${l.loja}<div class="sub">${l.franqueado?`<b>${l.franqueado}</b> · `:''} ${l.grupo}</div></td>
-      <td class="num-cell">${l.num}</td>
+    const lastLog=(l.log||'').split('\n').filter(Boolean).pop()||'';
+    const logTxt=lastLog.replace(/\[\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}\] /,'').substring(0,55);
+    return `<tr class="${isOverdue(l)?'over':''}" onclick="openModal(${idx})">
+      <td class="lc">${l.loja}<div class="sub">${l.grupo}</div></td>
+      <td class="nc">${l.num}</td>
       <td>${badgeHtml(l.status)}</td>
-      <td>${l.responsavel?respHtml(l.responsavel):'<span style="color:var(--text3);font-size:10px">—</span>'}</td>
-      <td>${flowHtml(l)}</td>
+      <td>${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:'—'}</td>
+      <td>${flowDotsHtml(l)}</td>
       ${daysCell(l.goLive)}
-      <td class="obs-cell" title="${(l.log||'').replace(/"/g,'&quot;')}">${(l.log||'').split('\n').pop().replace(/\[\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}\] /,'').substring(0,65)}…</td>
+      <td class="oc" title="${(l.log||'').replace(/"/g,'&quot;')}">${logTxt}${logTxt.length>=55?'…':''}</td>
     </tr>`;
   }).join('');
   return `<div class="table-wrap"><table>
     <thead><tr>${th('loja','Loja')}${th('num','Nº')}${th('status','Status')}<th>Consultor</th><th>Fluxo</th>${th('goLive','Go-live')}<th>Última anotação</th></tr></thead>
-    <tbody>${rows}</tbody></table></div>`;
+    <tbody>${rows}</tbody>
+  </table></div>`;
 }
+function sortBy(col){sortAsc=sortCol===col?!sortAsc:true;sortCol=col;renderGLContent();}
 
 function renderFase(list){
   return `<div class="fase-grid">${FASES.map((f,fi)=>{
     const com=list.filter(l=>stepsDone(l)[fi]).sort((a,b)=>(parseDate(a[f.key])||0)-(parseDate(b[f.key])||0));
     const sem=list.filter(l=>!stepsDone(l)[fi]);
-    return `<div class="fase-card"><div class="fase-hdr"><span class="ftitle">Etapa ${fi+1} — ${f.label}</span><span class="fcounts">${com.length} ok · ${sem.length} pendentes</span></div>
-      ${com.map(l=>`<div class="fase-row"><span class="fn">${l.loja}</span><span style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--teal)">✓ ${fmtDate(l[f.key])||''}${l.responsavel?` <span style="color:var(--text3)">· ${l.responsavel.split(' ')[0]}</span>`:''}</span></div>`).join('')}
+    return `<div class="fase-card"><div class="fase-hdr"><span class="ft">Etapa ${fi+1} — ${f.label}</span><span class="fc">${com.length} ok · ${sem.length} pend.</span></div>
+      ${com.map(l=>`<div class="fase-row"><span class="fn">${l.loja}</span><span style="font-size:11px;color:var(--teal)">✓ ${fmtDate(l[f.key])||''}</span></div>`).join('')}
       ${sem.length?`<div class="fase-sem">Pendentes: ${sem.map(l=>l.loja).join(', ')}</div>`:''}
     </div>`;
   }).join('')}</div>`;
 }
 
-function renderTimeline(list){
+function renderTL(list){
   const withDate=list.filter(l=>l.goLive).sort((a,b)=>parseDate(a.goLive)-parseDate(b.goLive));
-  if(!withDate.length) return `<div class="no-results">Nenhuma loja com go-live agendado.</div>`;
+  if(!withDate.length) return '<div class="no-results">Nenhum go-live agendado.</div>';
   const months={};
-  withDate.forEach(l=>{
-    const d=parseDate(l.goLive); if(!d) return;
-    const key=d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
-    if(!months[key]) months[key]=[];
-    months[key].push(l);
-  });
-  return Object.entries(months).map(([month,items])=>`
-    <div style="margin-bottom:1.5rem;">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);">${month}</div>
-      <div style="display:flex;flex-direction:column;gap:6px;">
-        ${items.map(l=>{
-          const idx=lojas.indexOf(l);
-          const od=isOverdue(l);
-          const diff=daysDiff(l.goLive);
-          const diffTxt=diff===null?'':diff<0?`<span style="color:#e05555;font-size:10px;font-weight:600;">atrasado ${Math.abs(diff)}d</span>`:diff===0?`<span style="color:#6366f1;font-size:10px;font-weight:600;">hoje</span>`:`<span style="color:var(--teal-mid);font-size:10px;">em ${diff}d</span>`;
-          return `<div onclick="openModal(${idx})" style="display:flex;align-items:center;gap:12px;padding:9px 13px;background:var(--surface);border:1px solid ${od?'#e05555':'var(--border)'};cursor:pointer;transition:background .1s;" onmouseover="this.style.background='var(--hover)'" onmouseout="this.style.background='var(--surface)'">
-            <div style="width:52px;flex-shrink:0;font-size:13px;font-weight:700;color:${od?'#e05555':'var(--text)'};">${fmtDate(l.goLive).split(' ')[0]}</div>
-            <div style="flex:1;min-width:0;">
-              <div style="font-size:12px;font-weight:600;">${l.loja}</div>
-              <div style="font-size:10px;color:var(--text3);">${l.franqueado?l.franqueado+' · ':''}${l.grupo}</div>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px;">${diffTxt}${badgeHtml(l.status)}${l.responsavel?respHtml(l.responsavel):''}</div>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>`).join('');
-}
-
-function render(){
-  const list=getFiltered();
-  const active=list.filter(l=>l.status!=='concluido');
-  const concluded=list.filter(l=>l.status==='concluido');
-  renderMetrics(list);
-  let html='';
-  if(currentView==='lista') html=renderLista(active);
-  else if(currentView==='fase') html=renderFase(active);
-  else html=renderTimeline(list);
-  if(concluded.length&&currentView!=='timeline') html+=renderConcluded(concluded);
-  document.getElementById('main-content').innerHTML=html;
+  withDate.forEach(l=>{const d=parseDate(l.goLive);if(!d)return;const k=d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});if(!months[k])months[k]=[];months[k].push(l);});
+  return Object.entries(months).map(([m,items])=>`<div class="tl-month"><div class="tl-hdr">${m}</div>${items.map(l=>{
+    const idx=lojas.indexOf(l);
+    const diff=daysDiff(l.goLive);
+    return `<div class="tl-item" onclick="openModal(${idx})">
+      <div class="tl-dt" style="color:${isOverdue(l)?'#c0392b':'var(--text)'}">${fmtDate(l.goLive).split(' ')[0]}</div>
+      <div class="tl-name">${l.loja}<small>${l.grupo}</small></div>
+      <div style="display:flex;align-items:center;gap:7px">${badgeHtml(l.status)}${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:''}</div>
+    </div>`;
+  }).join('')}</div>`).join('');
 }
 
 function renderConcluded(list){
-  const rows=list.map(l=>{const idx=lojas.indexOf(l);return `<tr onclick="openModal(${idx})"><td class="loja-cell">${l.loja}<div class="sub">${l.grupo}</div></td><td class="num-cell">${l.num}</td><td>${badgeHtml(l.status)}</td><td>${l.responsavel?respHtml(l.responsavel):'—'}</td><td>${flowHtml(l)}</td>${daysCell(l.goLive)}<td class="obs-cell">${fmtDate(l.goLive)||'—'}</td></tr>`;}).join('');
-  return `<div class="concluded-section"><div class="concluded-toggle" onclick="toggleConcluded(this)"><span class="ct-label">Go-Live Finalizado</span><span class="ct-count">${list.length}</span><span class="ct-arrow">▼</span></div><div class="concluded-body"><div class="table-wrap concluded-table"><table><thead><tr><th>Loja</th><th>Nº</th><th>Status</th><th>Consultor</th><th>Fluxo</th><th>Go-live</th><th>Data</th></tr></thead><tbody>${rows}</tbody></table></div></div></div>`;
-}
-function toggleConcluded(el){el.classList.toggle('open');el.nextElementSibling.classList.toggle('open');}
-
-// ── MODAL ──
-let modalIdx=-1;
-
-function buildFlowSteps(l){
-  const done=stepsDone(l); let html='';
-  for(let i=0;i<FASES.length;i++){
-    const f=FASES[i];
-    const isDone=done[i], canEdit=i===0||done[i-1];
-    const cls=isDone?'done-step':canEdit?'next-step':'locked-step';
-    const lockMsg=!canEdit?`aguardando: ${FASES[i-1].label}`:'';
-    const curVal=l[f.key]||'';
-    const ph=FASE_DEFAULTS[i]?`DD/MM/AAAA ${FASE_DEFAULTS[i]}`:'DD/MM/AAAA HH:MM';
-    const dateField=f.checkOnly
-      ? `<div class="fstep-date" style="font-size:11px;color:var(--text3);font-style:italic;margin-top:2px;">${isDone?'✓ Concluída':'Marque quando instalado'}</div>`
-      : `<div class="fstep-date"><input type="text" id="fdate-${i}" value="${curVal}" placeholder="${ph}" ${!canEdit?'disabled':''} oninput="onDateInput(${i})"/></div>`;
-    html+=`<div class="fstep ${cls}" id="fstep-${i}">
-      <div class="fstep-check">
-        <input type="checkbox" id="fcheck-${i}" ${isDone?'checked':''} ${!canEdit?'disabled':''}
-          onchange="onStepCheck(${i})"/>
-      </div>
-      <div class="fstep-info">
-        <div class="fstep-label">
-          <span class="step-num">${i+1}</span>${f.label}
-          ${lockMsg?`<span class="lock-msg">(${lockMsg})</span>`:''}
-        </div>
-        ${dateField}
-      </div>
-    </div>`;
-  }
-  return html;
-}
-
-function onStepCheck(i){
-  const f=FASES[i];
-  const chk=document.getElementById('fcheck-'+i);
-
-  if(f.checkOnly){
-    // no date required — just toggle
-    if(!chk.checked){
-      for(let j=i+1;j<FASES.length;j++){
-        const nc=document.getElementById('fcheck-'+j);
-        const nd=document.getElementById('fdate-'+j);
-        if(nc){nc.checked=false;nc.disabled=true;}
-        if(nd){nd.value='';nd.disabled=true;}
-        document.getElementById('fstep-'+j).className='fstep locked-step';
-      }
-    } else {
-      unlockNext(i);
-    }
-    refreshStepStyles();
-    return;
-  }
-
-  // steps with date
-  const dateInput=document.getElementById('fdate-'+i);
-  if(chk.checked){
-    const v=dateInput.value.trim();
-    if(!v){
-      chk.checked=false;
-      dateInput.focus();
-      dateInput.style.borderColor='#e05555';
-      setTimeout(()=>dateInput.style.borderColor='',1800);
-      showToast('Insira a data antes de marcar a etapa.',true);
-      return;
-    }
-    unlockNext(i);
-  } else {
-    dateInput.value='';
-    for(let j=i+1;j<FASES.length;j++){
-      const nc=document.getElementById('fcheck-'+j);
-      const nd=document.getElementById('fdate-'+j);
-      if(nc){nc.checked=false;nc.disabled=true;}
-      if(nd){nd.value='';nd.disabled=true;}
-      document.getElementById('fstep-'+j).className='fstep locked-step';
-    }
-  }
-  refreshStepStyles();
-}
-
-function onDateInput(i){
-  const v=document.getElementById('fdate-'+i).value.trim();
-  const c=document.getElementById('fcheck-'+i);
-  if(v.length>=8){
-    // auto-append default time if user typed only a date (10 chars = DD/MM/AAAA)
-    if(v.length===10 && FASE_DEFAULTS[i] && !v.includes(' ')){
-      document.getElementById('fdate-'+i).value=v+' '+FASE_DEFAULTS[i];
-    }
-    if(!c.checked){
-      c.checked=true;
-      unlockNext(i);
-      refreshStepStyles();
-    }
-  } else {
-    if(c.checked){
-      c.checked=false;
-      // lock subsequent
-      for(let j=i+1;j<FASES.length;j++){
-        const nc=document.getElementById('fcheck-'+j);
-        const nd=document.getElementById('fdate-'+j);
-        if(nc){nc.checked=false;nc.disabled=true;}
-        if(nd){nd.value='';nd.disabled=true;}
-        document.getElementById('fstep-'+j).className='fstep locked-step';
-      }
-      refreshStepStyles();
-    }
-  }
-}
-
-function unlockNext(i){
-  if(i+1<FASES.length){
-    const nc=document.getElementById('fcheck-'+(i+1));
-    const nd=document.getElementById('fdate-'+(i+1));
-    if(nc)nc.disabled=false;
-    if(nd)nd.disabled=false;
-    document.getElementById('fstep-'+(i+1)).className='fstep next-step';
-  }
-}
-
-function refreshStepStyles(){
-  for(let i=0;i<FASES.length;i++){
-    const c=document.getElementById('fcheck-'+i);
-    const el=document.getElementById('fstep-'+i);
-    if(!el||!c) continue;
-    el.className='fstep '+(c.checked?'done-step':c.disabled?'locked-step':'next-step');
-  }
-}
-
-function parseLogEntries(log){
-  if(!log) return [];
-  return log.split('\n').filter(Boolean).map(e=>{
-    const m=e.match(/^\[(.+?)\] (.+)$/s);
-    return m?{ts:m[1],text:m[2]}:{ts:'',text:e};
-  });
-}
-function entriesToLog(entries){
-  return entries.map(e=>e.ts?`[${e.ts}] ${e.text}`:e.text).join('\n');
-}
-function buildLogView(log){
-  const entries=parseLogEntries(log);
-  if(!entries.length) return '<div style="color:var(--text3);font-size:11px;font-style:italic;padding:10px 0;">Nenhuma anotação ainda.</div>';
-  return [...entries].reverse().map((e,ri)=>{
-    const realIdx=entries.length-1-ri;
-    return `<div class="log-entry" id="lentry-${realIdx}">
-      ${e.ts?`<div class="log-ts">${e.ts}</div>`:''}
-      <div class="log-text" id="ltext-${realIdx}">${e.text}</div>
-      <div class="log-entry-actions">
-        <button class="log-btn" onclick="editEntry(${realIdx})">Editar</button>
-        <button class="log-btn del" onclick="deleteEntry(${realIdx})">Excluir</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-window.editEntry = function(idx){
-  const lv=document.getElementById('log-view');
-  const entries=parseLogEntries(lv.dataset.log||'');
-  const e=entries[idx];
-  const entryEl=document.getElementById('lentry-'+idx);
-  const textEl=document.getElementById('ltext-'+idx);
-  // replace text + actions with inline editor
-  textEl.style.display='none';
-  entryEl.querySelector('.log-entry-actions').style.display='none';
-  const editor=document.createElement('textarea');
-  editor.className='log-edit-area';
-  editor.value=e.text;
-  entryEl.appendChild(editor);
-  editor.focus();
-  const saveBtn=document.createElement('button');
-  saveBtn.className='log-btn'; saveBtn.textContent='Salvar';
-  saveBtn.style.marginTop='4px';
-  const cancelBtn=document.createElement('button');
-  cancelBtn.className='log-btn'; cancelBtn.textContent='Cancelar';
-  cancelBtn.style.marginTop='4px';
-  const btnRow=document.createElement('div');
-  btnRow.style.display='flex'; btnRow.style.gap='6px'; btnRow.style.marginTop='4px';
-  btnRow.appendChild(saveBtn); btnRow.appendChild(cancelBtn);
-  entryEl.appendChild(btnRow);
-  saveBtn.onclick=()=>{
-    entries[idx].text=editor.value.trim()||e.text;
-    lv.dataset.log=entriesToLog(entries);
-    lv.innerHTML=buildLogView(lv.dataset.log);
-  };
-  cancelBtn.onclick=()=>{ lv.innerHTML=buildLogView(lv.dataset.log); };
-}
-window.deleteEntry = function(idx){
-  const lv = document.getElementById('log-view');
-  const entryEl = document.getElementById('lentry-'+idx);
-  if(!entryEl) return;
-  // inline confirm
-  if(entryEl.querySelector('.del-confirm')) return; // already showing
-  const bar = document.createElement('div');
-  bar.className = 'del-confirm';
-  bar.style.cssText = 'display:flex;gap:6px;align-items:center;margin-top:4px;';
-  bar.innerHTML = `<span style="font-size:11px;color:var(--text2);">Excluir esta anotação?</span>
-    <button class="log-btn del" onclick="confirmDelete(${idx})">Sim, excluir</button>
-    <button class="log-btn" onclick="this.closest('.del-confirm').remove()">Cancelar</button>`;
-  entryEl.appendChild(bar);
-};
-window.confirmDelete = function(idx){
-  const lv = document.getElementById('log-view');
-  const entries = parseLogEntries(lv.dataset.log||'');
-  entries.splice(idx,1);
-  lv.dataset.log = entriesToLog(entries);
-  lv.innerHTML = buildLogView(lv.dataset.log);
-};
-function addNote(){
-  const txt=document.getElementById('f-note-input').value.trim();
-  if(!txt) return;
-  const now=new Date();
-  const ts=`${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  const entry=`[${ts}] ${txt}`;
-  const lv=document.getElementById('log-view');
-  const existing=lv.dataset.log||'';
-  const newLog=existing?existing+'\n'+entry:entry;
-  lv.dataset.log=newLog;
-  lv.innerHTML=buildLogView(newLog);
-  document.getElementById('f-note-input').value='';
-}
-
-function openModal(idx=-1){
-  modalIdx=idx;
-  const del=document.getElementById('btn-del');
-  const l=idx===-1?{loja:'',num:'',grupo:'Franquias Restaura Jeans',franqueado:'',instalacao:'',responsavel:'',inauguracao:'',tickets:'',status:'aberto',treinLoja:'',treinRetag:'',preGoLive:'',goLive:'',log:''}:lojas[idx];
-  document.getElementById('mtitle').textContent=idx===-1?'Nova loja':'Editar — '+l.loja;
-  document.getElementById('f-idx').value=idx;
-  document.getElementById('f-loja').value=l.loja;
-  document.getElementById('f-num').value=l.num;
-  document.getElementById('f-grupo').value=l.grupo;
-  document.getElementById('f-franqueado').value=l.franqueado||'';
-  document.getElementById('f-resp').value=l.responsavel||'';
-  document.getElementById('f-status').value=l.status;
-  document.getElementById('f-inauguracao').value=l.inauguracao||'';
-  document.getElementById('f-tickets').value=l.tickets||'';
-  document.getElementById('flow-steps').innerHTML=buildFlowSteps(l);
-  const lv=document.getElementById('log-view');
-  lv.dataset.log=l.log||''; lv.innerHTML=buildLogView(l.log||'');
-  document.getElementById('f-note-input').value='';
-  del.style.display=idx===-1?'none':'block';
-  document.getElementById('overlay').classList.add('open');
-}
-function closeModal(){document.getElementById('overlay').classList.remove('open');}
-function closeOut(e){if(e.target===document.getElementById('overlay'))closeModal();}
-
-function saveLoja(){
-  const idx=parseInt(document.getElementById('f-idx').value);
-  if(!document.getElementById('f-loja').value.trim()){alert('Informe o nome da loja.');return;}
-  const dates={};
-  for(let i=0;i<FASES.length;i++){
-    const f=FASES[i];
-    const c=document.getElementById('fcheck-'+i);
-    if(f.checkOnly){
-      dates[f.key]=c.checked?'1':'';
-    } else {
-      const v=document.getElementById('fdate-'+i).value.trim();
-      dates[f.key]=c.checked?v:'';
-    }
-  }  const obj={
-    loja:document.getElementById('f-loja').value.trim().toUpperCase(),
-    num:document.getElementById('f-num').value.trim(),
-    grupo:document.getElementById('f-grupo').value.trim(),
-    franqueado:document.getElementById('f-franqueado').value.trim(),
-    responsavel:document.getElementById('f-resp').value,
-    status:document.getElementById('f-status').value,
-    inauguracao:document.getElementById('f-inauguracao').value.trim(),
-    tickets:document.getElementById('f-tickets').value.trim(),
-    log:document.getElementById('log-view').dataset.log||'',
-    ...dates,
-  };
-  if(idx===-1) lojas.push(obj); else lojas[idx]=obj;
-  save();closeModal();render();
-}
-function deleteLoja(){
-  if(modalIdx<0) return;
-  if(!confirm(`Excluir "${lojas[modalIdx].loja}"?`)) return;
-  lojas.splice(modalIdx,1);save();closeModal();render();
+  const rows=list.map(l=>{const idx=lojas.indexOf(l);return `<tr onclick="openModal(${idx})"><td class="lc">${l.loja}</td><td class="nc">${l.num}</td><td>${badgeHtml(l.status)}</td><td>${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:'—'}</td><td>${flowDotsHtml(l)}</td><td class="nc">${fmtDate(l.goLive)||'—'}</td><td class="oc">—</td></tr>`;}).join('');
+  return `<div class="conc-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><span class="conc-label">Sistema Presence Ativo</span><span class="conc-cnt">${list.length}</span><span class="conc-arrow">▼</span></div><div class="conc-body"><div class="table-wrap conc-table"><table><thead><tr><th>Loja</th><th>Nº</th><th>Status</th><th>Consultor</th><th>Fluxo</th><th>Go-live</th><th>—</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
 }
 
 function exportCSV(){
-  const hdr=['Loja','Grupo','Nº','Franqueado','Consultor','Status','Inauguração','Tickets','Instalação','Trein. Loja','Trein. Retag.','Pré go-live','Go-live','Histórico'];
-  const rows=lojas.map(l=>[l.loja,l.grupo,l.num,l.franqueado||'',l.responsavel||'',l.status,l.inauguracao||'',l.tickets||'',l.instalacao||'',l.treinLoja,l.treinRetag,l.preGoLive,l.goLive,(l.log||'').replace(/\n/g,' | ')].map(v=>`"${(v||'').replace(/"/g,'""')}"`).join(';'));
+  const hdr=['Loja','Grupo','Nº','Consultor','Status','Instalação','Trein. Loja','Trein. Retag.','Pré go-live','Go-live','Log'];
+  const rows=lojas.map(l=>[l.loja,l.grupo,l.num,l.responsavel||'',l.status,l.instalacao||'',l.treinLoja||'',l.treinRetag||'',l.preGoLive||'',l.goLive||'',(l.log||'').replace(/\n/g,' | ')].map(v=>`"${(v||'').replace(/"/g,'""')}"`).join(';'));
   const csv=[hdr.join(';'),...rows].join('\n');
-  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);a.download='golives_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);a.download='golive_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
 }
 
-document.getElementById('hdate').textContent='Hoje: '+TODAY.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
-
-// ── PAGE NAVIGATION ──
-let currentPage = 'gl';
-
-function setPage(p) {
-  currentPage = p;
-  document.getElementById('ptab-db').className = 'page-tab' + (p==='db'?' on':'');
-  document.getElementById('ptab-gl').className = 'page-tab' + (p==='gl'?' on':'');
-  document.getElementById('metrics').style.display = p==='gl' ? '' : 'none';
-  renderPage();
-}
-
-function renderPage() {
-  if(currentPage === 'gl') { render(); return; }
-  if(currentPage === 'db') { renderDb(); return; }
-}
-
-// ── DATABASE ──
-let dbExtra = []; // lojas cadastradas manualmente só em Lojas (sem Go-Live)
-function saveDb() { localStorage.setItem('presence_db_v9', JSON.stringify(dbExtra)); }
-function loadDb() {
-  const d=localStorage.getItem('presence_db_v9');
-  if(d) { dbExtra=JSON.parse(d); return; }
-  dbExtra = JSON.parse(JSON.stringify(EMBEDDED_LOJAS));
-  saveDb();
-}
-loadDb();
-
-// merged view: Go-Live lojas + manual extras
-function getDatabase() {
-  // lojas do go-live espelhadas
-  const fromGL = lojas.map(l => ({
-    _glIdx: lojas.indexOf(l),
-    nome: l.loja,
-    num: l.num,
-    rede: l.grupo && l.grupo.toLowerCase().includes('minha lavanderia') ? 'ml' : 'rj',
-    status: l.status === 'concluido' ? 'ativo' : 'transicao',
-    obs: '',
-    _fromGL: true,
-  }));
-  // extras manuais (sem go-live)
-  const extras = dbExtra.map((l,i) => ({...l, _extraIdx: i, _fromGL: false}));
-  return [...fromGL, ...extras].sort((a,b) => a.nome.localeCompare(b.nome,'pt'));
-}
-
-function redeLabel(r) {
-  if(r==='both') return `<span class="rede-mega">Mega</span>`;
-  return r==='ml'
-    ? `<span class="rede-ml">Minha Lavanderia</span>`
-    : `<span class="rede-rj">Restaura Jeans</span>`;
-}
-function statusDbLabel(s) {
-  const m={antigo:'Sistema Antigo',transicao:'Em Transição',ativo:'Presence Ativo'};
-  return `<span class="status-db ${s}">${m[s]||s}</span>`;
-}
-
-function renderDb() {
-  const q = (document.getElementById('db-q')||{value:''}).value.toLowerCase();
-  const filterRede = (document.getElementById('db-filter-rede')||{value:''}).value;
-  const filterStatus = (document.getElementById('db-filter-status')||{value:''}).value;
-
-  const database = getDatabase();
-  const filtered = database.filter(l => {
-    if(q && !l.nome.toLowerCase().includes(q) && !(l.num||'').includes(q)) return false;
-    if(filterRede && l.rede !== filterRede) return false;
-    if(filterStatus && l.status !== filterStatus) return false;
-    return true;
-  });
-
-  const total = database.length;
-  const ativo = database.filter(l=>l.status==='ativo').length;
-  const trans = database.filter(l=>l.status==='transicao').length;
-  const antigo = database.filter(l=>l.status==='antigo').length;
-
-  const rows = filtered.map(l => {
-    const alertIcon = l.alerta ? ' <span style="color:#e05555;font-size:11px;" title="Dificuldade de contato">⚠</span>' : '';
-    const editBtn = l._fromGL
-      ? `<span style="font-size:10px;color:var(--teal-mid);font-weight:600;">via Go-Live</span>`
-      : `<button class="log-btn" onclick="event.stopPropagation();openDbModal(${l._extraIdx})">Editar</button>`;
-    const resp = l.responsavel ? `<span class="resp-badge">${l.responsavel}</span>` : '—';
-    return `<tr onclick="${l._fromGL ? `openModal(${l._glIdx})` : `openDbModal(${l._extraIdx})`}">
-      <td class="loja-cell">${l.nome}${alertIcon}</td>
-      <td class="num-cell">${l.num||'—'}</td>
-      <td>${redeLabel(l.rede)}</td>
-      <td>${statusDbLabel(l.status)}</td>
-      <td>${resp}</td>
-      <td class="obs-cell">${l.obs||'—'}</td>
-      <td>${editBtn}</td>
-    </tr>`;
-  }).join('');
-
-  const tableHtml = filtered.length
-    ? `<div class="table-wrap"><table>
-        <thead><tr>
-          <th>Loja</th><th>Nº</th><th>Rede</th><th>Status</th><th>Consultor</th><th>Observações</th><th></th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
-       </table></div>`
-    : `<div class="table-wrap"><div class="no-results">Nenhuma loja encontrada.</div></div>`;
-
-  document.getElementById('main-content').innerHTML = `
+// ── DB PAGE ──
+function renderDB(){
+  const database=getDatabase();
+  const total=database.length,ativo=database.filter(l=>l.status==='ativo').length,trans=database.filter(l=>l.status==='transicao').length,antigo=database.filter(l=>l.status==='antigo').length;
+  document.getElementById('content').innerHTML=`
     <div class="db-stats">
-      <div class="db-stat"><div class="lbl">Total de lojas</div><div class="val">${total}</div><div class="sub">na rede</div></div>
-      <div class="db-stat"><div class="lbl">Presence Ativo</div><div class="val green">${ativo}</div><div class="sub">migração concluída</div></div>
-      <div class="db-stat"><div class="lbl">Em Transição</div><div class="val indigo">${trans}</div><div class="sub">em processo</div></div>
-      <div class="db-stat"><div class="lbl">Sistema Antigo</div><div class="val gray">${antigo}</div><div class="sub">aguardando</div></div>
+      <div class="db-stat"><div class="lbl">Total de lojas</div><div class="val">${total}</div></div>
+      <div class="db-stat"><div class="lbl">Presence Ativo</div><div class="val g">${ativo}</div></div>
+      <div class="db-stat"><div class="lbl">Em Transição</div><div class="val i">${trans}</div></div>
+      <div class="db-stat"><div class="lbl">Sistema Antigo</div><div class="val" style="color:var(--text3)">${antigo}</div></div>
     </div>
-    <div class="db-toolbar">
-      <input type="text" id="db-q" placeholder="Buscar loja ou nº..." oninput="renderDb()">
-      <select id="db-filter-rede" onchange="renderDb()">
+    <div class="toolbar">
+      <input class="tb" id="db-q" placeholder="Buscar loja ou nº..." oninput="renderDbTable()" style="color:#111110;caret-color:#111110;">
+      <select class="tb" id="db-fr" onchange="renderDbTable()">
         <option value="">Todas as redes</option>
         <option value="rj">Restaura Jeans</option>
         <option value="ml">Minha Lavanderia</option>
         <option value="both">Mega</option>
       </select>
-      <select id="db-filter-status" onchange="renderDb()">
+      <select class="tb" id="db-fs" onchange="renderDbTable()">
         <option value="">Todos os status</option>
-        <option value="antigo">Sistema Antigo</option>
+        <option value="antigo">Sistema Antigo / Contrato Pendente</option>
         <option value="transicao">Em Transição</option>
         <option value="ativo">Presence Ativo</option>
       </select>
-      <button class="btn-export" onclick="exportDbCSV()">CSV</button>
-      <button class="btn-export" onclick="saveDbJSON()"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Salvar</button>
+      <select class="tb" id="db-fres" onchange="renderDbTable()">
+        <option value="">Todos consultores</option>
+        ${TEAM.map(t=>`<option value="${t}">${t}</option>`).join('')}
+      </select>
+      <select class="tb" id="db-uf" onchange="renderDbTable()">
+        <option value="">Todos UF</option>
+        ${[...new Set(getDatabase().map(l=>ufFromName(l.nome)).filter(Boolean))].sort().map(u=>`<option value="${u}">${u}</option>`).join('')}
+      </select>
+      <select class="tb" id="db-numero" onchange="renderDbTable()">
+        <option value="">Com/sem nº</option><option value="com">Com nº Presence</option><option value="sem">Sem nº Presence</option>
+      </select>
+      <select class="tb" id="db-alerta-f" onchange="renderDbTable()">
+        <option value="">Todos contatos</option><option value="1">Com sinalizador ⚠</option><option value="0">Sem sinalizador</option>
+      </select>
+      <button class="btn-sm" onclick="exportDbCSV()">CSV</button>
       <button class="btn-add" onclick="openDbModal()">+ Nova loja</button>
     </div>
-    ${tableHtml}
+    <div id="db-table"></div>
   `;
+  renderDbTable();
 }
 
-function saveDbJSON() {
-  const blob = new Blob([JSON.stringify(dbExtra, null, 2)], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'lojas_' + new Date().toISOString().slice(0,10) + '.json';
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
-function exportDbCSV() {
-  const hdr = ['Nome','Nº','Rede','Status','Origem','Observações'];
-  const rows = data.map(l => [l.nome,l.num||'',l.rede==='ml'?'Minha Lavanderia':'Restaura Jeans',l.status,l._fromGL?'Go-Live':'Manual',l.obs||''].map(v=>`"${(v||'').replace(/"/g,'""')}"`).join(';'));
-  const csv = [hdr.join(';'),...rows].join('\n');
-  const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
-  a.download = 'lojas_'+new Date().toISOString().slice(0,10)+'.csv';
-  a.click();
+function renderDbTable(){
+  const q=(document.getElementById('db-q')||{value:''}).value.toLowerCase();
+  const fRede=(document.getElementById('db-fr')||{value:''}).value;
+  const fSt=(document.getElementById('db-fs')||{value:''}).value;
+  const fResp=(document.getElementById('db-fres')||{value:''}).value;
+  const fUf=(document.getElementById('db-uf')||{value:''}).value;
+  const fNumero=(document.getElementById('db-numero')||{value:''}).value;
+  const fAlerta=(document.getElementById('db-alerta-f')||{value:''}).value;
+  const filtered=getDatabase().filter(l=>{
+    const txt=((l.nome||'')+' '+(l.num||'')+' '+(l.obs||'')+' '+(l.responsavel||'')).toLowerCase();
+    if(q&&!txt.includes(q))return false;
+    if(fRede&&l.rede!==fRede)return false;
+    if(fSt&&l.status!==fSt)return false;
+    if(fResp&&l.responsavel!==fResp)return false;
+    if(fUf&&ufFromName(l.nome)!==fUf)return false;
+    if(fNumero==='com'&&!hasPresenceNumber(l))return false;
+    if(fNumero==='sem'&&hasPresenceNumber(l))return false;
+    if(fAlerta==='1'&&!l.alerta)return false;
+    if(fAlerta==='0'&&l.alerta)return false;
+    return true;
+  });
+  const rows=filtered.map(l=>{
+    const alertIcon=l.alerta?'<span style="color:#c0392b;font-size:11px"> ⚠</span>':'';
+    const editBtn=l._fromGL?'<span style="font-size:10px;color:var(--teal-mid);font-weight:600">via Go-Live</span>':`<button class="lbtn" onclick="event.stopPropagation();openDbModal(${l._extraIdx})">Editar</button>`;
+    return `<tr onclick="${l._fromGL?`openModal(${l._glIdx})`:`openDbModal(${l._extraIdx})`}">
+      <td class="lc">${l.nome}${alertIcon}</td>
+      <td class="nc">${l.num||'—'}</td>
+      <td>${redeLabel(l.rede)}</td>
+      <td>${statusDbLabel(l.status)}</td>
+      <td>${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:'—'}</td>
+      <td class="oc">${l.obs||'—'}</td>
+      <td>${editBtn}</td>
+    </tr>`;
+  }).join('');
+  const el=document.getElementById('db-table');
+  if(el) el.innerHTML=filtered.length?`<div class="table-wrap"><table><thead><tr><th>Loja</th><th>Nº</th><th>Rede</th><th>Status</th><th>Consultor</th><th>Obs.</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:'<div class="table-wrap"><div class="no-results">Nenhuma loja encontrada.</div></div>';
 }
 
-// db modal
-let dbModalIdx = -1;
-function setRede(r) {
-  document.getElementById('db-rede').value = r;
-  document.getElementById('db-rj').className   = 'rede-opt' + (r==='rj'?' on':'');
-  document.getElementById('db-ml').className   = 'rede-opt' + (r==='ml'?' on':'');
-  document.getElementById('db-both').className = 'rede-opt' + (r==='both'?' on':'');
+function exportDbCSV(){
+  const data=getDatabase();
+  const hdr=['Nome','Nº','Rede','Status','Consultor','Origem','Obs.'];
+  const rows=data.map(l=>[l.nome,l.num||'',l.rede==='ml'?'Minha Lavanderia':l.rede==='both'?'Ambas':'Restaura Jeans',l.status,l.responsavel||'',l._fromGL?'Go-Live':'Manual',l.obs||''].map(v=>`"${(v||'').replace(/"/g,'""')}"`).join(';'));
+  const csv=[hdr.join(';'),...rows].join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);a.download='lojas_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
 }
-function openDbModal(idx=-1) {
-  dbModalIdx = idx;
-  const del = document.getElementById('db-btn-del');
-  const l = idx===-1 ? {nome:'',num:'',rede:'rj',status:'antigo',obs:''} : database[idx];
-  document.getElementById('db-mtitle').textContent = idx===-1 ? 'Nova loja' : 'Editar — '+l.nome;
-  document.getElementById('db-idx').value = idx;
-  document.getElementById('db-nome').value = l.nome||'';
-  document.getElementById('db-num').value = l.num||'';
-  document.getElementById('db-obs').value = l.obs||'';
-  document.getElementById('db-status').value = l.status||'antigo';
-  document.getElementById('db-alerta').checked = !!l.alerta;
+
+// ── DB MODAL ──
+let dbModalIdx=-1;
+function setRede(r){
+  document.getElementById('db-rede').value=r;
+  ['rj','ml','both'].forEach(k=>document.getElementById('db-'+k).className='rede-opt'+(r===k?' on':''));
+}
+function openDbModal(idx=-1){
+  dbModalIdx=idx;
+  const l=idx===-1?{nome:'',num:'',rede:'rj',status:'antigo',alerta:false,obs:''}:dbExtra[idx];
+  document.getElementById('db-mtitle').textContent=idx===-1?'Nova loja':'Editar — '+l.nome;
+  document.getElementById('db-idx').value=idx;
+  document.getElementById('db-nome').value=l.nome||'';
+  document.getElementById('db-num').value=l.num||'';
+  document.getElementById('db-obs').value=l.obs||'';
+  document.getElementById('db-status').value=l.status||'antigo';
+  document.getElementById('db-alerta').checked=!!l.alerta;
+  document.getElementById('db-btn-del').style.display=idx===-1?'none':'block';
   setRede(l.rede||'rj');
-  del.style.display = idx===-1 ? 'none' : 'block';
-  document.getElementById('overlay-db').classList.add('open');
+  document.getElementById('ov-db').classList.add('open');
 }
-function closeDbModal() { document.getElementById('overlay-db').classList.remove('open'); }
-function closeDbOut(e) { if(e.target===document.getElementById('overlay-db')) closeDbModal(); }
-function saveDbLoja() {
-  if(!document.getElementById('db-nome').value.trim()) { alert('Informe o nome da loja.'); return; }
-  const obj = {
-    nome: document.getElementById('db-nome').value.trim().toUpperCase(),
-    num:  document.getElementById('db-num').value.trim(),
-    rede: document.getElementById('db-rede').value,
-    status: document.getElementById('db-status').value,
-    obs: document.getElementById('db-obs').value.trim(),
-    alerta: document.getElementById('db-alerta').checked,
-    responsavel: 'Maiara',
-  };
-  const idx = parseInt(document.getElementById('db-idx').value);
-  if(idx===-1) dbExtra.push(obj); else dbExtra[idx]=obj;
-  saveDb(); closeDbModal(); renderDb();
+function closeDbModal(){document.getElementById('ov-db').classList.remove('open');}
+function saveDbLoja(){
+  if(!document.getElementById('db-nome').value.trim()){alert('Informe o nome da loja.');return;}
+  const obj={nome:document.getElementById('db-nome').value.trim().toUpperCase(),num:document.getElementById('db-num').value.trim(),rede:document.getElementById('db-rede').value,status:document.getElementById('db-status').value,alerta:document.getElementById('db-alerta').checked,obs:document.getElementById('db-obs').value.trim(),responsavel:''};
+  const idx=parseInt(document.getElementById('db-idx').value);
+  if(idx===-1)dbExtra.push(obj);else dbExtra[idx]=obj;
+  saveDb();closeDbModal();renderDB();
 }
-function deleteDbLoja() {
-  if(dbModalIdx<0) return;
-  if(!confirm(`Excluir "${dbExtra[dbModalIdx].nome}"?`)) return;
-  dbExtra.splice(dbModalIdx,1);
-  saveDb(); closeDbModal(); renderDb();
+function deleteDbLoja(){
+  if(dbModalIdx<0)return;
+  if(!confirm(`Excluir "${dbExtra[dbModalIdx].nome}"?`))return;
+  dbExtra.splice(dbModalIdx,1);saveDb();closeDbModal();renderDB();
 }
 
-// fix page-nav sticky top to match hero-band height
-function fixNavTop() {
-  const h = document.querySelector('.hero-band').offsetHeight;
-  document.querySelector('.page-nav-band').style.top = h + 'px';
+// ── GL MODAL ──
+let modalIdx=-1;
+function buildFlowSteps(l){
+  const done=stepsDone(l);let html='';
+  for(let i=0;i<FASES.length;i++){
+    const f=FASES[i],isDone=done[i],canEdit=i===0||done[i-1];
+    const cls=isDone?'done':canEdit?'next':'locked';
+    const lockMsg=!canEdit?`(aguardando: ${FASES[i-1].label})`:'';
+    const curVal=l[f.key]||'';
+    const ph=FASE_DEFAULTS[i]?`DD/MM/AAAA ${FASE_DEFAULTS[i]}`:'DD/MM/AAAA HH:MM';
+    const dateField=f.checkOnly?`<div class="fstep-date" style="font-size:11px;color:var(--text3);font-style:italic">${isDone?'✓ Concluída':'Marque quando instalado'}</div>`:`<div class="fstep-date"><input type="text" id="fd-${i}" value="${curVal}" placeholder="${ph}" ${!canEdit?'disabled':''} oninput="onDateInput(${i})"></div>`;
+    html+=`<div class="fstep ${cls}" id="fs-${i}"><div class="fstep-chk"><input type="checkbox" id="fc-${i}" ${isDone?'checked':''} ${!canEdit?'disabled':''} onchange="onStepCheck(${i})"></div><div class="fstep-info"><div class="fstep-label"><span class="step-num">${i+1}</span>${f.label}${lockMsg?`<span class="lock-msg">${lockMsg}</span>`:''}</div>${dateField}</div></div>`;
+  }
+  return html;
 }
-fixNavTop();
-window.addEventListener('resize', fixNavTop);
+function onStepCheck(i){
+  const f=FASES[i],chk=document.getElementById('fc-'+i);
+  if(f.checkOnly||f.dateOptional){
+    // no date required — toggle freely
+    if(!chk.checked) cascadeLock(i+1);
+    else unlockNext(i);
+    refreshStepStyles();return;
+  }
+  // goLive: date required
+  const di=document.getElementById('fd-'+i);
+  if(chk.checked){
+    if(!di.value.trim()){chk.checked=false;di.focus();di.style.borderColor='#c0392b';setTimeout(()=>di.style.borderColor='',1800);showToast('Insira a data antes de marcar.',true);return;}
+    unlockNext(i);
+  } else {di.value='';cascadeLock(i+1);}
+  refreshStepStyles();
+}
+function onDateInput(i){
+  const v=document.getElementById('fd-'+i).value.trim();
+  const c=document.getElementById('fc-'+i);
+  const f=FASES[i];
+  if(v.length>=8){
+    if(v.length===10&&FASE_DEFAULTS[i]&&!v.includes(' '))document.getElementById('fd-'+i).value=v+' '+FASE_DEFAULTS[i];
+    if(!c.checked){c.checked=true;unlockNext(i);refreshStepStyles();}
+  } else {
+    // only uncheck if date is required (goLive only)
+    if(!f.dateOptional&&!f.checkOnly&&c.checked){c.checked=false;cascadeLock(i+1);refreshStepStyles();}
+  }
+}
+function cascadeLock(from){
+  for(let j=from;j<FASES.length;j++){
+    const nc=document.getElementById('fc-'+j),nd=document.getElementById('fd-'+j);
+    if(nc){nc.checked=false;nc.disabled=true;}
+    if(nd){nd.value='';nd.disabled=true;}
+    document.getElementById('fs-'+j).className='fstep locked';
+  }
+}
+function unlockNext(i){
+  if(i+1<FASES.length){
+    const nc=document.getElementById('fc-'+(i+1)),nd=document.getElementById('fd-'+(i+1));
+    if(nc)nc.disabled=false;if(nd)nd.disabled=false;
+    document.getElementById('fs-'+(i+1)).className='fstep next';
+  }
+}
+function refreshStepStyles(){
+  for(let i=0;i<FASES.length;i++){
+    const c=document.getElementById('fc-'+i),el=document.getElementById('fs-'+i);
+    if(!el||!c)continue;
+    el.className='fstep '+(c.checked?'done':c.disabled?'locked':'next');
+  }
+}
 
-// hide metrics on db page by default, init on gl
-document.getElementById('metrics').style.display = '';
-renderPage();
+// log
+function parseLogEntries(log){if(!log)return[];return log.split('\n').filter(Boolean).map(e=>{const m=e.match(/^\[(.+?)\] (.+)$/s);return m?{ts:m[1],text:m[2]}:{ts:'',text:e};});}
+function entriesToLog(entries){return entries.map(e=>e.ts?`[${e.ts}] ${e.text}`:e.text).join('\n');}
+function buildLogView(log){
+  const entries=parseLogEntries(log);
+  if(!entries.length)return '<div style="color:var(--text3);font-size:11px;font-style:italic;padding:8px 0">Nenhuma anotação ainda.</div>';
+  return [...entries].reverse().map((e,ri)=>{
+    const realIdx=entries.length-1-ri;
+    return `<div class="log-entry" id="le-${realIdx}">${e.ts?`<div class="log-ts">${e.ts}</div>`:''}<div class="log-txt" id="lt-${realIdx}">${e.text}</div><div class="log-acts"><button class="lbtn" onclick="editEntry(${realIdx})">Editar</button><button class="lbtn del" onclick="deleteEntry(${realIdx})">Excluir</button></div></div>`;
+  }).join('');
+}
+window.editEntry=function(idx){
+  const lv=document.getElementById('log-view');
+  const entries=parseLogEntries(lv.dataset.log||'');
+  const e=entries[idx];
+  const el=document.getElementById('le-'+idx);
+  el.querySelector('.log-txt').style.display='none';
+  el.querySelector('.log-acts').style.display='none';
+  const ta=document.createElement('textarea');ta.className='log-edit-area';ta.value=e.text;el.appendChild(ta);ta.focus();
+  const br=document.createElement('div');br.style.cssText='display:flex;gap:6px;margin-top:4px;';
+  const sb=document.createElement('button');sb.className='lbtn';sb.textContent='Salvar';
+  const cb=document.createElement('button');cb.className='lbtn';cb.textContent='Cancelar';
+  br.appendChild(sb);br.appendChild(cb);el.appendChild(br);
+  sb.onclick=()=>{entries[idx].text=ta.value.trim()||e.text;lv.dataset.log=entriesToLog(entries);lv.innerHTML=buildLogView(lv.dataset.log);};
+  cb.onclick=()=>{lv.innerHTML=buildLogView(lv.dataset.log);};
+};
+window.deleteEntry=function(idx){
+  const lv=document.getElementById('log-view');
+  const el=document.getElementById('le-'+idx);
+  if(el.querySelector('.del-confirm'))return;
+  const bar=document.createElement('div');bar.className='del-confirm';
+  bar.innerHTML=`<span style="font-size:11px">Excluir esta anotação?</span><button class="lbtn del" onclick="confirmDelete(${idx})">Sim</button><button class="lbtn" onclick="this.closest('.del-confirm').remove()">Não</button>`;
+  el.appendChild(bar);
+};
+window.confirmDelete=function(idx){
+  const lv=document.getElementById('log-view');
+  const entries=parseLogEntries(lv.dataset.log||'');
+  entries.splice(idx,1);lv.dataset.log=entriesToLog(entries);lv.innerHTML=buildLogView(lv.dataset.log);
+};
+function addNote(){
+  const txt=document.getElementById('f-note').value.trim();if(!txt)return;
+  const now=new Date();
+  const ts=`${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const lv=document.getElementById('log-view');
+  const cur=lv.dataset.log||'';
+  const tipo=(document.getElementById('f-note-type')||{value:'Geral'}).value;
+  const finalTxt=tipo&&tipo!=='Geral'?`[${tipo}] ${txt}`:txt;
+  const nlog=cur?cur+'\n'+`[${ts}] ${finalTxt}`:`[${ts}] ${finalTxt}`;
+  lv.dataset.log=nlog;lv.innerHTML=buildLogView(nlog);
+  document.getElementById('f-note').value='';
+}
+
+function openModal(idx=-1){
+  modalIdx=idx;
+  const l=idx===-1?{loja:'',num:'',grupo:'Franquias Restaura Jeans',responsavel:'',status:'aberto',instalacao:'',treinLoja:'',treinRetag:'',preGoLive:'',goLive:'',log:''}:lojas[idx];
+  document.getElementById('gl-mtitle').textContent=idx===-1?'Nova loja':'Editar — '+l.loja;
+  document.getElementById('f-idx').value=idx;
+  document.getElementById('f-loja').value=l.loja;
+  document.getElementById('f-num').value=l.num;
+  document.getElementById('f-grupo').value=l.grupo;
+  document.getElementById('f-resp').value=l.responsavel||'';
+  document.getElementById('f-status').value=l.status;
+  document.getElementById('flow-steps').innerHTML=buildFlowSteps(l);
+  const lv=document.getElementById('log-view');
+  lv.dataset.log=l.log||'';lv.innerHTML=buildLogView(l.log||'');
+  document.getElementById('f-note').value='';
+  document.getElementById('f-btn-del').style.display=idx===-1?'none':'block';
+  document.getElementById('ov-gl').classList.add('open');
+}
+function closeModal(){document.getElementById('ov-gl').classList.remove('open');}
+function saveLoja(){
+  if(!document.getElementById('f-loja').value.trim()){alert('Informe o nome da loja.');return;}
+  const dates={};
+  for(let i=0;i<FASES.length;i++){
+    const f=FASES[i],c=document.getElementById('fc-'+i);
+    if(f.checkOnly){dates[f.key]=c.checked?'1':'';}
+    else if(f.dateOptional){
+      const v=(document.getElementById('fd-'+i)||{value:''}).value.trim();
+      dates[f.key]=c.checked?(v||'1'):'';
+    }
+    else{const v=(document.getElementById('fd-'+i)||{value:''}).value.trim();dates[f.key]=c.checked?v:'';}
+  }
+  const obj={loja:document.getElementById('f-loja').value.trim().toUpperCase(),num:document.getElementById('f-num').value.trim(),grupo:document.getElementById('f-grupo').value.trim(),responsavel:document.getElementById('f-resp').value,status:document.getElementById('f-status').value,log:document.getElementById('log-view').dataset.log||'',...dates};
+  const idx=parseInt(document.getElementById('f-idx').value);
+  if(idx===-1)lojas.push(obj);else lojas[idx]=obj;
+  save();closeModal();renderGLContent();
+}
+function deleteLoja(){
+  if(modalIdx<0)return;
+  if(!confirm(`Excluir "${lojas[modalIdx].loja}"?`))return;
+  lojas.splice(modalIdx,1);save();closeModal();renderGLContent();
+}
+
+// ── INIT ──
+document.getElementById('hdate').textContent='Hoje: '+TODAY.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+initApp();
 </script>
 </body>
 </html>
