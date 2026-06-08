@@ -153,6 +153,25 @@ td.oc{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 .tl-name small{display:block;font-size:10px;font-weight:400;color:var(--text3);}
 
 /* CONCLUDED */
+.cc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.cc-card{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.cc-hdr{padding:11px 13px;border-bottom:1px solid #f0ede8;display:flex;align-items:center;gap:9px;}
+.cc-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;}
+.cc-name{font-size:13px;font-weight:600;color:var(--text);}
+.cc-sub{font-size:10px;color:var(--text3);}
+.cc-badges{display:flex;gap:5px;margin-left:auto;}
+.cc-b{font-size:10px;font-weight:700;padding:2px 6px;border-radius:20px;}
+.cc-b.ag{background:var(--teal-bg);color:var(--teal);}
+.cc-b.ab{background:#ede0f8;color:#5a2d8c;}
+.cc-b.ok{background:var(--blue-bg);color:var(--blue);}
+.cc-row{display:flex;align-items:center;gap:7px;padding:7px 13px;border-bottom:1px solid #f7f5f1;}
+.cc-row:last-child{border-bottom:none;}
+.cc-loja{flex:1;font-size:11px;font-weight:500;color:var(--text);}
+.cc-num{font-size:10px;color:var(--text3);}
+.pill-hoje{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:var(--teal-bg);color:var(--teal);white-space:nowrap;}
+.pill-agendado{font-size:9px;font-weight:600;padding:2px 7px;border-radius:20px;background:var(--blue-bg);color:var(--blue);white-space:nowrap;}
+.pill-aberto{font-size:9px;font-weight:600;padding:2px 7px;border-radius:20px;background:#ede0f8;color:#5a2d8c;white-space:nowrap;}
+.pill-ativo{font-size:9px;font-weight:600;padding:2px 7px;border-radius:20px;background:var(--teal-bg);color:var(--teal);white-space:nowrap;}
 .conc-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;padding:9px 0;border-top:1px solid var(--border);margin-top:1.5rem;user-select:none;}
 .conc-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;}
 .conc-cnt{font-size:10px;background:var(--blue-bg);color:var(--blue);padding:1px 7px;border-radius:20px;font-weight:600;}
@@ -639,6 +658,7 @@ function renderGL(){
     <div class="toolbar">
       <div class="view-tabs">
         <button class="vtab${glView==='kanban'?' on':''}" onclick="setGLView('kanban')">Kanban</button>
+        <button class="vtab${glView==='consult'?' on':''}" onclick="setGLView('consult')">Por consultor</button>
         <button class="vtab${glView==='lista'?' on':''}" onclick="setGLView('lista')">Lista</button>
         <button class="vtab${glView==='fase'?' on':''}" onclick="setGLView('fase')">Por fase</button>
         <button class="vtab${glView==='tl'?' on':''}" onclick="setGLView('tl')">Timeline</button>
@@ -690,6 +710,7 @@ function renderGLContent(){
     html=glView==='lista'?renderLista(concluded):glView==='fase'?renderFase(concluded):renderTL(concluded);
   } else {
     if(glView==='kanban') html=renderKanban(active,concluded);
+    else if(glView==='consult') html=renderConsultores(list);
     else if(glView==='lista') html=renderLista(active)+(concluded.length?renderConcluded(concluded):'');
     else if(glView==='fase') html=renderFase(active)+(concluded.length?renderConcluded(concluded):'');
     else html=renderTL(list);
@@ -820,6 +841,42 @@ function renderTL(list){
 function renderConcluded(list){
   const rows=list.map(l=>{const idx=lojas.indexOf(l);return `<tr onclick="openModal(${idx})"><td class="lc">${l.loja}</td><td class="nc">${l.num}</td><td>${badgeHtml(l.status)}</td><td>${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:'—'}</td><td>${flowDotsHtml(l)}</td><td class="nc">${fmtDate(l.goLive)||'—'}</td><td class="oc">—</td></tr>`;}).join('');
   return `<div class="conc-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><span class="conc-label">Sistema Presence Ativo</span><span class="conc-cnt">${list.length}</span><span class="conc-arrow">▼</span></div><div class="conc-body"><div class="table-wrap conc-table"><table><thead><tr><th>Loja</th><th>Nº</th><th>Status</th><th>Consultor</th><th>Fluxo</th><th>Go-live</th><th>—</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+
+function renderConsultores(list){
+  const CONSULT_COLORS={'Maiara':'#4f5fc4','Glávio':'#158a61','Bruno':'#185fa5','Marcelo':'#7a5100'};
+  const byConsult={};
+  TEAM.forEach(t=>{byConsult[t]=[];});
+  list.forEach(l=>{if(l.responsavel&&byConsult[l.responsavel])byConsult[l.responsavel].push(l);});
+  function pillHtml(l){
+    if(l.status==='concluido') return '<span class="pill-ativo">Presence Ativo</span>';
+    if(!l.goLive) return '<span class="pill-aberto">Aguardando</span>';
+    const d=daysDiff(l.goLive);
+    if(d===0) return `<span class="pill-hoje">hoje ${l.goLive.includes(' ')?l.goLive.split(' ')[1]:'09h'}</span>`;
+    if(d!==null&&d<0) return `<span class="pill-agendado" style="background:#fce4e4;color:#8b1a1a">atrasado ${Math.abs(d)}d</span>`;
+    return `<span class="pill-agendado">${fmtDate(l.goLive)||'—'}</span>`;
+  }
+  function redeTag(l){
+    const isML=l.grupo&&l.grupo.toLowerCase().includes('minha lavanderia');
+    return isML?'<span class="tag-ml">ML</span>':'<span class="tag-rj">RJ</span>';
+  }
+  const cards=TEAM.filter(t=>byConsult[t].length>0).map(t=>{
+    const ls=byConsult[t].sort((a,b)=>{
+      const da=parseDate(a.goLive),db=parseDate(b.goLive);
+      if(!da&&!db)return 0;if(!da)return 1;if(!db)return -1;return da-db;
+    });
+    const ag=ls.filter(l=>l.status==='agendado').length;
+    const ab=ls.filter(l=>l.status==='aberto').length;
+    const ok=ls.filter(l=>l.status==='concluido').length;
+    const initials=t.substring(0,2).toUpperCase();
+    const color=CONSULT_COLORS[t]||'#888';
+    const badges=(ag?`<span class="cc-b ag">${ag} cron.</span>`:'')+
+                 (ab?`<span class="cc-b ab">${ab} ag.</span>`:'')+
+                 (ok?`<span class="cc-b ok">${ok} ativo</span>`:'');
+    const rows=ls.map(l=>`<div class="cc-row">${redeTag(l)}<span class="cc-loja">${l.loja}</span><span class="cc-num">${l.num||''}</span>${pillHtml(l)}</div>`).join('');
+    return `<div class="cc-card"><div class="cc-hdr"><div class="cc-av" style="background:${color}">${initials}</div><div><div class="cc-name">${t}</div><div class="cc-sub">${ls.length} loja${ls.length>1?'s':''}</div></div><div class="cc-badges">${badges}</div></div>${rows}</div>`;
+  }).join('');
+  return `<div class="cc-grid">${cards}</div>`;
 }
 
 function exportCSV(){
