@@ -66,7 +66,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 .spot-empty{padding:11px 14px;font-size:11px;color:var(--text3);font-style:italic;}
 
 /* TOOLBAR */
-.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:14px;}
+.toolbar{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+.tb-row{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
+.kb-card.stub-card{border-left:3px solid #b5e8d5;}
+.stub-row td{opacity:.85;}
+.tag-db{font-size:9px;font-weight:600;padding:1px 5px;background:#e6f8ef;color:var(--teal);border-radius:3px;border:1px solid #b5e8d5;}
 .view-tabs{display:flex;background:var(--surface2);border:1px solid var(--border);border-radius:7px;overflow:hidden;}
 .vtab{font-family:var(--font);font-size:11px;font-weight:500;padding:6px 12px;border:none;background:transparent;cursor:pointer;color:var(--text2);}
 .vtab.on{background:#fff;color:var(--text);}
@@ -504,6 +508,27 @@ const FASE_DEFAULTS = ['','','','17:30','09:00'];
 
 let lojas   = [];
 let dbExtra = [];
+function buildStubs(){
+  const xNums=new Set(lojas.map(l=>l.num).filter(n=>n&&n.trim()));
+  const xNameRede=new Set(lojas.map(l=>l.loja+'|'+redeFromGrupo(l.grupo)));
+  return dbExtra
+    .filter(l=>l.status==='transicao'||(l.num&&l.num.trim()))
+    .filter(l=>{
+      if(l.num&&l.num.trim()&&xNums.has(l.num.trim()))return false;
+      if(xNameRede.has(l.nome+'|'+(l.rede||'rj')))return false;
+      return true;
+    })
+    .map(l=>({
+      loja:l.nome,num:l.num||'',
+      grupo:l.rede==='ml'?'Minha Lavanderia':l.rede==='both'?'Franquias MEGA':'Franquias Restaura Jeans',
+      responsavel:l.responsavel||'',
+      status:l.status==='ativo'?'concluido':'aberto',
+      instalacao:'',treinLoja:'',treinRetag:'',preGoLive:'',goLive:'',log:l.obs||'',
+      _stub:true,_dbIdx:dbExtra.indexOf(l)
+    }));
+}
+function getViewLojas(){return[...lojas,...buildStubs()];}
+function lojaIdx(l){return l._stub?-(l._dbIdx+2):lojas.indexOf(l);}
 
 function saveLocal()   { localStorage.setItem('pc_gl_v1',  JSON.stringify(lojas));   }
 function saveDbLocal() { localStorage.setItem('pc_db_v1',  JSON.stringify(dbExtra)); }
@@ -611,7 +636,7 @@ function getFiltered(){
   const rede=(document.getElementById('gl-rede')||{value:''}).value;
   const prazo=(document.getElementById('gl-prazo')||{value:''}).value;
   const numero=(document.getElementById('gl-numero')||{value:''}).value;
-  return lojas.filter(l=>{
+  return getViewLojas().filter(l=>{
     const txt=((l.loja||'')+' '+(l.grupo||'')+' '+(l.franqueado||'')+' '+(l.num||'')+' '+(l.tickets||'')).toLowerCase();
     if(q&&!txt.includes(q)) return false;
     if(st&&l.status!==st) return false;
@@ -630,7 +655,7 @@ function getFiltered(){
 }
 
 function renderGL(){
-  const all=lojas;
+  const all=getViewLojas();
   const ag=all.filter(l=>l.status==='agendado').length;
   const ab=all.filter(l=>l.status==='aberto').length;
   const co=all.filter(l=>l.status==='concluido').length;
@@ -656,40 +681,44 @@ function renderGL(){
       <div class="spot-card"><div class="spot-hdr"><div class="spot-dot" style="background:var(--indigo)"></div><span class="spot-ttl">Próximos pré go-lives</span></div>${pglSpot}</div>
     </div>
     <div class="toolbar">
-      <div class="view-tabs">
-        <button class="vtab${glView==='kanban'?' on':''}" onclick="setGLView('kanban')">Kanban</button>
-        <button class="vtab${glView==='consult'?' on':''}" onclick="setGLView('consult')">Por consultor</button>
-        <button class="vtab${glView==='lista'?' on':''}" onclick="setGLView('lista')">Lista</button>
-        <button class="vtab${glView==='fase'?' on':''}" onclick="setGLView('fase')">Por fase</button>
-        <button class="vtab${glView==='tl'?' on':''}" onclick="setGLView('tl')">Timeline</button>
+      <div class="tb-row">
+        <div class="view-tabs">
+          <button class="vtab${glView==='kanban'?' on':''}" onclick="setGLView('kanban')">Kanban</button>
+          <button class="vtab${glView==='consult'?' on':''}" onclick="setGLView('consult')">Por consultor</button>
+          <button class="vtab${glView==='lista'?' on':''}" onclick="setGLView('lista')">Lista</button>
+          <button class="vtab${glView==='fase'?' on':''}" onclick="setGLView('fase')">Por fase</button>
+          <button class="vtab${glView==='tl'?' on':''}" onclick="setGLView('tl')">Timeline</button>
+        </div>
+        <input class="tb" id="gl-q" placeholder="Buscar loja..." oninput="renderGLContent()">
+        <select class="tb" id="gl-st" onchange="renderGLContent()">
+          <option value="">Todos os status</option>
+          <option value="agendado">Cronograma</option>
+          <option value="aberto">Aguardando</option>
+          <option value="concluido">Sistema Presence Ativo</option>
+        </select>
+        <select class="tb" id="gl-resp" onchange="renderGLContent()">
+          <option value="">Todos consultores</option>
+          ${TEAM.map(t=>`<option value="${t}">${t}</option>`).join('')}
+        </select>
       </div>
-      <input class="tb" id="gl-q" placeholder="Buscar loja..." oninput="renderGLContent()">
-      <select class="tb" id="gl-st" onchange="renderGLContent()">
-        <option value="">Todos os status</option>
-        <option value="agendado">Cronograma</option>
-        <option value="aberto">Aguardando</option>
-        <option value="concluido">Sistema Presence Ativo</option>
-      </select>
-      <select class="tb" id="gl-resp" onchange="renderGLContent()">
-        <option value="">Todos consultores</option>
-        ${TEAM.map(t=>`<option value="${t}">${t}</option>`).join('')}
-      </select>
-      <select class="tb" id="gl-uf" onchange="renderGLContent()">
-        <option value="">Todos UF</option>
-        ${[...new Set(lojas.map(l=>ufFromName(l.loja)).filter(Boolean))].sort().map(u=>`<option value="${u}">${u}</option>`).join('')}
-      </select>
-      <select class="tb" id="gl-rede" onchange="renderGLContent()">
-        <option value="">Todas redes</option><option value="rj">Restaura Jeans</option><option value="ml">Minha Lavanderia</option><option value="both">Mega</option>
-      </select>
-      <select class="tb" id="gl-numero" onchange="renderGLContent()">
-        <option value="">Com/sem nº</option><option value="com">Com nº Presence</option><option value="sem">Sem nº Presence</option>
-      </select>
-      <select class="tb" id="gl-prazo" onchange="renderGLContent()">
-        <option value="">Qualquer prazo</option><option value="7">Go-live em 7 dias</option><option value="15">Go-live em 15 dias</option><option value="30">Go-live em 30 dias</option>
-      </select>
-      <button class="btn-sm" onclick="exportCSV()">CSV</button>
-      <button class="btn-sm" onclick="document.getElementById('json-input').click()">Carregar</button>
-      <button class="btn-add edit-only" onclick="openModal()">+ Nova loja</button>
+      <div class="tb-row">
+        <select class="tb" id="gl-uf" onchange="renderGLContent()">
+          <option value="">Todos UF</option>
+          ${[...new Set(getViewLojas().map(l=>ufFromName(l.loja)).filter(Boolean))].sort().map(u=>`<option value="${u}">${u}</option>`).join('')}
+        </select>
+        <select class="tb" id="gl-rede" onchange="renderGLContent()">
+          <option value="">Todas redes</option><option value="rj">Restaura Jeans</option><option value="ml">Minha Lavanderia</option><option value="both">Mega</option>
+        </select>
+        <select class="tb" id="gl-numero" onchange="renderGLContent()">
+          <option value="">Com/sem nº</option><option value="com">Com nº Presence</option><option value="sem">Sem nº Presence</option>
+        </select>
+        <select class="tb" id="gl-prazo" onchange="renderGLContent()">
+          <option value="">Qualquer prazo</option><option value="7">Go-live em 7 dias</option><option value="15">Go-live em 15 dias</option><option value="30">Go-live em 30 dias</option>
+        </select>
+        <button class="btn-sm" onclick="exportCSV()">CSV</button>
+        <button class="btn-sm" onclick="document.getElementById('json-input').click()">Carregar</button>
+        <button class="btn-add edit-only" onclick="openModal()">+ Nova loja</button>
+      </div>
     </div>
     <div id="gl-content"></div>
   `;
@@ -731,15 +760,15 @@ function renderKanban(active,concluded){
     return `<div class="kb-col">
       <div class="kb-col-hdr"><span class="kb-col-name">${col.label}</span><span class="kb-col-cnt">${items.length}</span></div>
       ${items.length?items.map(l=>{
-        const idx=lojas.indexOf(l);
+        const idx=lojaIdx(l);
         const pct=Math.round(countDone(l)/FASES.length*100);
         const od=isOverdue(l);
         const diff=daysDiff(l.goLive);
         const dateLabel=!l.goLive?'<span class="kb-date">sem data</span>':diff===0?'<span class="kb-date today">HOJE</span>':diff!==null&&diff<0?`<span class="kb-date" style="color:#c0392b">atrasado ${Math.abs(diff)}d</span>`:`<span class="kb-date">${fmtDate(l.goLive)}</span>`;
         const rede=l.grupo&&l.grupo.toLowerCase().includes('minha lavanderia')?'<span class="tag-ml">ML</span>':'<span class="tag-rj">RJ</span>';
-        return `<div class="kb-card${od?' overdue':''}" onclick="openModal(${idx})">
+        return `<div class="kb-card${od?' overdue':''}${l._stub?' stub-card':''}" onclick="openModal(${idx})">
           <div class="kb-name">${l.loja}${l.alerta?'<span style="color:#c0392b;font-size:11px"> ⚠</span>':''}</div>
-          <div class="kb-meta">${rede}${l.num?`<span class="nc" style="font-size:10px">${l.num}</span>`:''}${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:''}${dateLabel}</div>
+          <div class="kb-meta">${rede}${l.num?`<span class="nc" style="font-size:10px">${l.num}</span>`:''}${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:''}${l._stub?'<span class="tag-db">Lojas</span>':''}${dateLabel}</div>
           <div class="kb-prog"><div class="kb-prog-f" style="width:${pct}%"></div></div>
         </div>`;
       }).join(''):'<div class="kb-empty">Nenhuma loja</div>'}
@@ -748,11 +777,11 @@ function renderKanban(active,concluded){
   <div class="kb-col">
     <div class="kb-col-hdr"><span class="kb-col-name">Sistema Presence Ativo</span><span class="kb-col-cnt">${concluded.length}</span></div>
     ${concluded.length?concluded.map(l=>{
-      const idx=lojas.indexOf(l);
+      const idx=lojaIdx(l);
       const rede=l.grupo&&l.grupo.toLowerCase().includes('minha lavanderia')?'<span class="tag-ml">ML</span>':'<span class="tag-rj">RJ</span>';
-      return `<div class="kb-card" onclick="openModal(${idx})">
+      return `<div class="kb-card${l._stub?' stub-card':''}" onclick="openModal(${idx})">
         <div class="kb-name">${l.loja}</div>
-        <div class="kb-meta">${rede}${l.num?`<span class="nc" style="font-size:10px">${l.num}</span>`:''}${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:''}<span class="kb-date today">${fmtDate(l.goLive)?'✓ '+fmtDate(l.goLive):'—'}</span></div>
+        <div class="kb-meta">${rede}${l.num?`<span class="nc" style="font-size:10px">${l.num}</span>`:''}${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:''}${l._stub?'<span class="tag-db">Lojas</span>':''}${l.goLive?`<span class="kb-date today">✓ ${fmtDate(l.goLive)}</span>`:'<span class="kb-date today">—</span>'}</div>
         <div class="kb-prog"><div class="kb-prog-f" style="width:100%"></div></div>
       </div>`;
     }).join(''):'<div class="kb-empty">Nenhuma loja</div>'}
@@ -791,10 +820,10 @@ function renderLista(list){
   });
   const th=(col,lbl)=>{const on=sortCol===col?' sorted':'';const arr=sortCol===col?(sortAsc?'▲':'▼'):'⇅';return `<th class="${on}" onclick="sortBy('${col}')">${lbl}<span class="sa">${arr}</span></th>`;};
   const rows=sorted.map(l=>{
-    const idx=lojas.indexOf(l);
+    const idx=lojaIdx(l);
     const lastLog=(l.log||'').split('\n').filter(Boolean).pop()||'';
     const logTxt=lastLog.replace(/\[\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}\] /,'').substring(0,55);
-    return `<tr class="${isOverdue(l)?'over':''}" onclick="openModal(${idx})">
+    return `<tr class="${isOverdue(l)?'over':''}${l._stub?' stub-row':''}" onclick="openModal(${idx})">
       <td class="lc">${l.loja}<div class="sub">${l.grupo}</div></td>
       <td class="nc">${l.num}</td>
       <td>${badgeHtml(l.status)}</td>
@@ -828,7 +857,7 @@ function renderTL(list){
   const months={};
   withDate.forEach(l=>{const d=parseDate(l.goLive);if(!d)return;const k=d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});if(!months[k])months[k]=[];months[k].push(l);});
   return Object.entries(months).map(([m,items])=>`<div class="tl-month"><div class="tl-hdr">${m}</div>${items.map(l=>{
-    const idx=lojas.indexOf(l);
+    const idx=lojaIdx(l);
     const diff=daysDiff(l.goLive);
     return `<div class="tl-item" onclick="openModal(${idx})">
       <div class="tl-dt" style="color:${isOverdue(l)?'#c0392b':'var(--text)'}">${fmtDate(l.goLive).split(' ')[0]}</div>
@@ -839,7 +868,7 @@ function renderTL(list){
 }
 
 function renderConcluded(list){
-  const rows=list.map(l=>{const idx=lojas.indexOf(l);return `<tr onclick="openModal(${idx})"><td class="lc">${l.loja}</td><td class="nc">${l.num}</td><td>${badgeHtml(l.status)}</td><td>${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:'—'}</td><td>${flowDotsHtml(l)}</td><td class="nc">${fmtDate(l.goLive)||'—'}</td><td class="oc">—</td></tr>`;}).join('');
+  const rows=list.map(l=>{const idx=lojaIdx(l);return `<tr onclick="openModal(${idx})"><td class="lc">${l.loja}</td><td class="nc">${l.num}</td><td>${badgeHtml(l.status)}</td><td>${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:'—'}</td><td>${flowDotsHtml(l)}</td><td class="nc">${fmtDate(l.goLive)||'—'}</td><td class="oc">—</td></tr>`;}).join('');
   return `<div class="conc-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><span class="conc-label">Sistema Presence Ativo</span><span class="conc-cnt">${list.length}</span><span class="conc-arrow">▼</span></div><div class="conc-body"><div class="table-wrap conc-table"><table><thead><tr><th>Loja</th><th>Nº</th><th>Status</th><th>Consultor</th><th>Fluxo</th><th>Go-live</th><th>—</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
 }
 
@@ -1171,9 +1200,16 @@ function adminLogout(){
   renderAdminLogin();
 }
 function openModal(idx=-1){
+  let l,isStub=false;
+  if(idx<=-2){
+    const db=dbExtra[-(idx+2)];
+    l={loja:db.nome,num:db.num||'',grupo:db.rede==='ml'?'Minha Lavanderia':db.rede==='both'?'Franquias MEGA':'Franquias Restaura Jeans',responsavel:db.responsavel||'',status:db.status==='ativo'?'concluido':'aberto',instalacao:'',treinLoja:'',treinRetag:'',preGoLive:'',goLive:'',log:db.obs||''};
+    idx=-1;isStub=true;
+  } else {
+    l=idx===-1?{loja:'',num:'',grupo:'Franquias Restaura Jeans',responsavel:'',status:'aberto',instalacao:'',treinLoja:'',treinRetag:'',preGoLive:'',goLive:'',log:''}:lojas[idx];
+  }
   modalIdx=idx;
-  const l=idx===-1?{loja:'',num:'',grupo:'Franquias Restaura Jeans',responsavel:'',status:'aberto',instalacao:'',treinLoja:'',treinRetag:'',preGoLive:'',goLive:'',log:''}:lojas[idx];
-  document.getElementById('gl-mtitle').textContent=idx===-1?'Nova loja':'Editar — '+l.loja;
+  document.getElementById('gl-mtitle').textContent=isStub?'Registrar no Go-Live — '+l.loja:idx===-1?'Nova loja':'Editar — '+l.loja;
   document.getElementById('f-idx').value=idx;
   document.getElementById('f-loja').value=l.loja;
   document.getElementById('f-num').value=l.num;
