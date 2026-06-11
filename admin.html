@@ -307,6 +307,35 @@ body.admin.locked .kb-card, body.admin.locked tbody tr, body.admin.locked .tl-it
 .login-box button{font-family:var(--font);font-size:12px;font-weight:700;padding:8px 14px;border:1px solid var(--teal-mid);background:var(--teal-bg);color:var(--teal);border-radius:6px;cursor:pointer;}
 .login-box button:hover{background:var(--teal-mid);color:#fff;}
 
+/* SUPPORT */
+.support-layout{display:grid;grid-template-columns:1.35fr .65fr;gap:12px;align-items:start;}
+.support-panel{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.support-panel-hdr{padding:10px 13px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.support-panel-title{font-size:12px;font-weight:700;color:var(--text);}
+.support-list{display:flex;flex-direction:column;}
+.support-ticket{display:grid;grid-template-columns:96px 1fr auto;gap:10px;align-items:center;padding:10px 13px;border-bottom:1px solid var(--border);cursor:pointer;}
+.support-ticket:last-child{border-bottom:none;}
+.support-ticket:hover{background:#eef9f4;}
+.support-id{font-size:12px;font-weight:700;color:var(--text);}
+.support-main{min-width:0;}
+.support-store{font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.support-sub{font-size:10px;color:var(--text3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.support-meta{display:flex;align-items:center;gap:5px;justify-content:flex-end;flex-wrap:wrap;}
+.support-history{padding:9px 13px;border-bottom:1px solid #f7f5f1;}
+.support-history:last-child{border-bottom:none;}
+.support-history .dt{font-size:10px;color:var(--text3);font-weight:600;margin-bottom:3px;}
+.support-history .txt{font-size:11px;color:var(--text2);line-height:1.35;}
+.support-empty{padding:13px;font-size:11px;color:var(--text3);font-style:italic;}
+.ticket-status{display:inline-flex;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap;}
+.ticket-status.aberto{background:#fce4e4;color:#8b1a1a;}
+.ticket-status.andamento{background:var(--indigo-bg);color:var(--indigo);}
+.ticket-status.fechado{background:var(--blue-bg);color:var(--blue);}
+.ticket-origin{display:inline-flex;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:#f0ede8;color:var(--text2);text-transform:uppercase;}
+.ticket-origin.email{background:#e0e4f8;color:#2d3a8c;}
+.ticket-origin.manual{background:#e6f8ef;color:#0a5c47;}
+.ticket-origin.zoho{background:#fff3d8;color:#7a4b00;}
+@media(max-width:900px){.support-layout{grid-template-columns:1fr;}.support-ticket{grid-template-columns:78px 1fr;}.support-meta{grid-column:1/-1;justify-content:flex-start;}}
+
 </style>
 </head>
 <body>
@@ -325,7 +354,7 @@ body.admin.locked .kb-card, body.admin.locked tbody tr, body.admin.locked .tl-it
 <nav class="page-nav">
   <button class="pnav-btn on" id="pnav-gl" onclick="setPage('gl')"><i class="fa-solid fa-bolt pnav-icon"></i> Go-Live</button>
   <button class="pnav-btn" id="pnav-db" onclick="setPage('db')"><i class="fa-solid fa-store pnav-icon"></i> Lojas</button>
-  <button class="pnav-btn disabled"><i class="fa-solid fa-headset pnav-icon"></i> Suporte <small style="font-size:9px;opacity:.5">em breve</small></button>
+  <button class="pnav-btn" id="pnav-sup" onclick="setPage('sup')"><i class="fa-solid fa-headset pnav-icon"></i> Suporte</button>
 </nav>
 
 <div class="content" id="content"></div>
@@ -419,6 +448,57 @@ body.admin.locked .kb-card, body.admin.locked tbody tr, body.admin.locked .tl-it
 </div>
 </div>
 
+<!-- MODAL SUPPORT -->
+<div class="overlay" id="ov-sup" onclick="if(event.target===this)closeSupportModal()">
+<div class="modal">
+  <div class="mhdr"><h2 id="sup-mtitle">Novo chamado</h2><button class="xbtn" onclick="closeSupportModal()">×</button></div>
+  <div class="mbody">
+    <input type="hidden" id="sup-idx" value="-1">
+    <div class="fg-grid">
+      <div class="fg"><label>Nº do chamado</label><input id="sup-id" placeholder="Ex: 716986"></div>
+      <div class="fg"><label>Status</label>
+        <select id="sup-status">
+          <option value="aberto">Aberto</option>
+          <option value="andamento">Em andamento</option>
+          <option value="fechado">Fechado</option>
+        </select>
+      </div>
+      <div class="fg full"><label>Loja</label><select id="sup-loja"></select></div>
+      <div class="fg"><label>Origem</label>
+        <select id="sup-origem">
+          <option value="manual">Manual</option>
+          <option value="email">E-mail</option>
+          <option value="zoho">Zoho</option>
+        </select>
+      </div>
+      <div class="fg"><label>Consultor</label>
+        <select id="sup-resp">
+          <option value="">— Sem consultor —</option>
+          <option value="Marcelo">Marcelo</option>
+          <option value="Maiara">Maiara</option>
+          <option value="Glávio">Glávio</option>
+          <option value="Bruno">Bruno</option>
+        </select>
+      </div>
+      <div class="fg"><label>Aberto em</label><input id="sup-aberto" placeholder="DD/MM/AAAA HH:MM"></div>
+      <div class="fg"><label>Fechado em</label><input id="sup-fechado" placeholder="DD/MM/AAAA HH:MM"></div>
+      <div class="fg full"><label>Assunto</label><input id="sup-assunto" placeholder="Assunto do chamado"></div>
+      <div class="fg full"><label>Descrição / contexto</label><textarea id="sup-desc" style="min-height:72px;" placeholder="Resumo do problema, retorno do Presence ou observações..."></textarea></div>
+      <div class="fg full">
+        <label>Novo evento no histórico</label>
+        <textarea id="sup-evento" style="min-height:58px;" placeholder="Ex: Presence retornou solicitando evidências..."></textarea>
+      </div>
+      <div class="fg full"><label>Histórico</label><div class="log-sec" id="sup-history"></div></div>
+    </div>
+  </div>
+  <div class="mfooter">
+    <button class="btn-del" id="sup-btn-del" onclick="deleteSupportTicket()" style="display:none">Excluir</button>
+    <button class="btn-cancel" onclick="closeSupportModal()">Cancelar</button>
+    <button class="btn-save" onclick="saveSupportTicket()">Salvar</button>
+  </div>
+</div>
+</div>
+
 <input type="file" id="json-input" accept=".json" style="display:none" onchange="loadJSON(event)">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -453,7 +533,7 @@ function initSupabase(){
   return true;
 }
 function statePayload(){
-  return {version:1, updatedAt:new Date().toISOString(), golive:lojas, lojas:dbExtra};
+  return {version:1, updatedAt:new Date().toISOString(), golive:lojas, lojas:dbExtra, suporte:supportTickets};
 }
 async function loadFromSupabase(){
   if(!supabaseEnabled) return false;
@@ -472,6 +552,7 @@ async function loadFromSupabase(){
   if(data && data.payload){
     lojas = data.payload.golive || [];
     dbExtra = data.payload.lojas || [];
+    supportTickets = data.payload.suporte || [];
     console.info("Dados carregados do Supabase:", data.updated_at);
     return true;
   }
@@ -495,7 +576,7 @@ async function seedSupabaseInitialState(){
 async function saveToSupabase(silent=false){
   if(isBooting) return;
   if(!canEdit()){ if(!silent) showToast("Modo somente leitura. Alterações não foram salvas.", true); return; }
-  saveLocal(); saveDbLocal();
+  saveLocal(); saveDbLocal(); saveSupportLocal();
   if(!supabaseEnabled){ if(!silent) showToast("Salvo localmente. Configure o Supabase para salvar online."); return; }
   const {error}=await supabaseClient.rpc("save_presence_control_state",{
     p_token: ADMIN_RPC_TOKEN,
@@ -506,7 +587,7 @@ async function saveToSupabase(silent=false){
 }
 async function initApp(){
   applyModeUi();
-  load(); loadDb(); initSupabase();
+  load(); loadDb(); loadSupport(); initSupabase();
   if(supabaseEnabled) await loadFromSupabase();
   isBooting=false;
   setPage("gl");
@@ -531,6 +612,7 @@ const FASE_DEFAULTS = ['','','','17:30','09:00'];
 
 let lojas   = [];
 let dbExtra = [];
+let supportTickets = [];
 function buildStubs(){
   const xNums=new Set(lojas.map(l=>l.num).filter(n=>n&&n.trim()));
   const xNameRede=new Set(lojas.map(l=>l.loja+'|'+redeFromGrupo(l.grupo)));
@@ -555,13 +637,16 @@ function lojaIdx(l){return l._stub?-(l._dbIdx+2):lojas.indexOf(l);}
 
 function saveLocal()   { localStorage.setItem('pc_gl_v1',  JSON.stringify(lojas));   }
 function saveDbLocal() { localStorage.setItem('pc_db_v1',  JSON.stringify(dbExtra)); }
+function saveSupportLocal() { localStorage.setItem('pc_support_v1', JSON.stringify(supportTickets)); }
 function save(){ saveToSupabase(); }
 function saveDb(){ saveToSupabase(); }
+function saveSupport(){ saveToSupabase(); }
 function load()   { lojas   = JSON.parse(localStorage.getItem('pc_gl_v1') || 'null') || JSON.parse(JSON.stringify(EMBEDDED_GOLIVE)); }
 function loadDb() { dbExtra = JSON.parse(localStorage.getItem('pc_db_v1') || 'null') || JSON.parse(JSON.stringify(EMBEDDED_LOJAS));  }
+function loadSupport() { supportTickets = JSON.parse(localStorage.getItem('pc_support_v1') || 'null') || []; }
 
 function saveAll() {
-  const d={version:1,exportedAt:new Date().toISOString(),golive:lojas,lojas:dbExtra};
+  const d={version:1,exportedAt:new Date().toISOString(),golive:lojas,lojas:dbExtra,suporte:supportTickets};
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:'application/json'}));
   a.download='presence_backup_'+new Date().toISOString().slice(0,10)+'.json';
@@ -574,7 +659,7 @@ function loadJSON(e) {
   r.onload=async ev=>{
     try {
       const d=JSON.parse(ev.target.result);
-      if(d.golive&&d.lojas){lojas=d.golive;dbExtra=d.lojas;await saveToSupabase(true);renderPage();showToast(lojas.length+' go-lives, '+dbExtra.length+' lojas carregados e salvos.');}
+      if(d.golive&&d.lojas){lojas=d.golive;dbExtra=d.lojas;supportTickets=d.suporte||[];await saveToSupabase(true);renderPage();showToast(lojas.length+' go-lives, '+dbExtra.length+' lojas e '+supportTickets.length+' chamados carregados e salvos.');}
       else if(Array.isArray(d)){lojas=d;await saveToSupabase(true);renderPage();showToast(d.length+' go-lives carregados e salvos.');}
       else throw 0;
     } catch{showToast('Arquivo inválido.',true);}
@@ -608,6 +693,7 @@ function fmtDate(s){
 function daysDiff(s){if(!s||s==='1')return null;const d=parseDate(s);if(!d)return null;return Math.round((d-TODAY)/86400000);}
 function prevBusinessDay(d){const r=new Date(d);r.setDate(r.getDate()-1);while(r.getDay()===0||r.getDay()===6)r.setDate(r.getDate()-1);return r;}
 function fmtDateObj(d){const day=String(d.getDate()).padStart(2,'0');const mon=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'][d.getMonth()];return `${day}/${mon}`;}
+function esc(v){return String(v||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 function isOverdue(l){return l.status!=='concluido'&&l.goLive&&daysDiff(l.goLive)<0;}
 function stepsDone(l){
   let done=[];
@@ -647,9 +733,10 @@ function setPage(p){
   currentPage=p;
   document.getElementById('pnav-gl').className='pnav-btn'+(p==='gl'?' on':'');
   document.getElementById('pnav-db').className='pnav-btn'+(p==='db'?' on':'');
+  document.getElementById('pnav-sup').className='pnav-btn'+(p==='sup'?' on':'');
   renderPage();
 }
-function renderPage(){if(currentPage==='gl')renderGL();else renderDB();}
+function renderPage(){if(currentPage==='gl')renderGL();else if(currentPage==='db')renderDB();else renderSupport();}
 
 // ── GO-LIVE PAGE ──
 let glView='dash',sortCol='goLive',sortAsc=true;
@@ -1052,6 +1139,150 @@ function exportDbCSV(){
 }
 
 // ── DB MODAL ──
+function supportStatusLabel(s){const m={aberto:'Aberto',andamento:'Em andamento',fechado:'Fechado'};return `<span class="ticket-status ${s||'aberto'}">${m[s]||s||'Aberto'}</span>`;}
+function supportOriginLabel(s){const m={manual:'Manual',email:'E-mail',zoho:'Zoho'};return `<span class="ticket-origin ${s||'manual'}">${m[s]||s||'Manual'}</span>`;}
+function supportStoreOptions(selected=''){
+  const stores=getDatabase().map(l=>({nome:l.nome,num:l.num||'',resp:l.responsavel||''}));
+  const seen=new Set();
+  return '<option value="">- Sem loja vinculada -</option>'+stores.filter(l=>{
+    const k=l.nome+'|'+l.num;if(seen.has(k))return false;seen.add(k);return true;
+  }).map(l=>`<option value="${esc(l.nome)}" data-num="${esc(l.num)}" data-resp="${esc(l.resp)}" ${l.nome===selected?'selected':''}>${esc(l.nome)}${l.num?' - '+esc(l.num):''}</option>`).join('');
+}
+function ticketStore(t){return t.loja||'Sem loja vinculada';}
+function ticketLastEvent(t){const ev=(t.eventos||[]).slice(-1)[0];return ev?ev.texto:(t.descricao||'');}
+function ticketDateValue(s){const d=parseDate(s||'');return d?d.getTime():0;}
+function getFilteredSupport(){
+  const q=(document.getElementById('sup-q')||{value:''}).value.toLowerCase();
+  const st=(document.getElementById('sup-fs')||{value:''}).value;
+  const resp=(document.getElementById('sup-fresp')||{value:''}).value;
+  const origem=(document.getElementById('sup-forigem')||{value:''}).value;
+  return supportTickets.filter(t=>{
+    const txt=((t.id||'')+' '+(t.loja||'')+' '+(t.numLoja||'')+' '+(t.assunto||'')+' '+(t.descricao||'')+' '+ticketLastEvent(t)).toLowerCase();
+    if(q&&!txt.includes(q))return false;
+    if(st&&t.status!==st)return false;
+    if(resp&&t.responsavel!==resp)return false;
+    if(origem&&t.origem!==origem)return false;
+    return true;
+  }).sort((a,b)=>ticketDateValue(b.atualizadoEm||b.abertoEm)-ticketDateValue(a.atualizadoEm||a.abertoEm));
+}
+function renderSupport(){
+  const total=supportTickets.length;
+  const aberto=supportTickets.filter(t=>t.status==='aberto').length;
+  const andamento=supportTickets.filter(t=>t.status==='andamento').length;
+  const fechado=supportTickets.filter(t=>t.status==='fechado').length;
+  document.getElementById('content').innerHTML=`
+    <div class="stats-row">
+      <div class="stat"><div class="lbl">Chamados</div><div class="val">${total}</div><div class="sub">registrados</div></div>
+      <div class="stat"><div class="lbl">Abertos</div><div class="val" style="color:#8b1a1a">${aberto}</div><div class="sub">aguardando retorno</div></div>
+      <div class="stat"><div class="lbl">Em andamento</div><div class="val i">${andamento}</div><div class="sub">em tratativa</div></div>
+      <div class="stat"><div class="lbl">Fechados</div><div class="val b">${fechado}</div><div class="sub">resolvidos</div></div>
+    </div>
+    <div class="toolbar">
+      <div class="tb-row">
+        <input class="tb" id="sup-q" placeholder="Buscar chamado, loja..." oninput="renderSupportContent()">
+        <select class="tb" id="sup-fs" onchange="renderSupportContent()">
+          <option value="">Todos os status</option><option value="aberto">Aberto</option><option value="andamento">Em andamento</option><option value="fechado">Fechado</option>
+        </select>
+        <select class="tb" id="sup-fresp" onchange="renderSupportContent()">
+          <option value="">Todos consultores</option>${TEAM.map(t=>`<option value="${t}">${t}</option>`).join('')}
+        </select>
+        <select class="tb" id="sup-forigem" onchange="renderSupportContent()">
+          <option value="">Todas origens</option><option value="manual">Manual</option><option value="email">E-mail</option><option value="zoho">Zoho</option>
+        </select>
+        <button class="btn-sm" onclick="exportSupportCSV()">CSV</button>
+        <button class="btn-add edit-only" onclick="openSupportModal()">+ Novo chamado</button>
+      </div>
+    </div>
+    <div id="support-content"></div>
+  `;
+  renderSupportContent();
+}
+function renderSupportContent(){
+  const list=getFilteredSupport();
+  const latest=[...supportTickets].sort((a,b)=>ticketDateValue(b.atualizadoEm||b.abertoEm)-ticketDateValue(a.atualizadoEm||a.abertoEm)).slice(0,8);
+  const rows=list.map(t=>{
+    const idx=supportTickets.indexOf(t);
+    return `<div class="support-ticket" onclick="openSupportModal(${idx})">
+      <div class="support-id">#${esc(t.id||'s/n')}</div>
+      <div class="support-main"><div class="support-store">${esc(ticketStore(t))}</div><div class="support-sub">${esc(t.assunto||'Sem assunto')}${t.numLoja?' - loja '+esc(t.numLoja):''}</div></div>
+      <div class="support-meta">${supportStatusLabel(t.status)}${supportOriginLabel(t.origem)}<span class="days-none">${esc(t.atualizadoEm||t.abertoEm||'')}</span></div>
+    </div>`;
+  }).join('');
+  const history=latest.map(t=>`<div class="support-history"><div class="dt">#${esc(t.id||'s/n')} - ${esc(t.loja||'Sem loja')} - ${esc(t.atualizadoEm||t.abertoEm||'')}</div><div class="txt">${esc(ticketLastEvent(t)||t.assunto||'Sem atualizacao registrada.')}</div></div>`).join('');
+  const el=document.getElementById('support-content');
+  if(el) el.innerHTML=`
+    <div class="support-layout">
+      <div class="support-panel">
+        <div class="support-panel-hdr"><span class="support-panel-title">Chamados</span><span class="dash-sec-cnt">${list.length}</span></div>
+        <div class="support-list">${rows||'<div class="support-empty">Nenhum chamado encontrado.</div>'}</div>
+      </div>
+      <div class="support-panel">
+        <div class="support-panel-hdr"><span class="support-panel-title">Historico recente</span></div>
+        ${history||'<div class="support-empty">Nenhum historico ainda.</div>'}
+      </div>
+    </div>`;
+}
+function renderSupportHistory(t){
+  const events=t.eventos||[];
+  if(!events.length)return '<div style="color:var(--text3);font-size:11px;font-style:italic;padding:8px 0">Nenhum evento registrado.</div>';
+  return [...events].reverse().map(e=>`<div class="log-entry"><div class="log-ts">${esc(e.data||'')}</div><div class="log-txt">${esc(e.texto||'')}</div></div>`).join('');
+}
+function nowStamp(){
+  const n=new Date();
+  return `${String(n.getDate()).padStart(2,'0')}/${String(n.getMonth()+1).padStart(2,'0')}/${n.getFullYear()} ${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
+}
+let supportModalIdx=-1;
+function openSupportModal(idx=-1){
+  supportModalIdx=idx;
+  const t=idx===-1?{id:'',loja:'',numLoja:'',status:'aberto',origem:'manual',assunto:'',abertoEm:nowStamp(),fechadoEm:'',atualizadoEm:'',responsavel:'',descricao:'',eventos:[]}:supportTickets[idx];
+  document.getElementById('sup-mtitle').textContent=idx===-1?'Novo chamado':'Editar chamado #'+(t.id||'s/n');
+  document.getElementById('sup-idx').value=idx;
+  document.getElementById('sup-id').value=t.id||'';
+  document.getElementById('sup-status').value=t.status||'aberto';
+  document.getElementById('sup-loja').innerHTML=supportStoreOptions(t.loja||'');
+  document.getElementById('sup-origem').value=t.origem||'manual';
+  document.getElementById('sup-resp').value=t.responsavel||'';
+  document.getElementById('sup-aberto').value=t.abertoEm||'';
+  document.getElementById('sup-fechado').value=t.fechadoEm||'';
+  document.getElementById('sup-assunto').value=t.assunto||'';
+  document.getElementById('sup-desc').value=t.descricao||'';
+  document.getElementById('sup-evento').value='';
+  document.getElementById('sup-history').innerHTML=renderSupportHistory(t);
+  document.getElementById('sup-btn-del').style.display=idx===-1?'none':'block';
+  document.getElementById('ov-sup').classList.add('open');
+  setModalReadonly('ov-sup');
+}
+function closeSupportModal(){document.getElementById('ov-sup').classList.remove('open');}
+function saveSupportTicket(){
+  if(!canEdit()){showToast("Somente leitura.",true);return;}
+  const lojaSel=document.getElementById('sup-loja');
+  const opt=lojaSel.options[lojaSel.selectedIndex];
+  const idx=parseInt(document.getElementById('sup-idx').value);
+  const prev=idx===-1?{eventos:[]}:supportTickets[idx];
+  const evento=document.getElementById('sup-evento').value.trim();
+  const status=document.getElementById('sup-status').value;
+  const eventos=[...(prev.eventos||[])];
+  if(evento)eventos.push({data:nowStamp(),tipo:'manual',origem:'manual',texto:evento});
+  if(prev.status&&prev.status!==status)eventos.push({data:nowStamp(),tipo:'status',origem:'manual',texto:`Status alterado de ${prev.status} para ${status}.`});
+  const obj={id:document.getElementById('sup-id').value.trim(),loja:lojaSel.value,numLoja:opt?opt.dataset.num||'':'',status,origem:document.getElementById('sup-origem').value,assunto:document.getElementById('sup-assunto').value.trim(),abertoEm:document.getElementById('sup-aberto').value.trim(),fechadoEm:document.getElementById('sup-fechado').value.trim(),atualizadoEm:nowStamp(),responsavel:document.getElementById('sup-resp').value,descricao:document.getElementById('sup-desc').value.trim(),eventos};
+  if(!obj.id&&!obj.assunto){alert('Informe pelo menos o numero ou o assunto do chamado.');return;}
+  if(obj.status==='fechado'&&!obj.fechadoEm)obj.fechadoEm=nowStamp();
+  if(idx===-1)supportTickets.push(obj);else supportTickets[idx]=obj;
+  saveSupport();closeSupportModal();renderSupport();
+}
+function deleteSupportTicket(){
+  if(!canEdit()){showToast("Somente leitura.",true);return;}
+  if(supportModalIdx<0)return;
+  if(!confirm(`Excluir chamado #${supportTickets[supportModalIdx].id||'s/n'}?`))return;
+  supportTickets.splice(supportModalIdx,1);saveSupport();closeSupportModal();renderSupport();
+}
+function exportSupportCSV(){
+  const hdr=['Chamado','Loja','Numero loja','Status','Origem','Consultor','Aberto em','Fechado em','Atualizado em','Assunto','Descricao','Ultimo evento'];
+  const rows=supportTickets.map(t=>[t.id||'',t.loja||'',t.numLoja||'',t.status||'',t.origem||'',t.responsavel||'',t.abertoEm||'',t.fechadoEm||'',t.atualizadoEm||'',t.assunto||'',t.descricao||'',ticketLastEvent(t)||''].map(v=>`"${(v||'').replace(/"/g,'""')}"`).join(';'));
+  const csv=[hdr.join(';'),...rows].join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);a.download='suporte_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+}
+
 let dbModalIdx=-1;
 function setRede(r){
   document.getElementById('db-rede').value=r;
