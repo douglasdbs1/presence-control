@@ -150,10 +150,22 @@ input.tb:focus,select.tb:focus{border-color:var(--teal-mid);}
 .tag-ml{font-size:9px;font-weight:700;padding:1px 5px;background:#0055be;color:#fff;}
 .tag-mega{font-size:9px;font-weight:700;padding:1px 5px;background:#0a5c47;color:#fff;}
 .tag-resp{font-size:9px;font-weight:600;padding:1px 6px;background:var(--indigo-bg);color:var(--indigo);border-radius:3px;}
+.store-num-pill{display:inline-flex;align-items:center;font-size:9px;font-weight:700;line-height:1;padding:3px 6px;border-radius:999px;background:#f0ede8;color:var(--text3);border:1px solid var(--border);white-space:nowrap;vertical-align:middle;}
+.store-num-pill.before{margin-right:6px;}
+.store-num-pill.after{margin-left:6px;}
 .badge{display:inline-flex;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;}
 .badge.aberto{background:var(--indigo-bg);color:var(--indigo);}
 .badge.agendado{background:var(--teal-bg);color:var(--teal);}
 .badge.concluido{background:var(--blue-bg);color:var(--blue);}
+.step-pill{display:inline-flex;font-size:10px;font-weight:700;padding:3px 7px;border-radius:999px;white-space:nowrap;border:1px solid var(--border);background:var(--surface2);color:var(--text2);}
+.step-pill.ok{background:var(--blue-bg);color:var(--blue);border-color:#b8d2ef;}
+.step-pill.soon,.step-pill.scheduled{background:var(--teal-bg);color:var(--teal);border-color:#b5e8d5;}
+.step-pill.pending{background:var(--indigo-bg);color:var(--indigo);border-color:#c4caef;}
+.step-pill.risk{background:var(--red-bg);color:var(--red);border-color:#f2bcbc;}
+.quick-tabs{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+.qtab{font-family:var(--font);font-size:11px;font-weight:700;padding:5px 9px;border:1px solid var(--border);background:#fff;color:var(--text2);border-radius:999px;cursor:pointer;}
+.qtab:hover{background:var(--surface2);}
+.qtab.on{background:var(--text);border-color:var(--text);color:#fff;}
 
 /* TABLE */
 .table-wrap{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
@@ -727,6 +739,29 @@ function stepsDone(l){
 }
 function countDone(l){return stepsDone(l).filter(Boolean).length;}
 function badgeHtml(s){const m={aberto:'Aguardando',agendado:'Cronograma',concluido:'Presence Ativo'};return `<span class="badge ${s}">${m[s]||s}</span>`;}
+function lojaNumPill(l,pos='before'){return l&&l.num?`<span class="store-num-pill ${pos}">${esc(l.num)}</span>`:'';}
+function redeTagHtml(l){
+  const r=redeFromGrupo(l.grupo,l.rede);
+  if(r==='both') return '<span class="tag-mega">MEGA</span>';
+  return r==='ml'?'<span class="tag-ml">ML</span>':'<span class="tag-rj">RJ</span>';
+}
+function nextStepInfo(l){
+  if(l.status==='concluido') return {key:'ok',label:'Presence ativo',rank:80};
+  const done=stepsDone(l);
+  const firstMissing=done.findIndex(v=>!v);
+  if(firstMissing>=0&&firstMissing<FASES.length-1){
+    return {key:'pending',label:FASES[firstMissing].label+' pendente',rank:20+firstMissing};
+  }
+  if(isOverdue(l)) return {key:'risk',label:'Go-live atrasado',rank:5};
+  if(l.goLive){
+    const d=daysDiff(l.goLive);
+    if(d===0) return {key:'soon',label:'Go-live hoje',rank:60};
+    if(d!==null&&d<=7) return {key:'soon',label:'Go-live próximo',rank:61};
+    return {key:'scheduled',label:'Go-live agendado',rank:62};
+  }
+  return {key:'pending',label:'Agendar go-live',rank:40};
+}
+function nextStepHtml(l){const n=nextStepInfo(l);return `<span class="step-pill ${n.key}">${n.label}</span>`;}
 function redeLabel(r){
   if(r==='both') return '<span class="rede-mega">Mega</span>';
   return r==='ml'?'<span class="rede-ml">Minha Lavanderia</span>':'<span class="rede-rj">Restaura Jeans</span>';
@@ -761,7 +796,7 @@ function setPage(p){
 function renderPage(){if(currentPage==='gl')renderGL();else if(currentPage==='db')renderDB();else renderSupport();}
 
 // ── GO-LIVE PAGE ──
-let glView='dash',sortCol='goLive',sortAsc=true;
+let glView='lista',sortCol='goLive',sortAsc=true,glQuick='all';
 function getFiltered(){
   const q=(document.getElementById('gl-q')||{value:''}).value.toLowerCase();
   const st=(document.getElementById('gl-st')||{value:''}).value;
@@ -780,6 +815,10 @@ function getFiltered(){
     if(numero==='com'&&!hasPresenceNumber(l)) return false;
     if(numero==='sem'&&hasPresenceNumber(l)) return false;
     if(prazo&& !inNextDays(l.goLive,parseInt(prazo))) return false;
+    if(glQuick==='criticos'&&!(isOverdue(l)||(!l.goLive&&l.status!=='concluido')||l.alerta)) return false;
+    if(glQuick==='prox7'&&!(l.status!=='concluido'&&inNextDays(l.goLive,7))) return false;
+    if(glQuick==='semdata'&&!(l.status!=='concluido'&&!l.goLive)) return false;
+    if(glQuick==='ativos'&&l.status!=='concluido') return false;
     return true;
   }).sort((a,b)=>{
     const da=parseDate(a.goLive),db=parseDate(b.goLive);
@@ -805,11 +844,11 @@ function renderGL(){
   const glSpot=proxGL.length?proxGL.map(l=>{
     const d=daysDiff(l.goLive),t=l.goLive.includes(' ')?l.goLive.trim().split(' ')[1]:'';
     const lbl=d===0?`<span style="color:var(--teal-mid);font-weight:800">HOJE${t?' — '+t:''}</span>`:`<span style="color:#c0392b">${fmtDate(l.goLive)}</span>`;
-    return `<div class="spot-item"><div class="spot-name">${l.loja}<small>${l.responsavel||l.grupo}</small></div>${lbl}</div>`;
+    return `<div class="spot-item"><div class="spot-name">${lojaNumPill(l)}${l.loja}<small>${l.responsavel||l.grupo}</small></div>${lbl}</div>`;
   }).join(''):'<div class="spot-empty">Nenhum agendado.</div>';
-  const pglSpot=proxPGL.length?proxPGL.map(({l,pgl})=>`<div class="spot-item"><div class="spot-name">${l.loja}<small>${l.responsavel||l.grupo}</small></div><span class="spot-date" style="color:var(--indigo)">${fmtDateObj(pgl)}</span></div>`).join(''):'<div class="spot-empty">Nenhum agendado.</div>';
-  const scheduleRows=missingSchedule.length?missingSchedule.map(l=>`<div class="action-item" onclick="openModal(${lojaIdx(l)})"><div class="action-name">${l.loja}<small>${l.responsavel||l.grupo}</small></div><span class="action-tag" style="color:var(--indigo)">sem data</span></div>`).join(''):'<div class="action-empty">Nenhuma loja sem data de go-live.</div>';
-  const blockedRows=blocked.length?blocked.map(l=>`<div class="action-item" onclick="openModal(${lojaIdx(l)})"><div class="action-name">${l.loja}<small>${countDone(l)}/5 etapas concluídas${l.alerta?' · sinalizador ativo':''}</small></div><span class="action-tag" style="color:${l.alerta?'#c0392b':'var(--text3)'}">${l.alerta?'contato':'fluxo'}</span></div>`).join(''):'<div class="action-empty">Nenhuma pendência crítica no momento.</div>';
+  const pglSpot=proxPGL.length?proxPGL.map(({l,pgl})=>`<div class="spot-item"><div class="spot-name">${lojaNumPill(l)}${l.loja}<small>${l.responsavel||l.grupo}</small></div><span class="spot-date" style="color:var(--indigo)">${fmtDateObj(pgl)}</span></div>`).join(''):'<div class="spot-empty">Nenhum agendado.</div>';
+  const scheduleRows=missingSchedule.length?missingSchedule.map(l=>`<div class="action-item" onclick="openModal(${lojaIdx(l)})"><div class="action-name">${lojaNumPill(l)}${l.loja}<small>${l.responsavel||l.grupo}</small></div><span class="action-tag" style="color:var(--indigo)">sem data</span></div>`).join(''):'<div class="action-empty">Nenhuma loja sem data de go-live.</div>';
+  const blockedRows=blocked.length?blocked.map(l=>`<div class="action-item" onclick="openModal(${lojaIdx(l)})"><div class="action-name">${lojaNumPill(l)}${l.loja}<small>${countDone(l)}/5 etapas concluídas${l.alerta?' · sinalizador ativo':''}</small></div><span class="action-tag" style="color:${l.alerta?'#c0392b':'var(--text3)'}">${l.alerta?'contato':'fluxo'}</span></div>`).join(''):'<div class="action-empty">Nenhuma pendência crítica no momento.</div>';
 
   document.getElementById('content').innerHTML=`
     <div class="home-intro">
@@ -861,6 +900,15 @@ function renderGL(){
         </select>
       </div>
       <div class="tb-row">
+        <div class="quick-tabs">
+          <button class="qtab${glQuick==='all'?' on':''}" onclick="setGLQuick('all')">Todos</button>
+          <button class="qtab${glQuick==='criticos'?' on':''}" onclick="setGLQuick('criticos')">Críticos</button>
+          <button class="qtab${glQuick==='prox7'?' on':''}" onclick="setGLQuick('prox7')">Próximos 7 dias</button>
+          <button class="qtab${glQuick==='semdata'?' on':''}" onclick="setGLQuick('semdata')">Sem data</button>
+          <button class="qtab${glQuick==='ativos'?' on':''}" onclick="setGLQuick('ativos')">Ativos</button>
+        </div>
+      </div>
+      <div class="tb-row">
         <select class="tb" id="gl-uf" onchange="renderGLContent()">
           <option value="">Todos UF</option>
           ${[...new Set(getViewLojas().map(l=>ufFromName(l.loja)).filter(Boolean))].sort().map(u=>`<option value="${u}">${u}</option>`).join('')}
@@ -885,6 +933,7 @@ function renderGL(){
 }
 
 function setGLView(v){glView=v;renderGL();}
+function setGLQuick(v){glQuick=v;renderGL();}
 
 function renderGLContent(){
   const list=getFiltered();
@@ -928,8 +977,8 @@ function renderKanban(active,concluded){
         const dateLabel=!l.goLive?'<span class="kb-date">sem data</span>':diff===0?'<span class="kb-date today">HOJE</span>':diff!==null&&diff<0?`<span class="kb-date" style="color:#c0392b">atrasado ${Math.abs(diff)}d</span>`:`<span class="kb-date">${fmtDate(l.goLive)}</span>`;
         const rede=l.grupo&&l.grupo.toLowerCase().includes('minha lavanderia')?'<span class="tag-ml">ML</span>':'<span class="tag-rj">RJ</span>';
         return `<div class="kb-card${od?' overdue':''}${l._stub?' stub-card':''}" onclick="openModal(${idx})">
-          <div class="kb-name">${l.loja}${l.alerta?'<span style="color:#c0392b;font-size:11px"> ⚠</span>':''}</div>
-          <div class="kb-meta">${rede}${l.num?`<span class="nc" style="font-size:10px">${l.num}</span>`:''}${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:''}${l._stub?'<span class="tag-db">Lojas</span>':''}${dateLabel}</div>
+          <div class="kb-name">${lojaNumPill(l)}${l.loja}${l.alerta?'<span style="color:#c0392b;font-size:11px"> ⚠</span>':''}</div>
+          <div class="kb-meta">${rede}${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:''}${l._stub?'<span class="tag-db">Lojas</span>':''}${dateLabel}</div>
           <div class="kb-prog"><div class="kb-prog-f" style="width:${pct}%"></div></div>
         </div>`;
       }).join(''):'<div class="kb-empty">Nenhuma loja</div>'}
@@ -941,8 +990,8 @@ function renderKanban(active,concluded){
       const idx=lojaIdx(l);
       const rede=l.grupo&&l.grupo.toLowerCase().includes('minha lavanderia')?'<span class="tag-ml">ML</span>':'<span class="tag-rj">RJ</span>';
       return `<div class="kb-card${l._stub?' stub-card':''}" onclick="openModal(${idx})">
-        <div class="kb-name">${l.loja}</div>
-        <div class="kb-meta">${rede}${l.num?`<span class="nc" style="font-size:10px">${l.num}</span>`:''}${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:''}${l._stub?'<span class="tag-db">Lojas</span>':''}${l.goLive?`<span class="kb-date today">✓ ${fmtDate(l.goLive)}</span>`:'<span class="kb-date today">—</span>'}</div>
+        <div class="kb-name">${lojaNumPill(l)}${l.loja}</div>
+        <div class="kb-meta">${rede}${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:''}${l._stub?'<span class="tag-db">Lojas</span>':''}${l.goLive?`<span class="kb-date today">✓ ${fmtDate(l.goLive)}</span>`:'<span class="kb-date today">—</span>'}</div>
         <div class="kb-prog"><div class="kb-prog-f" style="width:100%"></div></div>
       </div>`;
     }).join(''):'<div class="kb-empty">Nenhuma loja</div>'}
@@ -972,6 +1021,15 @@ function renderLista(list){
   if(!list.length) return '<div class="table-wrap"><div class="no-results">Nenhuma loja encontrada.</div></div>';
   const sorted=[...list].sort((a,b)=>{
     let va=a[sortCol]||'',vb=b[sortCol]||'';
+    if(sortCol==='nextStep'){
+      const na=nextStepInfo(a).rank,nb=nextStepInfo(b).rank;
+      return sortAsc?na-nb:nb-na;
+    }
+    if(sortCol==='prazo'){
+      const da=daysDiff(a.goLive),db=daysDiff(b.goLive);
+      const pa=da===null?9999:da,pb=db===null?9999:db;
+      return sortAsc?pa-pb:pb-pa;
+    }
     if(['goLive','treinLoja','treinRetag','preGoLive','instalacao'].includes(sortCol)){
       const da=parseDate(va),db=parseDate(vb);
       if(!da&&!db)return 0;if(!da)return 1;if(!db)return -1;
@@ -985,17 +1043,19 @@ function renderLista(list){
     const lastLog=(l.log||'').split('\n').filter(Boolean).pop()||'';
     const logTxt=lastLog.replace(/\[\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}\] /,'').substring(0,55);
     return `<tr class="${isOverdue(l)?'over':''}${l._stub?' stub-row':''}" onclick="openModal(${idx})">
+      <td class="nc">${lojaNumPill(l,'')||'—'}</td>
       <td class="lc">${l.loja}<div class="sub">${l.grupo}</div></td>
-      <td class="nc">${l.num}</td>
-      <td>${badgeHtml(l.status)}</td>
+      <td>${redeTagHtml(l)}</td>
       <td>${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:'—'}</td>
-      <td>${flowDotsHtml(l)}</td>
+      <td>${badgeHtml(l.status)}</td>
+      <td>${nextStepHtml(l)}</td>
+      <td class="nc">${fmtDate(l.goLive)||'—'}</td>
       ${daysCell(l.goLive)}
       <td class="oc" title="${(l.log||'').replace(/"/g,'&quot;')}">${logTxt}${logTxt.length>=55?'…':''}</td>
     </tr>`;
   }).join('');
   return `<div class="table-wrap"><table>
-    <thead><tr>${th('loja','Loja')}${th('num','Nº')}${th('status','Status')}<th>Consultor</th><th>Fluxo</th>${th('goLive','Go-live')}<th>Última anotação</th></tr></thead>
+    <thead><tr>${th('num','Nº')}${th('loja','Loja')}<th>Rede</th><th>Consultor</th>${th('status','Status')}${th('nextStep','Próxima etapa')}${th('goLive','Go-live')}${th('prazo','Prazo')}<th>Última nota</th></tr></thead>
     <tbody>${rows}</tbody>
   </table></div>`;
 }
@@ -1006,8 +1066,8 @@ function renderFase(list){
     const com=list.filter(l=>stepsDone(l)[fi]).sort((a,b)=>(parseDate(a[f.key])||0)-(parseDate(b[f.key])||0));
     const sem=list.filter(l=>!stepsDone(l)[fi]);
     return `<div class="fase-card"><div class="fase-hdr"><span class="ft">Etapa ${fi+1} — ${f.label}</span><span class="fc">${com.length} ok · ${sem.length} pend.</span></div>
-      ${com.map(l=>`<div class="fase-row"><span class="fn">${l.loja}</span><span style="font-size:11px;color:var(--teal)">✓ ${fmtDate(l[f.key])||''}</span></div>`).join('')}
-      ${sem.length?`<div class="fase-sem">Pendentes: ${sem.map(l=>l.loja).join(', ')}</div>`:''}
+      ${com.map(l=>`<div class="fase-row"><span class="fn">${lojaNumPill(l)}${l.loja}</span><span style="font-size:11px;color:var(--teal)">✓ ${fmtDate(l[f.key])||''}</span></div>`).join('')}
+      ${sem.length?`<div class="fase-sem">Pendentes: ${sem.map(l=>l.num?`#${l.num} ${l.loja}`:l.loja).join(', ')}</div>`:''}
     </div>`;
   }).join('')}</div>`;
 }
@@ -1022,14 +1082,14 @@ function renderTL(list){
     const diff=daysDiff(l.goLive);
     return `<div class="tl-item" onclick="openModal(${idx})">
       <div class="tl-dt" style="color:${isOverdue(l)?'#c0392b':'var(--text)'}">${fmtDate(l.goLive).split(' ')[0]}</div>
-      <div class="tl-name">${l.loja}<small>${l.grupo}</small></div>
+      <div class="tl-name">${lojaNumPill(l)}${l.loja}<small>${l.grupo}</small></div>
       <div style="display:flex;align-items:center;gap:7px">${badgeHtml(l.status)}${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:''}</div>
     </div>`;
   }).join('')}</div>`).join('');
 }
 
 function renderConcluded(list){
-  const rows=list.map(l=>{const idx=lojaIdx(l);return `<tr onclick="openModal(${idx})"><td class="lc">${l.loja}</td><td class="nc">${l.num}</td><td>${badgeHtml(l.status)}</td><td>${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:'—'}</td><td>${flowDotsHtml(l)}</td><td class="nc">${fmtDate(l.goLive)||'—'}</td><td class="oc">—</td></tr>`;}).join('');
+  const rows=list.map(l=>{const idx=lojaIdx(l);return `<tr onclick="openModal(${idx})"><td class="lc">${lojaNumPill(l)}${l.loja}</td><td class="nc">${l.num}</td><td>${badgeHtml(l.status)}</td><td>${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:'—'}</td><td>${flowDotsHtml(l)}</td><td class="nc">${fmtDate(l.goLive)||'—'}</td><td class="oc">—</td></tr>`;}).join('');
   return `<div class="conc-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><span class="conc-label">Sistema Presence Ativo</span><span class="conc-cnt">${list.length}</span><span class="conc-arrow">▼</span></div><div class="conc-body"><div class="table-wrap conc-table"><table><thead><tr><th>Loja</th><th>Nº</th><th>Status</th><th>Consultor</th><th>Fluxo</th><th>Go-live</th><th>—</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
 }
 
@@ -1063,7 +1123,7 @@ function renderConsultores(list){
     const badges=(ag?`<span class="cc-b ag">${ag} cron.</span>`:'')+
                  (ab?`<span class="cc-b ab">${ab} ag.</span>`:'')+
                  (ok?`<span class="cc-b ok">${ok} ativo</span>`:'');
-    const rows=ls.map(l=>`<div class="cc-row">${redeTag(l)}<span class="cc-loja">${l.loja}</span><span class="cc-num">${l.num||''}</span>${pillHtml(l)}</div>`).join('');
+    const rows=ls.map(l=>`<div class="cc-row">${redeTag(l)}<span class="cc-loja">${lojaNumPill(l)}${l.loja}</span>${pillHtml(l)}</div>`).join('');
     return `<div class="cc-card"><div class="cc-hdr"><div class="cc-av" style="background:${color}">${initials}</div><div><div class="cc-name">${t}</div><div class="cc-sub">${ls.length} loja${ls.length>1?'s':''}</div></div><div class="cc-badges">${badges}</div></div>${rows}</div>`;
   }).join('');
   return `<div class="cc-grid">${cards}</div>`;
@@ -1073,7 +1133,7 @@ function renderDashboard(list){
   const aguardando=list.filter(l=>l.status==='aberto').sort((a,b)=>a.loja.localeCompare(b.loja,'pt'));
   const ativos=list.filter(l=>l.status==='concluido').sort((a,b)=>{const da=parseDate(a.goLive),db=parseDate(b.goLive);if(!da&&!db)return 0;if(!da)return 1;if(!db)return -1;return db-da;});
   function rtag(l){if(l.grupo&&l.grupo.toLowerCase().includes('minha lavanderia'))return '<span class="tag-ml">ML</span>';if(l.grupo&&l.grupo.toLowerCase().includes('mega'))return '<span class="tag-mega">MEGA</span>';return '<span class="tag-rj">RJ</span>';}
-  function drow(l,dateHtml,metaHtml){const idx=lojaIdx(l);return `<div class="dash-row${isOverdue(l)?' dash-overdue':''}${l._stub?' stub-row':''}" onclick="openModal(${idx})"><div class="dash-date">${dateHtml}</div><div class="dash-name">${l.loja}${l._stub?'<span class="tag-db" style="margin-left:5px">Lojas</span>':''}</div><div class="dash-tags">${rtag(l)}${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:''}</div><div class="dash-meta">${metaHtml}</div></div>`;}
+  function drow(l,dateHtml,metaHtml){const idx=lojaIdx(l);return `<div class="dash-row${isOverdue(l)?' dash-overdue':''}${l._stub?' stub-row':''}" onclick="openModal(${idx})"><div class="dash-date">${dateHtml}</div><div class="dash-name">${lojaNumPill(l)}${l.loja}${l._stub?'<span class="tag-db" style="margin-left:5px">Lojas</span>':''}</div><div class="dash-tags">${rtag(l)}${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:''}</div><div class="dash-meta">${metaHtml}</div></div>`;}
   const secAg=agendados.length?agendados.map(l=>{const diff=daysDiff(l.goLive);const meta=diff===null?'':diff<0?`<span class="days-over">atrasado ${Math.abs(diff)}d</span>`:diff===0?'<span class="days-near" style="font-weight:800">HOJE</span>':diff===1?'<span class="days-near">amanhã</span>':`<span class="${diff<=7?'days-near':'days-ok'}">em ${diff}d</span>`;return drow(l,fmtDate(l.goLive)||'—',meta);}).join(''):'<div class="dash-empty">Nenhum go-live agendado.</div>';
   const secAw=aguardando.length?aguardando.map(l=>{const last=parseLogEntries(l.log||'').slice(-1)[0];const obs=last?last.text.substring(0,55):'—';return drow(l,'<span style="color:var(--text3);font-size:11px">sem data</span>',`<span style="color:var(--text3);font-size:11px">${obs}</span>`);}).join(''):'<div class="dash-empty">Nenhum franqueado aguardando.</div>';
   const secOk=ativos.length?ativos.map(l=>drow(l,`<span style="color:var(--teal-mid)">${fmtDate(l.goLive)||'—'}</span>`,'<span style="color:var(--teal-mid);font-weight:600;font-size:11px">✓ ativo</span>')).join(''):'<div class="dash-empty">Nenhuma loja com Presence ativo.</div>';
