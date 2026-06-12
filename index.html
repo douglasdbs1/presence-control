@@ -370,6 +370,67 @@ body.admin.locked .kb-card, body.admin.locked tbody tr, body.admin.locked .tl-it
 .ticket-origin.zoho{background:#fff3d8;color:#7a4b00;}
 @media(max-width:900px){.support-layout{grid-template-columns:1fr;}.support-ticket{grid-template-columns:78px 1fr;}.support-meta{grid-column:1/-1;justify-content:flex-start;}}
 
+/* VISUAL REFRESH */
+:root{
+  --bg:#eef1f4;--surface:#ffffff;--surface2:#f6f8fa;--border:#dde3e8;--border2:#b8c2cc;
+  --text:#15171a;--text2:#4d5761;--text3:#7d8790;
+  --teal:#065f46;--teal-bg:#def7ec;--teal-mid:#0f8b63;
+  --indigo:#33439b;--indigo-bg:#e7eafd;
+  --red:#9d1c1c;--red-bg:#fde5e5;
+  --blue:#15559a;--blue-bg:#e0efff;
+}
+body{background:linear-gradient(180deg,#f7f8fa 0,#eef1f4 220px,#eef1f4 100%);color:var(--text);}
+.topbar{height:56px;background:rgba(255,255,255,.94);backdrop-filter:saturate(145%) blur(10px);box-shadow:0 1px 0 rgba(21,23,26,.06);border-bottom:1px solid rgba(221,227,232,.85);}
+.brand-pill{border-radius:999px;background:#fff;border-color:#d7dee5;box-shadow:0 1px 2px rgba(21,23,26,.04);}
+.sys-title{font-size:14px;font-weight:800;}
+.sys-sub{color:var(--text3);}
+.page-nav{top:56px;background:rgba(255,255,255,.88);backdrop-filter:saturate(145%) blur(10px);box-shadow:0 1px 0 rgba(21,23,26,.05);}
+.pnav-btn{padding:12px 15px;border-radius:0;color:#6a747d;}
+.pnav-btn.on{color:var(--teal);border-bottom-color:var(--teal-mid);}
+.content{max-width:1420px;padding-top:24px;}
+.home-intro,.stat,.spot-card,.action-card,.table-wrap,.dash-section,.kb-col,.fase-card,.cc-card,.db-stat,.support-panel,.login-box{border-radius:8px;border-color:#dbe2e8;box-shadow:0 10px 28px rgba(21,23,26,.045);}
+.home-intro{padding:18px 20px;background:linear-gradient(135deg,#fff 0,#f7fbfa 64%,#eef8f4 100%);}
+.home-kicker{color:var(--teal);font-weight:800;}
+.home-title{font-size:25px;letter-spacing:0;}
+.home-sub{color:var(--text2);}
+.focus-pill,.qtab,.store-num-pill{box-shadow:0 1px 0 rgba(21,23,26,.03);}
+.stats-row,.db-stats{gap:12px;}
+.stat,.db-stat{padding:16px 17px;background:#fff;}
+.stat .lbl,.db-stat .lbl{color:#737e87;}
+.stat .val,.db-stat .val{font-size:30px;letter-spacing:0;}
+.spot-hdr,.action-hdr,.dash-sec-hdr,.fase-hdr,.support-panel-hdr{background:#f7f9fb;}
+.spot-item,.action-item,.dash-row,.support-ticket{transition:background .14s ease,box-shadow .14s ease;}
+.spot-item:hover,.action-item:hover,.dash-row:hover,.support-ticket:hover{background:#f1faf6!important;}
+.toolbar{background:#fff;border:1px solid #dbe2e8;border-radius:8px;padding:10px 12px;box-shadow:0 8px 22px rgba(21,23,26,.04);}
+.view-tabs{background:#eef2f5;border-color:#dbe2e8;border-radius:8px;}
+.vtab{padding:7px 12px;border-radius:6px;}
+.vtab.on{background:#fff;color:#121416;box-shadow:0 1px 3px rgba(21,23,26,.08);}
+.qtab{background:#f7f9fb;border-color:#dbe2e8;color:#4d5761;}
+.qtab.on{background:#101828;border-color:#101828;color:#fff;}
+input.tb,select.tb{border-color:#cbd5df;background:#fff;min-height:31px;}
+input.tb:focus,select.tb:focus{box-shadow:0 0 0 3px rgba(15,139,99,.12);}
+.btn-sm,.btn-add,.btn-save-all,.btn-cancel,.btn-save,.btn-del,.btn-note,.lbtn{border-radius:7px;}
+.btn-add,.btn-save-all{box-shadow:0 1px 2px rgba(6,95,70,.08);}
+.table-wrap{overflow:auto;}
+table{background:#fff;}
+thead th{position:sticky;top:0;z-index:2;background:#f6f8fa;color:#66717b;border-bottom-color:#dbe2e8;padding:10px 12px;}
+td{padding:10px 12px;}
+tbody tr{border-bottom-color:#eef2f5;}
+tbody tr:nth-child(even){background:#fbfcfd;}
+tbody tr.over{box-shadow:inset 3px 0 0 #c0392b;border-left:none;}
+td.lc{font-weight:700;}
+td.oc{max-width:260px;}
+.badge,.step-pill,.tag-resp,.tag-db,.tag-rj,.tag-ml,.tag-mega,.ticket-status,.ticket-origin{border-radius:999px;}
+.store-num-pill{background:#eef2f5;color:#59636d;border-color:#dbe2e8;}
+.step-pill{padding:4px 8px;}
+.kanban{gap:14px;}
+.kb-col{background:#eef2f5;padding:12px;}
+.kb-card{border-radius:8px;box-shadow:0 2px 8px rgba(21,23,26,.04);}
+.kb-card:hover{box-shadow:0 6px 16px rgba(21,23,26,.08);}
+.modal{border-radius:10px;box-shadow:0 18px 70px rgba(21,23,26,.22);}
+.mhdr{background:#f7f9fb;}
+@media(max-width:800px){.content{padding:14px 12px 48px;}.toolbar{padding:9px}.stat .val{font-size:26px;}}
+
 </style>
 </head>
 <body>
@@ -815,7 +876,7 @@ function getFiltered(){
     if(numero==='com'&&!hasPresenceNumber(l)) return false;
     if(numero==='sem'&&hasPresenceNumber(l)) return false;
     if(prazo&& !inNextDays(l.goLive,parseInt(prazo))) return false;
-    if(glQuick==='criticos'&&!(isOverdue(l)||(!l.goLive&&l.status!=='concluido')||l.alerta)) return false;
+    if(glQuick==='criticos'&&!isOverdue(l)) return false;
     if(glQuick==='prox7'&&!(l.status!=='concluido'&&inNextDays(l.goLive,7))) return false;
     if(glQuick==='semdata'&&!(l.status!=='concluido'&&!l.goLive)) return false;
     if(glQuick==='ativos'&&l.status!=='concluido') return false;
@@ -839,7 +900,7 @@ function renderGL(){
   const proxGL=all.filter(l=>l.goLive&&daysDiff(l.goLive)>=0).sort((a,b)=>parseDate(a.goLive)-parseDate(b.goLive)).slice(0,2);
   const proxPGL=all.filter(l=>l.goLive&&parseDate(l.goLive)).map(l=>({l,pgl:prevBusinessDay(parseDate(l.goLive))})).filter(x=>Math.round((x.pgl-TODAY)/86400000)>=0).sort((a,b)=>a.pgl-b.pgl).slice(0,2);
   const missingSchedule=all.filter(l=>l.status!=='concluido'&&!l.goLive).slice(0,4);
-  const blocked=all.filter(l=>l.status!=='concluido'&&(l.alerta||countDone(l)<3)).slice(0,4);
+  const blocked=all.filter(l=>l.status!=='concluido'&&countDone(l)<3).slice(0,4);
 
   const glSpot=proxGL.length?proxGL.map(l=>{
     const d=daysDiff(l.goLive),t=l.goLive.includes(' ')?l.goLive.trim().split(' ')[1]:'';
@@ -848,7 +909,7 @@ function renderGL(){
   }).join(''):'<div class="spot-empty">Nenhum agendado.</div>';
   const pglSpot=proxPGL.length?proxPGL.map(({l,pgl})=>`<div class="spot-item"><div class="spot-name">${lojaNumPill(l)}${l.loja}<small>${l.responsavel||l.grupo}</small></div><span class="spot-date" style="color:var(--indigo)">${fmtDateObj(pgl)}</span></div>`).join(''):'<div class="spot-empty">Nenhum agendado.</div>';
   const scheduleRows=missingSchedule.length?missingSchedule.map(l=>`<div class="action-item" onclick="openModal(${lojaIdx(l)})"><div class="action-name">${lojaNumPill(l)}${l.loja}<small>${l.responsavel||l.grupo}</small></div><span class="action-tag" style="color:var(--indigo)">sem data</span></div>`).join(''):'<div class="action-empty">Nenhuma loja sem data de go-live.</div>';
-  const blockedRows=blocked.length?blocked.map(l=>`<div class="action-item" onclick="openModal(${lojaIdx(l)})"><div class="action-name">${lojaNumPill(l)}${l.loja}<small>${countDone(l)}/5 etapas concluídas${l.alerta?' · sinalizador ativo':''}</small></div><span class="action-tag" style="color:${l.alerta?'#c0392b':'var(--text3)'}">${l.alerta?'contato':'fluxo'}</span></div>`).join(''):'<div class="action-empty">Nenhuma pendência crítica no momento.</div>';
+  const blockedRows=blocked.length?blocked.map(l=>`<div class="action-item" onclick="openModal(${lojaIdx(l)})"><div class="action-name">${lojaNumPill(l)}${l.loja}${l.alerta?'<span style="color:#c0392b;font-size:11px;margin-left:4px"> ⚠</span>':''}<small>${countDone(l)}/5 etapas concluídas</small></div><span class="action-tag" style="color:var(--text3)">fluxo</span></div>`).join(''):'<div class="action-empty">Nenhuma pendência crítica no momento.</div>';
 
   document.getElementById('content').innerHTML=`
     <div class="home-intro">
