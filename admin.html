@@ -331,8 +331,8 @@ td.oc{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 /* READ ONLY / ADMIN */
 body.viewer .edit-only{display:none!important;}
 body.admin.locked .edit-only{display:none!important;}
-body.viewer .kb-card, body.viewer tbody tr, body.viewer .tl-item{cursor:default;}
-body.admin.locked .kb-card, body.admin.locked tbody tr, body.admin.locked .tl-item{cursor:default;}
+body.viewer .kb-card, body.viewer tbody tr, body.viewer .tl-item, body.viewer .active-card{cursor:default;}
+body.admin.locked .kb-card, body.admin.locked tbody tr, body.admin.locked .tl-item, body.admin.locked .active-card{cursor:default;}
 .readonly-pill{font-size:10px;font-weight:700;padding:3px 8px;border:1px solid var(--border);border-radius:999px;background:var(--surface2);color:var(--text3);letter-spacing:.04em;text-transform:uppercase;}
 .login-box{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px 20px;max-width:380px;margin:40px auto;box-shadow:0 4px 24px rgba(0,0,0,.08);}
 .login-box h2{font-size:16px;margin-bottom:6px;}
@@ -369,6 +369,30 @@ body.admin.locked .kb-card, body.admin.locked tbody tr, body.admin.locked .tl-it
 .ticket-origin.manual{background:#e6f8ef;color:#0a5c47;}
 .ticket-origin.zoho{background:#fff3d8;color:#7a4b00;}
 @media(max-width:900px){.support-layout{grid-template-columns:1fr;}.support-ticket{grid-template-columns:78px 1fr;}.support-meta{grid-column:1/-1;justify-content:flex-start;}}
+
+/* ACTIVE PRESENCE */
+.active-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:12px;}
+.active-card{position:relative;background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;overflow:hidden;transition:transform .14s ease,box-shadow .14s ease,border-color .14s ease;}
+.active-card:hover{transform:translateY(-1px);}
+.active-card.ok{border-color:#9ddfbd;box-shadow:0 0 0 1px rgba(15,139,99,.12),0 0 18px rgba(15,139,99,.20),0 10px 26px rgba(21,23,26,.05);}
+.active-card.yellow{border-color:#f0d46b;box-shadow:0 0 0 1px rgba(201,154,20,.12),0 0 18px rgba(201,154,20,.20),0 10px 26px rgba(21,23,26,.05);}
+.active-card.orange{border-color:#f1a14b;box-shadow:0 0 0 1px rgba(207,103,21,.15),0 0 18px rgba(207,103,21,.24),0 10px 26px rgba(21,23,26,.05);}
+.active-card.red{border-color:#ee8585;box-shadow:0 0 0 1px rgba(157,28,28,.14),0 0 20px rgba(157,28,28,.28),0 10px 26px rgba(21,23,26,.05);}
+.active-card.pulse{animation:activePulse 1.6s ease-in-out infinite;}
+@keyframes activePulse{0%,100%{box-shadow:0 0 0 1px rgba(157,28,28,.14),0 0 16px rgba(157,28,28,.22),0 10px 26px rgba(21,23,26,.05);}50%{box-shadow:0 0 0 3px rgba(157,28,28,.18),0 0 30px rgba(157,28,28,.42),0 10px 26px rgba(21,23,26,.08);}}
+.active-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.active-store{font-size:14px;font-weight:800;color:var(--text);line-height:1.18;}
+.active-store small{display:block;font-size:10px;font-weight:600;color:var(--text3);margin-top:3px;}
+.active-health{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:800;border-radius:999px;padding:4px 8px;white-space:nowrap;}
+.active-health.ok{background:var(--teal-bg);color:var(--teal);}
+.active-health.yellow{background:#fff5cf;color:#8a6500;}
+.active-health.orange{background:#ffe6cf;color:#a54a00;}
+.active-health.red{background:var(--red-bg);color:var(--red);}
+.active-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+.active-obs{font-size:11px;color:var(--text2);line-height:1.42;min-height:32px;}
+.active-age{position:absolute;right:12px;bottom:10px;font-size:10px;font-weight:800;color:var(--text3);}
+.active-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px;}
+@media(max-width:800px){.active-summary{grid-template-columns:repeat(2,1fr);}.active-grid{grid-template-columns:1fr;}}
 
 /* VISUAL REFRESH */
 :root{
@@ -448,6 +472,7 @@ td.oc{max-width:260px;}
 
 <nav class="page-nav">
   <button class="pnav-btn on" id="pnav-gl" onclick="setPage('gl')"><i class="fa-solid fa-bolt pnav-icon"></i> Go-Live</button>
+  <button class="pnav-btn" id="pnav-active" onclick="setPage('active')"><i class="fa-solid fa-heart-pulse pnav-icon"></i> Sistema Presence Ativo</button>
   <button class="pnav-btn" id="pnav-db" onclick="setPage('db')"><i class="fa-solid fa-store pnav-icon"></i> Lojas</button>
   <button class="pnav-btn" id="pnav-sup" onclick="setPage('sup')"><i class="fa-solid fa-headset pnav-icon"></i> Suporte</button>
 </nav>
@@ -594,6 +619,50 @@ td.oc{max-width:260px;}
 </div>
 </div>
 
+<!-- MODAL ACTIVE PRESENCE -->
+<div class="overlay" id="ov-active" onclick="if(event.target===this)closeActiveModal()">
+<div class="modal">
+  <div class="mhdr"><h2 id="active-mtitle">Sistema Presence Ativo</h2><button class="xbtn" onclick="closeActiveModal()">&times;</button></div>
+  <div class="mbody">
+    <input type="hidden" id="active-idx" value="-1">
+    <div class="fg-grid">
+      <div class="fg"><label>Loja</label><input id="active-loja" placeholder="Ex: SC VIDEIRA"></div>
+      <div class="fg"><label>N&ordm; Presence</label><input id="active-num" placeholder="Ex: 2313"></div>
+      <div class="fg"><label>Rede</label>
+        <select id="active-rede">
+          <option value="rj">Restaura</option>
+          <option value="ml">Minha Lavanderia</option>
+          <option value="both">Mega</option>
+        </select>
+      </div>
+      <div class="fg"><label>Sa&uacute;de</label>
+        <select id="active-status">
+          <option value="ok">Tudo ok</option>
+          <option value="pending">Pend&ecirc;ncia</option>
+          <option value="down">N&atilde;o funcional</option>
+        </select>
+      </div>
+      <div class="fg"><label>Pendente desde</label><input id="active-since" placeholder="DD/MM/AAAA"></div>
+      <div class="fg"><label>Respons&aacute;vel</label>
+        <select id="active-resp">
+          <option value="">- Sem respons&aacute;vel -</option>
+          <option value="Marcelo">Marcelo</option>
+          <option value="Maiara">Maiara</option>
+          <option value="Glávio">Glávio</option>
+          <option value="Bruno">Bruno</option>
+        </select>
+      </div>
+      <div class="fg full"><label>Pend&ecirc;ncia / observa&ccedil;&atilde;o</label><textarea id="active-obs" style="min-height:84px;" placeholder="Ex: Configurando NF, aguardando contador..."></textarea></div>
+    </div>
+  </div>
+  <div class="mfooter">
+    <button class="btn-del" id="active-btn-del" onclick="deleteActiveStore()" style="display:none">Excluir</button>
+    <button class="btn-cancel" onclick="closeActiveModal()">Cancelar</button>
+    <button class="btn-save" onclick="saveActiveStore()">Salvar</button>
+  </div>
+</div>
+</div>
+
 <input type="file" id="json-input" accept=".json" style="display:none" onchange="loadJSON(event)">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -628,7 +697,7 @@ function initSupabase(){
   return true;
 }
 function statePayload(){
-  return {version:1, updatedAt:new Date().toISOString(), golive:lojas, lojas:dbExtra, suporte:supportTickets};
+  return {version:1, updatedAt:new Date().toISOString(), golive:lojas, lojas:dbExtra, suporte:supportTickets, presenceAtivo:activeHealth};
 }
 async function loadFromSupabase(){
   if(!supabaseEnabled) return false;
@@ -648,6 +717,7 @@ async function loadFromSupabase(){
     lojas = data.payload.golive || [];
     dbExtra = data.payload.lojas || [];
     supportTickets = data.payload.suporte || [];
+    activeHealth = data.payload.presenceAtivo || JSON.parse(JSON.stringify(EMBEDDED_ACTIVE_HEALTH));
     console.info("Dados carregados do Supabase:", data.updated_at);
     return true;
   }
@@ -671,7 +741,7 @@ async function seedSupabaseInitialState(){
 async function saveToSupabase(silent=false){
   if(isBooting) return;
   if(!canEdit()){ if(!silent) showToast("Modo somente leitura. Alterações não foram salvas.", true); return; }
-  saveLocal(); saveDbLocal(); saveSupportLocal();
+  saveLocal(); saveDbLocal(); saveSupportLocal(); saveActiveLocal();
   if(!supabaseEnabled){ if(!silent) showToast("Salvo localmente. Configure o Supabase para salvar online."); return; }
   const {error}=await supabaseClient.rpc("save_presence_control_state",{
     p_token: ADMIN_RPC_TOKEN,
@@ -682,7 +752,7 @@ async function saveToSupabase(silent=false){
 }
 async function initApp(){
   applyModeUi();
-  load(); loadDb(); loadSupport(); initSupabase();
+  load(); loadDb(); loadSupport(); loadActive(); initSupabase();
   if(supabaseEnabled) await loadFromSupabase();
   isBooting=false;
   setPage("gl");
@@ -704,10 +774,29 @@ const FASES = [
   {key:'goLive',     label:'Go-live'},
 ];
 const FASE_DEFAULTS = ['','','','17:30','09:00'];
+const EMBEDDED_ACTIVE_HEALTH = [
+  {loja:"SC SAO JOSE",num:"2269",rede:"both",status:"ok",since:"",responsavel:"Gl\u00e1vio",obs:"Funcionando"},
+  {loja:"SC VIDEIRA",num:"2313",rede:"both",status:"ok",since:"",responsavel:"Gl\u00e1vio",obs:"Funcionando"},
+  {loja:"SC PALHO\u00c7A",num:"2275",rede:"ml",status:"pending",since:"15/06/2026",responsavel:"Gl\u00e1vio",obs:"Nota fiscal | WhatsApp | Emiss\u00e3o de Rofgfdgl"},
+  {loja:"SP PIRACICABA",num:"2277",rede:"ml",status:"ok",since:"",responsavel:"Bruno",obs:"Funcionando"},
+  {loja:"BA BARREIRAS",num:"2274",rede:"ml",status:"ok",since:"",responsavel:"Marcelo",obs:"Funcionando"},
+  {loja:"SP TAUBAT\u00c9 JD NA\u00c7\u00d5ES",num:"2278",rede:"ml",status:"ok",since:"",responsavel:"Bruno",obs:"Funcionando"},
+  {loja:"GO CRISTALINA",num:"2272",rede:"ml",status:"pending",since:"15/06/2026",responsavel:"Maiara",obs:"Estoque"},
+  {loja:"PR CASCAVEL",num:"2260",rede:"rj",status:"ok",since:"",responsavel:"Gl\u00e1vio",obs:"Funcionando"},
+  {loja:"PR TOLEDO",num:"",rede:"rj",status:"pending",since:"15/06/2026",responsavel:"Gl\u00e1vio",obs:"NF | Aguardando contador"},
+  {loja:"SP SOROCABA",num:"2300",rede:"rj",status:"pending",since:"15/06/2026",responsavel:"Bruno",obs:"Motivo da pend\u00eancia..."},
+  {loja:"SP JUNDIA\u00cd",num:"2305",rede:"rj",status:"ok",since:"",responsavel:"Maiara",obs:"Funcionando"},
+  {loja:"RJ MARIC\u00c1",num:"2304",rede:"rj",status:"ok",since:"",responsavel:"Maiara",obs:"Funcionando"},
+  {loja:"RS PORTO ALEGRE PETR\u00d3POLIS",num:"2317",rede:"rj",status:"pending",since:"08/06/2026",responsavel:"Maiara",obs:"Go-Live 08/06 - Configurando NF"},
+  {loja:"RS PORTO ALEGRE BOM FIM",num:"2321",rede:"rj",status:"pending",since:"09/06/2026",responsavel:"Maiara",obs:"Go-Live 09/06 - Configurando NF / Relat\u00f3rios"},
+  {loja:"SC JARAGU\u00c1 DO SUL",num:"2330",rede:"rj",status:"pending",since:"11/06/2026",responsavel:"Gl\u00e1vio",obs:"Go-Live 11/06 - Finalizando configura\u00e7\u00e3o NF"},
+  {loja:"SC NAVEGANTES",num:"2287",rede:"rj",status:"ok",since:"",responsavel:"Gl\u00e1vio",obs:"Funcionando"}
+];
 
 let lojas   = [];
 let dbExtra = [];
 let supportTickets = [];
+let activeHealth = [];
 function buildStubs(){
   const xNums=new Set(lojas.map(l=>l.num).filter(n=>n&&n.trim()));
   const xNameRede=new Set(lojas.map(l=>l.loja+'|'+redeFromGrupo(l.grupo)));
@@ -733,15 +822,18 @@ function lojaIdx(l){return l._stub?-(l._dbIdx+2):lojas.indexOf(l);}
 function saveLocal()   { localStorage.setItem('pc_gl_v1',  JSON.stringify(lojas));   }
 function saveDbLocal() { localStorage.setItem('pc_db_v1',  JSON.stringify(dbExtra)); }
 function saveSupportLocal() { localStorage.setItem('pc_support_v1', JSON.stringify(supportTickets)); }
+function saveActiveLocal() { localStorage.setItem('pc_active_v1', JSON.stringify(activeHealth)); }
 function save(){ saveToSupabase(); }
 function saveDb(){ saveToSupabase(); }
 function saveSupport(){ saveToSupabase(); }
+function saveActive(){ saveToSupabase(); }
 function load()   { lojas   = JSON.parse(localStorage.getItem('pc_gl_v1') || 'null') || JSON.parse(JSON.stringify(EMBEDDED_GOLIVE)); }
 function loadDb() { dbExtra = JSON.parse(localStorage.getItem('pc_db_v1') || 'null') || JSON.parse(JSON.stringify(EMBEDDED_LOJAS));  }
 function loadSupport() { supportTickets = JSON.parse(localStorage.getItem('pc_support_v1') || 'null') || []; }
+function loadActive() { activeHealth = JSON.parse(localStorage.getItem('pc_active_v1') || 'null') || JSON.parse(JSON.stringify(EMBEDDED_ACTIVE_HEALTH)); }
 
 function saveAll() {
-  const d={version:1,exportedAt:new Date().toISOString(),golive:lojas,lojas:dbExtra,suporte:supportTickets};
+  const d={version:1,exportedAt:new Date().toISOString(),golive:lojas,lojas:dbExtra,suporte:supportTickets,presenceAtivo:activeHealth};
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:'application/json'}));
   a.download='presence_backup_'+new Date().toISOString().slice(0,10)+'.json';
@@ -754,7 +846,7 @@ function loadJSON(e) {
   r.onload=async ev=>{
     try {
       const d=JSON.parse(ev.target.result);
-      if(d.golive&&d.lojas){lojas=d.golive;dbExtra=d.lojas;supportTickets=d.suporte||[];await saveToSupabase(true);renderPage();showToast(lojas.length+' go-lives, '+dbExtra.length+' lojas e '+supportTickets.length+' chamados carregados e salvos.');}
+      if(d.golive&&d.lojas){lojas=d.golive;dbExtra=d.lojas;supportTickets=d.suporte||[];activeHealth=d.presenceAtivo||JSON.parse(JSON.stringify(EMBEDDED_ACTIVE_HEALTH));await saveToSupabase(true);renderPage();showToast(lojas.length+' go-lives, '+dbExtra.length+' lojas, '+supportTickets.length+' chamados e '+activeHealth.length+' ativos carregados e salvos.');}
       else if(Array.isArray(d)){lojas=d;await saveToSupabase(true);renderPage();showToast(d.length+' go-lives carregados e salvos.');}
       else throw 0;
     } catch{showToast('Arquivo inválido.',true);}
@@ -845,16 +937,102 @@ function getDatabase(){
   return [...fromGL,...extras].sort((a,b)=>a.nome.localeCompare(b.nome,'pt'));
 }
 
+function activeKey(l){return ((l.num||'')+'|'+(l.loja||'')).toLowerCase();}
+function activeAgeDays(since){
+  const d=parseDate(since||'');
+  if(!d)return null;
+  d.setHours(0,0,0,0);
+  return Math.max(1,Math.floor((TODAY-d)/86400000)+1);
+}
+function activeStatusInfo(l){
+  const age=l.status==='pending'||l.status==='down'?activeAgeDays(l.since):null;
+  if(l.status==='down') return {cls:'red pulse',label:'Alerta',icon:'!',age};
+  if(l.status==='pending'){
+    if(age!==null&&age>=3) return {cls:'red pulse',label:'Pendente',icon:'!',age};
+    if(age!==null&&age>=2) return {cls:'orange',label:'Pendente',icon:'!',age};
+    return {cls:'yellow',label:'Pendente',icon:'!',age};
+  }
+  return {cls:'ok',label:'Tudo ok',icon:'',age:null};
+}
+function getActiveRecords(){
+  const map=new Map();
+  activeHealth.forEach((l,i)=>map.set(activeKey(l),{...l,_idx:i,_source:'manual'}));
+  getDatabase().filter(l=>l.status==='ativo').forEach(l=>{
+    const rec={loja:l.nome,num:l.num||'',rede:l.rede,status:'ok',since:'',responsavel:l.responsavel||'',obs:l.obs||'Funcionando',_source:'auto'};
+    const key=activeKey(rec);
+    if(!map.has(key))map.set(key,rec);
+  });
+  return [...map.values()].sort((a,b)=>{
+    const sa=activeStatusInfo(a),sb=activeStatusInfo(b);
+    const rank=s=>s.cls.includes('red')?0:s.cls==='orange'?1:s.cls==='yellow'?2:3;
+    const r=rank(sa)-rank(sb);
+    return r||a.loja.localeCompare(b.loja,'pt');
+  });
+}
+
+let activeQuick='all';
+function setActiveQuick(v){activeQuick=v;renderActive();}
+function renderActive(){
+  const all=getActiveRecords();
+  const ok=all.filter(l=>l.status==='ok').length;
+  const pending=all.filter(l=>l.status==='pending').length;
+  const down=all.filter(l=>l.status==='down').length;
+  const alerts=all.filter(l=>l.status==='down'||activeStatusInfo(l).cls.includes('red')).length;
+  document.getElementById('content').innerHTML=`
+    <div class="active-summary">
+      <div class="stat"><div class="lbl">Ativos acompanhados</div><div class="val">${all.length}</div><div class="sub">lojas em opera&ccedil;&atilde;o</div></div>
+      <div class="stat"><div class="lbl">Tudo ok</div><div class="val g">${ok}</div><div class="sub">sem pend&ecirc;ncia</div></div>
+      <div class="stat"><div class="lbl">Pend&ecirc;ncias</div><div class="val i">${pending}</div><div class="sub">em acompanhamento</div></div>
+      <div class="stat"><div class="lbl">Alertas</div><div class="val" style="color:#9d1c1c">${alerts}</div><div class="sub">${down} sem funcionamento</div></div>
+    </div>
+    <div class="toolbar">
+      <div class="tb-row">
+        <div class="quick-tabs">
+          <button class="qtab${activeQuick==='all'?' on':''}" onclick="setActiveQuick('all')">Todas</button>
+          <button class="qtab${activeQuick==='ok'?' on':''}" onclick="setActiveQuick('ok')">Tudo ok</button>
+          <button class="qtab${activeQuick==='pending'?' on':''}" onclick="setActiveQuick('pending')">Pend&ecirc;ncias</button>
+          <button class="qtab${activeQuick==='red'?' on':''}" onclick="setActiveQuick('red')">Alertas</button>
+        </div>
+        <button class="btn-add edit-only" onclick="openActiveModal()">+ Nova loja ativa</button>
+      </div>
+    </div>
+    <div id="active-content"></div>
+  `;
+  renderActiveContent();
+}
+function renderActiveContent(){
+  let list=getActiveRecords();
+  if(activeQuick==='ok')list=list.filter(l=>l.status==='ok');
+  if(activeQuick==='pending')list=list.filter(l=>l.status==='pending');
+  if(activeQuick==='red')list=list.filter(l=>l.status==='down'||activeStatusInfo(l).cls.includes('red'));
+  const rows=list.map(l=>{
+    const info=activeStatusInfo(l);
+    const idx=l._idx??-1;
+    const ageTxt=info.age!==null?`${info.age}d`:'';
+    return `<div class="active-card ${info.cls}" onclick="openActiveModal(${idx},'${esc(activeKey(l))}')">
+      <div class="active-card-head">
+        <div class="active-store">${esc(l.loja)}<small>${redeLabel(l.rede)} ${l.num?`<span class="store-num-pill after">${esc(l.num)}</span>`:''}</small></div>
+        <span class="active-health ${info.cls.split(' ')[0]}">${info.icon?info.icon+' ':''}${info.label}</span>
+      </div>
+      <div class="active-meta">${l.responsavel?`<span class="tag-resp">${esc(l.responsavel)}</span>`:''}${l._source==='auto'?'<span class="tag-db">auto</span>':''}</div>
+      <div class="active-obs">${esc(l.obs||'Funcionando')}</div>
+      ${ageTxt?`<div class="active-age">${ageTxt}</div>`:''}
+    </div>`;
+  }).join('');
+  document.getElementById('active-content').innerHTML=rows?`<div class="active-grid">${rows}</div>`:'<div class="table-wrap"><div class="no-results">Nenhuma loja ativa encontrada.</div></div>';
+}
+
 // ── PAGE NAV ──
 let currentPage='gl';
 function setPage(p){
   currentPage=p;
   document.getElementById('pnav-gl').className='pnav-btn'+(p==='gl'?' on':'');
+  document.getElementById('pnav-active').className='pnav-btn'+(p==='active'?' on':'');
   document.getElementById('pnav-db').className='pnav-btn'+(p==='db'?' on':'');
   document.getElementById('pnav-sup').className='pnav-btn'+(p==='sup'?' on':'');
   renderPage();
 }
-function renderPage(){if(currentPage==='gl')renderGL();else if(currentPage==='db')renderDB();else renderSupport();}
+function renderPage(){if(currentPage==='gl')renderGL();else if(currentPage==='active')renderActive();else if(currentPage==='db')renderDB();else renderSupport();}
 
 // ── GO-LIVE PAGE ──
 let glView='lista',sortCol='goLive',sortAsc=true,glQuick='all';
@@ -1465,6 +1643,49 @@ function exportSupportCSV(){
   const rows=supportTickets.map(t=>[t.id||'',t.loja||'',t.numLoja||'',t.status||'',t.origem||'',t.responsavel||'',t.abertoEm||'',t.fechadoEm||'',t.atualizadoEm||'',t.assunto||'',t.descricao||'',ticketLastEvent(t)||''].map(v=>`"${(v||'').replace(/"/g,'""')}"`).join(';'));
   const csv=[hdr.join(';'),...rows].join('\n');
   const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);a.download='suporte_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+}
+
+let activeModalIdx=-1;
+function openActiveModal(idx=-1,key=''){
+  activeModalIdx=idx;
+  let l=idx>=0?activeHealth[idx]:null;
+  if(!l&&key)l=getActiveRecords().find(x=>activeKey(x)===key);
+  if(!l)l={loja:'',num:'',rede:'rj',status:'ok',since:'',responsavel:'',obs:''};
+  document.getElementById('active-mtitle').textContent=idx>=0?'Editar - '+l.loja:'Sistema Presence Ativo';
+  document.getElementById('active-idx').value=idx;
+  document.getElementById('active-loja').value=l.loja||'';
+  document.getElementById('active-num').value=l.num||'';
+  document.getElementById('active-rede').value=l.rede||'rj';
+  document.getElementById('active-status').value=l.status||'ok';
+  document.getElementById('active-since').value=l.since||'';
+  document.getElementById('active-resp').value=l.responsavel||'';
+  document.getElementById('active-obs').value=l.obs||'';
+  document.getElementById('active-btn-del').style.display=idx>=0?'block':'none';
+  document.getElementById('ov-active').classList.add('open');
+  setModalReadonly('ov-active');
+}
+function closeActiveModal(){document.getElementById('ov-active').classList.remove('open');}
+function saveActiveStore(){
+  if(!canEdit()){showToast("Somente leitura.",true);return;}
+  const loja=document.getElementById('active-loja').value.trim().toUpperCase();
+  if(!loja){alert('Informe a loja.');return;}
+  const status=document.getElementById('active-status').value;
+  const since=document.getElementById('active-since').value.trim();
+  const obj={loja,num:document.getElementById('active-num').value.trim(),rede:document.getElementById('active-rede').value,status,since:status==='ok'?'':since,responsavel:document.getElementById('active-resp').value,obs:document.getElementById('active-obs').value.trim()||'Funcionando',updatedAt:nowStamp()};
+  if(obj.status!=='ok'&&!obj.since)obj.since=nowStamp().split(' ')[0];
+  const idx=parseInt(document.getElementById('active-idx').value);
+  if(idx>=0)activeHealth[idx]=obj;
+  else{
+    const existing=activeHealth.findIndex(l=>activeKey(l)===activeKey(obj));
+    if(existing>=0)activeHealth[existing]=obj;else activeHealth.push(obj);
+  }
+  saveActive();closeActiveModal();renderActive();
+}
+function deleteActiveStore(){
+  if(!canEdit()){showToast("Somente leitura.",true);return;}
+  if(activeModalIdx<0)return;
+  if(!confirm(`Excluir acompanhamento de "${activeHealth[activeModalIdx].loja}"?`))return;
+  activeHealth.splice(activeModalIdx,1);saveActive();closeActiveModal();renderActive();
 }
 
 let dbModalIdx=-1;
