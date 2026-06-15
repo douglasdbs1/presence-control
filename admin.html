@@ -397,6 +397,18 @@ body.admin.locked .kb-card, body.admin.locked tbody tr, body.admin.locked .tl-it
 .active-card .tag-rj,.active-card .tag-ml,.active-card .tag-mega{font-size:10px;padding:3px 8px;box-shadow:0 1px 2px rgba(21,23,26,.05);}
 .active-card .tag-resp{background:#eef0ff;color:#34439a;padding:3px 8px;font-weight:750;}
 .active-card .tag-db{padding:3px 8px;font-weight:750;}
+.active-tk{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:750;padding:3px 8px;border-radius:999px;background:#eef2f5;color:#5b6570;border:1px solid #dbe2e8;box-shadow:0 1px 2px rgba(21,23,26,.05);}
+.active-tk.has-open{background:#fde5e5;color:#9d1c1c;border-color:#f2bcbc;}
+.active-tk i{font-size:9px;}
+.active-tickets-sec{margin-top:2px;}
+.atk-row{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:7px 10px;border:1px solid var(--border);border-radius:7px;margin-bottom:6px;cursor:pointer;background:var(--surface2);}
+.atk-row:last-child{margin-bottom:0;}
+.atk-row:hover{border-color:var(--teal-mid);}
+.atk-id{font-size:11px;font-weight:700;color:var(--text);}
+.atk-main{min-width:0;}
+.atk-assunto{font-size:11px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.atk-sub{font-size:10px;color:var(--text3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.atk-empty{font-size:11px;color:var(--text3);font-style:italic;padding:4px 0;}
 .active-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px;}
 @media(max-width:800px){.active-summary{grid-template-columns:repeat(2,1fr);}.active-grid{grid-template-columns:1fr;}}
 
@@ -477,8 +489,8 @@ td.oc{max-width:260px;}
 </div>
 
 <nav class="page-nav">
-  <button class="pnav-btn on" id="pnav-gl" onclick="setPage('gl')"><i class="fa-solid fa-bolt pnav-icon"></i> Go-Live</button>
-  <button class="pnav-btn" id="pnav-active" onclick="setPage('active')"><i class="fa-solid fa-heart-pulse pnav-icon"></i> Sistema Presence Ativo</button>
+  <button class="pnav-btn on" id="pnav-active" onclick="setPage('active')"><i class="fa-solid fa-heart-pulse pnav-icon"></i> Sistema Presence Ativo</button>
+  <button class="pnav-btn" id="pnav-gl" onclick="setPage('gl')"><i class="fa-solid fa-bolt pnav-icon"></i> Go-Live</button>
   <button class="pnav-btn" id="pnav-db" onclick="setPage('db')"><i class="fa-solid fa-store pnav-icon"></i> Lojas</button>
   <button class="pnav-btn" id="pnav-sup" onclick="setPage('sup')"><i class="fa-solid fa-headset pnav-icon"></i> Suporte</button>
 </nav>
@@ -660,11 +672,34 @@ td.oc{max-width:260px;}
       </div>
       <div class="fg full"><label>Pend&ecirc;ncia / observa&ccedil;&atilde;o</label><textarea id="active-obs" style="min-height:84px;" placeholder="Ex: Configurando NF, aguardando contador..."></textarea></div>
     </div>
+    <div class="active-tickets-sec">
+      <div class="flow-sec-title">Chamados vinculados</div>
+      <div id="active-tickets"></div>
+    </div>
   </div>
   <div class="mfooter">
     <button class="btn-del" id="active-btn-del" onclick="deleteActiveStore()" style="display:none">Excluir</button>
     <button class="btn-cancel" onclick="closeActiveModal()">Cancelar</button>
     <button class="btn-save" onclick="saveActiveStore()">Salvar</button>
+  </div>
+</div>
+</div>
+
+<!-- MODAL IMPORTAR CHAMADOS (Claude Desktop) -->
+<div class="overlay" id="ov-import" onclick="if(event.target===this)closeImportModal()">
+<div class="modal">
+  <div class="mhdr"><h2>Importar chamados do Claude</h2><button class="xbtn" onclick="closeImportModal()">×</button></div>
+  <div class="mbody">
+    <button class="btn-sm" onclick="copyPromptAndOpenClaude()" style="margin-bottom:12px"><i class="fa-solid fa-clipboard"></i> 1. Copiar prompt e abrir o Claude</button>
+    <div class="fg full">
+      <label>2. Cole aqui o JSON que o Claude devolver</label>
+      <textarea id="imp-json" style="min-height:200px;font-family:ui-monospace,Menlo,monospace;font-size:11px;line-height:1.5" placeholder='[ { "id": "723759", "loja": "Sorocaba", "assunto": "Nota fiscal - classificação divergente", "status": "andamento", "data": "15/06/2026 14:23", "resumo": "Franqueada aguarda retorno sobre a nota." } ]'></textarea>
+    </div>
+    <div id="imp-result" style="font-size:11px;color:var(--text2);margin-top:4px"></div>
+  </div>
+  <div class="mfooter">
+    <button class="btn-cancel" onclick="closeImportModal()">Cancelar</button>
+    <button class="btn-save" onclick="doImportTickets()">Importar</button>
   </div>
 </div>
 </div>
@@ -761,7 +796,7 @@ async function initApp(){
   load(); loadDb(); loadSupport(); loadActive(); initSupabase();
   if(supabaseEnabled) await loadFromSupabase();
   isBooting=false;
-  setPage("gl");
+  setPage("active");
   if(APP_MODE === "admin" && !adminUnlocked) renderAdminLogin();
   applyModeUi();
 }
@@ -946,6 +981,34 @@ function getDatabase(){
 
 function activeKey(l){return ((l.num||'')+'|'+(l.loja||'')).toLowerCase();}
 function activeStoreKey(l){return ((l.loja||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim()+'|'+(l.rede||'')).toLowerCase();}
+function normLojaName(s){return (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim();}
+function ticketsForStore(loja,num){
+  const ln=normLojaName(loja),n=(num||'').trim();
+  return supportTickets.filter(t=>{
+    if(n&&(t.numLoja||'').trim()===n)return true;
+    if(t.loja&&normLojaName(t.loja)===ln)return true;
+    return false;
+  });
+}
+function ticketSummary(loja,num){
+  const list=ticketsForStore(loja,num);
+  const abertos=list.filter(t=>t.status==='aberto'||t.status==='andamento').length;
+  return {total:list.length,abertos,list};
+}
+function renderActiveTickets(loja,num){
+  const el=document.getElementById('active-tickets');
+  if(!el)return;
+  const list=ticketsForStore(loja,num).sort((a,b)=>ticketDateValue(b.atualizadoEm||b.abertoEm)-ticketDateValue(a.atualizadoEm||a.abertoEm));
+  if(!list.length){el.innerHTML='<div class="atk-empty">Nenhum chamado vinculado a esta loja.</div>';return;}
+  el.innerHTML=list.map(t=>{
+    const i=supportTickets.indexOf(t);
+    return `<div class="atk-row" onclick="closeActiveModal();setPage('sup');openSupportModal(${i})">
+      <div class="atk-id">#${esc(t.id||'s/n')}</div>
+      <div class="atk-main"><div class="atk-assunto">${esc(t.assunto||'Sem assunto')}</div><div class="atk-sub">${esc(t.atualizadoEm||t.abertoEm||'')}${ticketLastEvent(t)?' \u00b7 '+esc(ticketLastEvent(t)):''}</div></div>
+      ${supportStatusLabel(t.status)}
+    </div>`;
+  }).join('');
+}
 function activeAgeDays(since){
   const d=parseDate(since||'');
   if(!d)return null;
@@ -1017,6 +1080,7 @@ function renderActive(){
           <button class="qtab${activeQuick==='pending'?' on':''}" onclick="setActiveQuick('pending')">Pend&ecirc;ncias</button>
           <button class="qtab${activeQuick==='red'?' on':''}" onclick="setActiveQuick('red')">Alertas</button>
         </div>
+        <button class="btn-add edit-only" onclick="startClaudeImport()" style="margin-left:auto"><i class="fa-solid fa-headset"></i> Importar chamados</button>
         <button class="btn-add edit-only" onclick="openActiveModal()">+ Nova loja ativa</button>
       </div>
     </div>
@@ -1036,11 +1100,13 @@ function renderActiveContent(){
     const ageTxt=info.age!==null?`${info.age}d`:'';
     const obs=(l.obs||'').trim();
     const showObs=obs&&!(l.status==='ok'&&obs.toLowerCase()==='funcionando');
+    const tk=ticketSummary(l.loja,l.num);
+    const tkBadge=tk.total?`<span class="active-tk${tk.abertos?' has-open':''}" title="${tk.total} chamado(s)${tk.abertos?', '+tk.abertos+' em aberto':''}"><i class="fa-solid fa-headset"></i> ${tk.total}${tk.abertos?' · '+tk.abertos+' aberto'+(tk.abertos>1?'s':''):''}</span>`:'';
     return `<div class="active-card ${info.cls}" title="${esc(info.label)}" onclick="openActiveModal(${idx},'${esc(activeKey(l))}')">
       <div class="active-card-head">
         <div class="active-store">${esc(l.loja)}<small>${redeLabel(l.rede)}${l.num?`<span class="store-num-pill after">${esc(l.num)}</span>`:''}</small></div>
       </div>
-      <div class="active-meta">${l.responsavel?`<span class="tag-resp">${esc(l.responsavel)}</span>`:''}${l._source==='auto'?'<span class="tag-db">auto</span>':''}</div>
+      <div class="active-meta">${l.responsavel?`<span class="tag-resp">${esc(l.responsavel)}</span>`:''}${l._source==='auto'?'<span class="tag-db">auto</span>':''}${tkBadge}</div>
       ${showObs?`<div class="active-obs">${esc(obs)}</div>`:''}
       ${ageTxt?`<div class="active-age">${ageTxt}</div>`:''}
     </div>`;
@@ -1049,7 +1115,7 @@ function renderActiveContent(){
 }
 
 // ── PAGE NAV ──
-let currentPage='gl';
+let currentPage='active';
 function setPage(p){
   currentPage=p;
   document.getElementById('pnav-gl').className='pnav-btn'+(p==='gl'?' on':'');
@@ -1578,6 +1644,7 @@ function renderSupport(){
           <option value="">Todas origens</option><option value="manual">Manual</option><option value="email">E-mail</option><option value="zoho">Zoho</option>
         </select>
         <button class="btn-sm" onclick="exportSupportCSV()">CSV</button>
+        <button class="btn-sm edit-only" onclick="openImportModal()">Importar do Claude</button>
         <button class="btn-add edit-only" onclick="openSupportModal()">+ Novo chamado</button>
       </div>
     </div>
@@ -1671,6 +1738,102 @@ function exportSupportCSV(){
   const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);a.download='suporte_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
 }
 
+// \u2500\u2500 IMPORTAR CHAMADOS (JSON do Claude Desktop) \u2500\u2500
+const CLAUDE_IMPORT_PROMPT = `Voc\u00ea \u00e9 meu assistente de triagem de chamados de suporte. Use o conector do Gmail para buscar os e-mails de suporte recebidos hoje (remetente suporte@presence.com.br ou com c\u00f3pia para suporte@gruporestaura.com.br) que eu ainda n\u00e3o processei.
+
+Para cada e-mail/conversa, extraia:
+- id: s\u00f3 o n\u00famero que aparece no assunto entre [## e ##] (ex.: 723759)
+- loja: o nome da loja/cidade mencionado no assunto ou corpo (ex.: "Sorocaba")
+- status: "aberto" (novo/pendente), "andamento" (em tratativa) ou "fechado" (resolvido)
+- assunto: um t\u00edtulo curto do problema (ex.: "Nota fiscal - classifica\u00e7\u00e3o divergente")
+- data: data/hora da \u00faltima mensagem, no formato DD/MM/AAAA HH:MM
+- resumo: uma frase objetiva, em portugu\u00eas, do que est\u00e1 acontecendo
+
+Se o chamado n\u00e3o for de uma loja espec\u00edfica (assunto geral, retaguarda, matriz, fiscal/financeiro central ou do sistema), use loja: "Retaguarda Matriz".
+
+Ignore assinatura, links de pesquisa de satisfa\u00e7\u00e3o e hist\u00f3rico citado. Responda APENAS com um array JSON, sem texto antes ou depois. Exemplo:
+[ { "id": "723759", "loja": "Sorocaba", "status": "andamento", "assunto": "Nota fiscal - classifica\u00e7\u00e3o divergente", "data": "15/06/2026 14:23", "resumo": "Franqueada aguarda retorno sobre a nota." } ]`;
+
+function launchClaude(){
+  try{const a=document.createElement('a');a.href='claude://';document.body.appendChild(a);a.click();a.remove();}catch(e){}
+}
+async function copyImportPrompt(){
+  try{
+    await navigator.clipboard.writeText(CLAUDE_IMPORT_PROMPT);
+    showToast('Prompt copiado! Cole no Claude Desktop (Ctrl+V).');
+  }catch(e){
+    const ta=document.createElement('textarea');ta.value=CLAUDE_IMPORT_PROMPT;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.focus();ta.select();
+    try{document.execCommand('copy');showToast('Prompt copiado! Cole no Claude Desktop (Ctrl+V).');}
+    catch(_){showToast('N\u00e3o consegui copiar \u2014 selecione o prompt no modal manualmente.',true);}
+    ta.remove();
+  }
+}
+function copyPromptAndOpenClaude(){ copyImportPrompt(); launchClaude(); }
+function startClaudeImport(){
+  if(!canEdit()){showToast('Somente leitura.',true);return;}
+  copyPromptAndOpenClaude();
+  openImportModal();
+}
+function openImportModal(){
+  if(!canEdit()){showToast('Somente leitura.',true);return;}
+  document.getElementById('imp-json').value='';
+  document.getElementById('imp-result').textContent='';
+  document.getElementById('ov-import').classList.add('open');
+}
+function closeImportModal(){document.getElementById('ov-import').classList.remove('open');}
+const HQ_STORE={nome:'RETAGUARDA MATRIZ',num:'2209'};
+function matchStoreForTicket(nome,num){
+  const db=getDatabase();
+  num=(num||'').toString().trim();
+  const n=normLojaName(nome);
+  // Chamados gerais (não de uma loja) vão para a Retaguarda Matriz (2209)
+  if(num===HQ_STORE.num||/\b(RETAGUARDA|MATRIZ|GERAL)\b/.test(n)){
+    const hq=db.find(s=>(s.num||'').trim()===HQ_STORE.num);
+    return hq?{loja:hq.nome,num:hq.num||HQ_STORE.num}:{loja:HQ_STORE.nome,num:HQ_STORE.num};
+  }
+  if(num){const byNum=db.find(s=>(s.num||'').trim()===num);if(byNum)return{loja:byNum.nome,num:byNum.num||''};}
+  if(!n)return{loja:'',num:''};
+  const matches=db.filter(s=>{const sn=normLojaName(s.nome);return sn===n||(' '+sn+' ').includes(' '+n+' ')||sn.includes(n);});
+  if(matches.length===1)return{loja:matches[0].nome,num:matches[0].num||''};
+  if(matches.length>1){const withNum=matches.filter(s=>(s.num||'').trim());if(withNum.length===1)return{loja:withNum[0].nome,num:withNum[0].num};}
+  return{loja:'',num:''};
+}
+function doImportTickets(){
+  if(!canEdit()){showToast('Somente leitura.',true);return;}
+  const raw=document.getElementById('imp-json').value.trim();
+  if(!raw)return;
+  let arr;
+  try{arr=JSON.parse(raw);if(!Array.isArray(arr))arr=[arr];}
+  catch(e){showToast('JSON inv\u00E1lido.',true);document.getElementById('imp-result').textContent='Erro: '+e.message;return;}
+  let novos=0,atualizados=0,semLoja=0;
+  arr.forEach(t=>{
+    const id=(t.id||'').toString();
+    const digits=id.replace(/\D/g,'');
+    const data=t.data||t.atualizadoEm||t.abertoEm||nowStamp();
+    const texto=t.resumo||t.descricao||t.assunto||'';
+    const m=matchStoreForTicket(t.loja||t.lojaMencionada||'',t.numLoja||t.num||'');
+    if(!m.loja)semLoja++;
+    const evento={data,tipo:'email',origem:'zoho',texto};
+    let idx=-1;
+    if(digits){for(let i=0;i<supportTickets.length;i++){if((supportTickets[i].id||'').replace(/\D/g,'')===digits){idx=i;break;}}}
+    if(idx>=0){
+      const tk=supportTickets[idx];tk.eventos=tk.eventos||[];
+      if(!tk.eventos.some(e=>e.data===evento.data&&e.texto===evento.texto))tk.eventos.push(evento);
+      if(t.status)tk.status=t.status;
+      tk.atualizadoEm=data;
+      if(!tk.loja&&m.loja){tk.loja=m.loja;tk.numLoja=m.num;}
+      atualizados++;
+    }else{
+      supportTickets.push({id,loja:m.loja,numLoja:m.num,status:t.status||'aberto',origem:'zoho',assunto:t.assunto||'',abertoEm:data,fechadoEm:'',atualizadoEm:data,responsavel:t.responsavel||'',descricao:t.descricao||texto,eventos:[evento]});
+      novos++;
+    }
+  });
+  saveSupport();renderSupport();
+  document.getElementById('ov-import').classList.remove('open');
+  showToast(novos+' novo(s), '+atualizados+' atualizado(s)'+(semLoja?', '+semLoja+' sem loja':'')+'.');
+}
+
 let activeModalIdx=-1;
 function openActiveModal(idx=-1,key=''){
   activeModalIdx=idx;
@@ -1686,6 +1849,7 @@ function openActiveModal(idx=-1,key=''){
   document.getElementById('active-since').value=l.since||'';
   document.getElementById('active-resp').value=l.responsavel||'';
   document.getElementById('active-obs').value=l.obs||'';
+  renderActiveTickets(l.loja,l.num);
   document.getElementById('active-btn-del').style.display=idx>=0?'block':'none';
   document.getElementById('ov-active').classList.add('open');
   setModalReadonly('ov-active');
@@ -1892,7 +2056,7 @@ function adminLogin(){
     adminUnlocked=true;
     sessionStorage.setItem('pc_admin_unlocked','1');
     applyModeUi();
-    setPage('gl');
+    setPage('active');
     showToast('Edição liberada para esta sessão.');
   }else{
     const m=document.getElementById('admin-login-msg'); if(m) m.style.display='block';

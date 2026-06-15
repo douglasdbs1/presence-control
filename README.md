@@ -11,6 +11,8 @@ O projeto é uma aplicação web estática, feita em HTML, CSS e JavaScript puro
 
 Na prática, o link principal pode apontar para `index.html`. Para editar, acesse o mesmo endereço usando `/admin.html`.
 
+Ao abrir, o sistema mostra primeiro a página **Sistema Presence Ativo**, onde cada loja aparece como um card com a saúde da operação e um indicador (🎧) dos chamados vinculados.
+
 ## O Que O Sistema Faz
 
 - Acompanha lojas em implantação.
@@ -50,6 +52,25 @@ O modo administrativo fica em `admin.html`. Ele libera edição depois da senha 
 
 Atualmente, `index.html` e `admin.html` são quase iguais. A principal diferença é o modo configurado no JavaScript.
 
+## Importação De Chamados (Claude Desktop)
+
+Os chamados chegam por e-mail em `suporte@gruporestaura.com.br` (origem Zoho) e são encaminhados para a conta do Gmail que tem o conector do Claude Desktop. O fluxo é assistido e não usa a Claude API paga:
+
+1. Na página inicial (Sistema Presence Ativo), clique em **Importar chamados** acima dos cards. O botão copia um prompt pronto para a área de transferência e tenta abrir o Claude Desktop.
+2. No Claude Desktop, cole o prompt (`Ctrl+V`) e envie. O Claude lê os e-mails novos pelo conector do Gmail e devolve um array JSON com os chamados classificados (número, loja, assunto, status, data e resumo).
+3. Copie a resposta e cole de volta no campo do modal **Importar chamados**; clique em Importar.
+
+Na importação, o sistema:
+
+- Casa cada chamado com a loja pelo número ou pelo nome mencionado.
+- Mescla pelo número do chamado: e-mail novo de um chamado existente vira um evento (não duplica); chamado inédito é criado.
+- Roteia chamados gerais (não de uma loja específica) para a Retaguarda Matriz (nº 2209).
+- Deixa sem loja apenas os que não conseguir identificar com confiança, para vínculo manual.
+
+Os chamados aparecem na aba Suporte e como indicador (🎧) nos cards da página Sistema Presence Ativo.
+
+Observação: digitar o prompt automaticamente dentro do Claude Desktop não é possível (restrição de segurança do navegador), por isso o botão copia o prompt para você colar. Uma leitura automática e contínua exigiria a Claude API (paga) com um script externo — opção não adotada neste fluxo.
+
 ## Cuidados
 
 - Evite divulgar o link administrativo fora do uso interno.
@@ -62,7 +83,7 @@ Atualmente, `index.html` e `admin.html` são quase iguais. A principal diferenç
 - Separar CSS e JavaScript em arquivos próprios.
 - Reduzir duplicação entre `index.html` e `admin.html`.
 - Criar login real com Supabase Auth, se o acesso deixar de ser apenas interno.
-- Automatizar leitura de e-mails de suporte por n8n, Make, script local ou encaminhamento para parser.
+- Automatizar 100% a leitura de e-mails de suporte (hoje é assistida via Claude Desktop) usando a Claude API com um script agendado, caso o custo por uso seja aceitável.
 - Melhorar validações de datas e campos obrigatórios.
 - Adicionar histórico/auditoria de alterações.
 - Criar rotina automática de backup.
