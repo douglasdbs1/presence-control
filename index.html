@@ -955,6 +955,7 @@ function getDatabase(){
 }
 
 function activeKey(l){return ((l.num||'')+'|'+(l.loja||'')).toLowerCase();}
+function activeStoreKey(l){return ((l.loja||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim()+'|'+(l.rede||'')).toLowerCase();}
 function activeAgeDays(since){
   const d=parseDate(since||'');
   if(!d)return null;
@@ -981,9 +982,15 @@ function activeStatusInfo(l){
 }
 function getActiveRecords(){
   const map=new Map();
-  activeHealth.forEach((l,i)=>map.set(activeKey(l),{...l,updatedAt:l.updatedAt||ACTIVE_DEFAULT_UPDATED,_idx:i,_source:'manual'}));
+  const manualStoreKeys=new Set();
+  activeHealth.forEach((l,i)=>{
+    const rec={...l,updatedAt:l.updatedAt||ACTIVE_DEFAULT_UPDATED,_idx:i,_source:'manual'};
+    map.set(activeKey(rec),rec);
+    manualStoreKeys.add(activeStoreKey(rec));
+  });
   getDatabase().filter(l=>l.status==='ativo').forEach(l=>{
     const rec={loja:l.nome,num:l.num||'',rede:l.rede,status:'ok',since:'',responsavel:l.responsavel||'',obs:l.obs||'Funcionando',updatedAt:l.updatedAt||ACTIVE_DEFAULT_UPDATED,_source:'auto'};
+    if(manualStoreKeys.has(activeStoreKey(rec)))return;
     const key=activeKey(rec);
     if(!map.has(key))map.set(key,rec);
   });
