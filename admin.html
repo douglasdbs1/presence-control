@@ -1037,7 +1037,7 @@ function activeStatusInfo(l){
     if(age!==null&&age>=2) return {cls:'orange',label:'Pendente',icon:'!',age};
     return {cls:'yellow',label:'Pendente',icon:'!',age};
   }
-  if(staleAge!==null&&staleAge>7) return {cls:'blue',label:'Revisar contato',icon:'',age:staleAge,stale:true};
+  if(staleAge!==null&&staleAge>7) return {cls:'blue',label:'Contato preventivo',icon:'',age:staleAge,stale:true};
   return {cls:'ok',label:'Tudo ok',icon:'',age:null};
 }
 function getActiveRecords(){
@@ -1056,7 +1056,7 @@ function getActiveRecords(){
   });
   return [...map.values()].sort((a,b)=>{
     const sa=activeStatusInfo(a),sb=activeStatusInfo(b);
-    const rank=s=>s.cls.includes('red')?0:s.cls==='orange'?1:s.cls==='yellow'?2:s.cls==='blue'?3:4;
+    const rank=s=>s.cls.includes('red')?0:s.cls==='orange'?1:s.cls==='yellow'?2:s.cls==='blue'?4:3;
     const r=rank(sa)-rank(sb);
     return r||a.loja.localeCompare(b.loja,'pt');
   });
@@ -1076,14 +1076,14 @@ function renderActive(){
       <div class="stat"><div class="lbl">Ativos acompanhados</div><div class="val">${all.length}</div><div class="sub">lojas em opera&ccedil;&atilde;o</div></div>
       <div class="stat"><div class="lbl">Tudo ok</div><div class="val g">${ok}</div><div class="sub">sem pend&ecirc;ncia</div></div>
       <div class="stat"><div class="lbl">Pend&ecirc;ncias</div><div class="val i">${pending}</div><div class="sub">em acompanhamento</div></div>
-      <div class="stat"><div class="lbl">Revisar contato</div><div class="val b">${stale}</div><div class="sub">${alerts} alertas cr&iacute;ticos</div></div>
+      <div class="stat"><div class="lbl">Contato preventivo</div><div class="val b">${stale}</div><div class="sub">${alerts} alertas cr&iacute;ticos</div></div>
     </div>
     <div class="toolbar">
       <div class="tb-row">
         <div class="quick-tabs">
           <button class="qtab${activeQuick==='all'?' on':''}" onclick="setActiveQuick('all')">Todas</button>
           <button class="qtab${activeQuick==='ok'?' on':''}" onclick="setActiveQuick('ok')">Tudo ok</button>
-          <button class="qtab${activeQuick==='stale'?' on':''}" onclick="setActiveQuick('stale')">Revisar contato</button>
+          <button class="qtab${activeQuick==='stale'?' on':''}" onclick="setActiveQuick('stale')">Contato preventivo</button>
           <button class="qtab${activeQuick==='pending'?' on':''}" onclick="setActiveQuick('pending')">Pend&ecirc;ncias</button>
           <button class="qtab${activeQuick==='red'?' on':''}" onclick="setActiveQuick('red')">Alertas</button>
         </div>
@@ -1101,7 +1101,7 @@ function renderActiveContent(){
   if(activeQuick==='stale')list=list.filter(l=>activeStatusInfo(l).stale);
   if(activeQuick==='pending')list=list.filter(l=>l.status==='pending');
   if(activeQuick==='red')list=list.filter(l=>l.status==='down'||activeStatusInfo(l).cls.includes('red'));
-  const rows=list.map(l=>{
+  const cardHtml=(l)=>{
     const info=activeStatusInfo(l);
     const idx=l._idx??-1;
     const ageTxt=info.age!==null?`${info.age}d`:'';
@@ -1117,8 +1117,22 @@ function renderActiveContent(){
       ${showObs?`<div class="active-obs">${esc(obs)}</div>`:''}
       ${ageTxt?`<div class="active-age">${ageTxt}</div>`:''}
     </div>`;
-  }).join('');
-  document.getElementById('active-content').innerHTML=rows?`<div class="active-grid">${rows}</div>`:'<div class="table-wrap"><div class="no-results">Nenhuma loja ativa encontrada.</div></div>';
+  };
+  const colorOf=info=>info.cls.includes('red')?'red':info.cls==='orange'?'orange':info.cls==='yellow'?'yellow':info.cls==='blue'?'blue':'ok';
+  const GROUPS=[
+    ['red','#e0563f','🔴 Crítico — alerta ou pendência há 3+ dias'],
+    ['orange','#e08a2f','🟠 Pendência — 2 dias'],
+    ['yellow','#d8b528','🟡 Pendência — recente (1 dia)'],
+    ['ok','#10a66f','🟢 Tudo ok'],
+    ['blue','#3b6fd0','🔵 Contato preventivo — loja quieta há 7+ dias, vale um check-in'],
+  ];
+  let html='';
+  GROUPS.forEach(([k,color,label])=>{
+    const grp=list.filter(l=>colorOf(activeStatusInfo(l))===k);
+    if(!grp.length)return;
+    html+=`<div class="active-group-hdr" style="display:flex;align-items:center;gap:8px;margin:20px 0 10px;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#5b6470;border-left:4px solid ${color};padding-left:10px;">${label}<span style="font-weight:700;color:#9aa1ab;">${grp.length}</span></div><div class="active-grid">${grp.map(cardHtml).join('')}</div>`;
+  });
+  document.getElementById('active-content').innerHTML=html||'<div class="table-wrap"><div class="no-results">Nenhuma loja ativa encontrada.</div></div>';
 }
 
 // ── PAGE NAV ──
