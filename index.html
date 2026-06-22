@@ -1188,9 +1188,9 @@ function renderGL(){
   const overdue=all.filter(l=>isOverdue(l)).length;
   const noDate=all.filter(l=>l.status!=='concluido'&&!l.goLive).length;
   const activeMonth=all.filter(l=>{const d=parseDate(l.goLive);return l.status==='concluido'&&d&&d.getMonth()===TODAY.getMonth()&&d.getFullYear()===TODAY.getFullYear();}).length;
-  const proxGL=all.filter(l=>l.goLive&&daysDiff(l.goLive)>=0).sort((a,b)=>parseDate(a.goLive)-parseDate(b.goLive)).slice(0,2);
+  const proxGL=all.filter(l=>l.goLive&&daysDiff(l.goLive)>=0&&daysDiff(l.goLive)<=6).sort((a,b)=>parseDate(a.goLive)-parseDate(b.goLive));
   const proxPGL=all.filter(l=>l.goLive&&parseDate(l.goLive)).map(l=>({l,pgl:prevBusinessDay(parseDate(l.goLive))})).filter(x=>Math.round((x.pgl-TODAY)/86400000)>=0).sort((a,b)=>a.pgl-b.pgl).slice(0,2);
-  const missingSchedule=all.filter(l=>l.status!=='concluido'&&!l.goLive).slice(0,4);
+  const missingSchedule=all.filter(l=>l.status!=='concluido'&&!l.goLive).slice(0,3);
   const blocked=all.filter(l=>l.status!=='concluido'&&countDone(l)<3).slice(0,4);
 
   const glSpot=proxGL.length?proxGL.map(l=>{
@@ -1481,8 +1481,8 @@ function renderConsultores(list){
   return `<div class="cc-grid">${cards}</div>`;
 }
 function renderDashboard(list){
-  const agendados=list.filter(l=>l.status==='agendado').sort((a,b)=>{const da=parseDate(a.goLive),db=parseDate(b.goLive);if(!da&&!db)return 0;if(!da)return 1;if(!db)return -1;return da-db;});
-  const aguardando=list.filter(l=>l.status==='aberto').sort((a,b)=>a.loja.localeCompare(b.loja,'pt'));
+  const agendados=list.filter(l=>l.status==='agendado'&&daysDiff(l.goLive)!==null&&daysDiff(l.goLive)>=0&&daysDiff(l.goLive)<=6).sort((a,b)=>{const da=parseDate(a.goLive),db=parseDate(b.goLive);if(!da&&!db)return 0;if(!da)return 1;if(!db)return -1;return da-db;});
+  const aguardando=list.filter(l=>l.status==='aberto').sort((a,b)=>a.loja.localeCompare(b.loja,'pt')).slice(0,3);
   const ativos=list.filter(l=>l.status==='concluido').sort((a,b)=>{const da=parseDate(a.goLive),db=parseDate(b.goLive);if(!da&&!db)return 0;if(!da)return 1;if(!db)return -1;return db-da;});
   function rtag(l){if(l.grupo&&l.grupo.toLowerCase().includes('minha lavanderia'))return '<span class="tag-ml">ML</span>';if(l.grupo&&l.grupo.toLowerCase().includes('mega'))return '<span class="tag-mega">MEGA</span>';return '<span class="tag-rj">RJ</span>';}
   function drow(l,dateHtml,metaHtml){const idx=lojaIdx(l);return `<div class="dash-row${isOverdue(l)?' dash-overdue':''}${l._stub?' stub-row':''}" onclick="openModal(${idx})"><div class="dash-date">${dateHtml}</div><div class="dash-name">${lojaNumPill(l)}${l.loja}${l._stub?'<span class="tag-db" style="margin-left:5px">Lojas</span>':''}</div><div class="dash-tags">${rtag(l)}${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:''}</div><div class="dash-meta">${metaHtml}</div></div>`;}
