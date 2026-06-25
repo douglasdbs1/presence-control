@@ -412,6 +412,37 @@ body.admin.locked .kb-card, body.admin.locked tbody tr, body.admin.locked .tl-it
 .atk-empty{font-size:11px;color:var(--text3);font-style:italic;padding:4px 0;}
 .active-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px;}
 @media(max-width:800px){.active-summary{grid-template-columns:repeat(2,1fr);}.active-grid{grid-template-columns:1fr;}}
+/* HERO RESUMO ATIVO */
+.active-hero{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center;background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px 26px;margin-bottom:16px;}
+.active-hero .hero-main{display:flex;flex-direction:column;justify-content:center;padding-right:24px;border-right:1px solid var(--border);}
+.active-hero .hero-num{font-size:56px;font-weight:850;line-height:.9;color:var(--text);letter-spacing:-.02em;}
+.active-hero .hero-cap{font-size:13px;font-weight:600;color:var(--text2);margin-top:7px;max-width:150px;}
+.hero-break{display:flex;flex-direction:column;gap:11px;min-width:0;}
+.hero-stats{display:flex;gap:10px;flex-wrap:wrap;}
+.hero-stat{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:var(--text2);background:var(--surface2);border:1px solid var(--border);border-radius:999px;padding:7px 15px 7px 9px;}
+.hero-stat b{font-size:19px;font-weight:850;color:var(--text);}
+.hero-stat .hicon{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:50%;font-size:12px;font-weight:900;color:#fff;line-height:1;}
+.hero-stat.ok .hicon{background:#10a66f;}
+.hero-stat.att .hicon{background:#d99b00;}
+.hero-stat.prob .hicon{background:#cf3030;}
+.hero-bar{display:flex;height:10px;border-radius:999px;overflow:hidden;background:#eef2f5;border:1px solid var(--border);}
+.hero-bar span{display:block;height:100%;}
+.hero-bar .s-ok{background:#10a66f;}.hero-bar .s-att{background:#e8b324;}.hero-bar .s-prob{background:#cf3030;}
+@media(max-width:640px){.active-hero{grid-template-columns:1fr;}.active-hero .hero-main{border-right:none;border-bottom:1px solid var(--border);padding-right:0;padding-bottom:14px;}}
+/* SELO DE STATUS NO CARD */
+.active-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.01em;padding:4px 11px 4px 8px;border-radius:999px;margin-bottom:2px;}
+.active-badge .bdot{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;font-size:10px;font-weight:900;color:#fff;line-height:1;}
+.active-badge.ok{background:#e3f6ed;color:#0b7a52;}
+.active-badge.ok .bdot{background:#10a66f;}
+.active-badge.att{background:#fcf2d6;color:#946b00;}
+.active-badge.att .bdot{background:#d99b00;}
+.active-badge.prob{background:#fbe1e1;color:#9d1c1c;}
+.active-badge.prob .bdot{background:#cf3030;}
+.active-subline{font-size:10px;font-weight:750;color:var(--text3);margin-top:5px;}
+.active-card.att{border-color:#edd06b;box-shadow:0 0 0 1px rgba(201,154,20,.13),0 0 20px rgba(201,154,20,.20),0 12px 30px rgba(21,23,26,.06);}
+.active-card.prob{border-color:#e47777;box-shadow:0 0 0 1px rgba(157,28,28,.16),0 0 24px rgba(157,28,28,.28),0 12px 30px rgba(21,23,26,.07);}
+.active-card.att:before{background:linear-gradient(90deg,#d69d00,#f2d76b);}
+.active-card.prob:before{background:linear-gradient(90deg,#a91919,#ee8585);}
 
 /* VISUAL REFRESH */
 :root{
@@ -487,7 +518,7 @@ td.oc{max-width:260px;}
   <div class="brand-pill ml" style="padding:3px 12px;background:#0055be;border-color:#0055be;"><img src="minhalavanderialogo.png" alt="Minha Lavanderia" style="height:34px;width:auto;display:block;"></div>
   <div class="divider"></div>
   <span class="sys-title">Presence Control</span>
-  <span class="sys-sub">Implantações em andamento</span>
+  <span class="sys-sub" id="sys-sub">Implantações em andamento</span>
   <div class="spacer"></div>
   <span class="topbar-date" id="hdate"></span>
   <span id="mode-pill" class="readonly-pill"></span><button class="btn-save-all edit-only" onclick="saveAll()">↓ Salvar tudo</button>
@@ -1040,6 +1071,12 @@ function activeStatusInfo(l){
   if(staleAge!==null&&staleAge>7) return {cls:'blue',label:'Contato preventivo',icon:'',age:staleAge,stale:true};
   return {cls:'ok',label:'Tudo ok',icon:'',age:null};
 }
+function activeSimpleState(l){
+  const info=activeStatusInfo(l);
+  if(info.cls.includes('red')) return {key:'prob',label:'Com problema',icon:'!'};
+  if(info.cls==='orange'||info.cls==='yellow') return {key:'att',label:'Precisa de atenção',icon:'•'};
+  return {key:'ok',label:'Funcionando',icon:'✓'};
+}
 function getActiveRecords(){
   const map=new Map();
   const manualStoreKeys=new Set();
@@ -1066,26 +1103,36 @@ let activeQuick='all';
 function setActiveQuick(v){activeQuick=v;renderActive();}
 function renderActive(){
   const all=getActiveRecords();
-  const ok=all.filter(l=>l.status==='ok').length;
-  const pending=all.filter(l=>l.status==='pending').length;
-  const down=all.filter(l=>l.status==='down').length;
-  const alerts=all.filter(l=>l.status==='down'||activeStatusInfo(l).cls.includes('red')).length;
-  const stale=all.filter(l=>activeStatusInfo(l).stale).length;
+  const cnt={ok:0,att:0,prob:0};
+  all.forEach(l=>{cnt[activeSimpleState(l).key]++;});
+  const tot=all.length||1;
+  const pct=k=>Math.round(cnt[k]/tot*100);
   document.getElementById('content').innerHTML=`
-    <div class="active-summary">
-      <div class="stat"><div class="lbl">Ativos acompanhados</div><div class="val">${all.length}</div><div class="sub">lojas em opera&ccedil;&atilde;o</div></div>
-      <div class="stat"><div class="lbl">Tudo ok</div><div class="val g">${ok}</div><div class="sub">sem pend&ecirc;ncia</div></div>
-      <div class="stat"><div class="lbl">Pend&ecirc;ncias</div><div class="val i">${pending}</div><div class="sub">em acompanhamento</div></div>
-      <div class="stat"><div class="lbl">Contato preventivo</div><div class="val b">${stale}</div><div class="sub">${alerts} alertas cr&iacute;ticos</div></div>
+    <div class="active-hero">
+      <div class="hero-main">
+        <div class="hero-num">${all.length}</div>
+        <div class="hero-cap">lojas usando a Presence</div>
+      </div>
+      <div class="hero-break">
+        <div class="hero-stats">
+          <div class="hero-stat ok"><span class="hicon">&#10003;</span><b>${cnt.ok}</b> funcionando</div>
+          <div class="hero-stat prob"><span class="hicon">!</span><b>${cnt.prob}</b> com problema</div>
+          <div class="hero-stat att"><span class="hicon">&bull;</span><b>${cnt.att}</b> precisam de aten&ccedil;&atilde;o</div>
+        </div>
+        <div class="hero-bar" title="${cnt.ok} funcionando &middot; ${cnt.att} em aten&ccedil;&atilde;o &middot; ${cnt.prob} com problema">
+          ${cnt.ok?`<span class="s-ok" style="width:${pct('ok')}%"></span>`:''}
+          ${cnt.att?`<span class="s-att" style="width:${pct('att')}%"></span>`:''}
+          ${cnt.prob?`<span class="s-prob" style="width:${pct('prob')}%"></span>`:''}
+        </div>
+      </div>
     </div>
     <div class="toolbar">
       <div class="tb-row">
         <div class="quick-tabs">
           <button class="qtab${activeQuick==='all'?' on':''}" onclick="setActiveQuick('all')">Todas</button>
-          <button class="qtab${activeQuick==='ok'?' on':''}" onclick="setActiveQuick('ok')">Tudo ok</button>
-          <button class="qtab${activeQuick==='stale'?' on':''}" onclick="setActiveQuick('stale')">Contato preventivo</button>
-          <button class="qtab${activeQuick==='pending'?' on':''}" onclick="setActiveQuick('pending')">Pend&ecirc;ncias</button>
-          <button class="qtab${activeQuick==='red'?' on':''}" onclick="setActiveQuick('red')">Alertas</button>
+          <button class="qtab${activeQuick==='prob'?' on':''}" onclick="setActiveQuick('prob')">Com problema</button>
+          <button class="qtab${activeQuick==='att'?' on':''}" onclick="setActiveQuick('att')">Precisam de aten&ccedil;&atilde;o</button>
+          <button class="qtab${activeQuick==='ok'?' on':''}" onclick="setActiveQuick('ok')">Funcionando</button>
         </div>
         <button class="btn-add edit-only" onclick="startClaudeImport()" style="margin-left:auto"><i class="fa-solid fa-headset"></i> Importar chamados</button>
         <button class="btn-add edit-only" onclick="openActiveModal()">+ Nova loja ativa</button>
@@ -1097,38 +1144,37 @@ function renderActive(){
 }
 function renderActiveContent(){
   let list=getActiveRecords();
-  if(activeQuick==='ok')list=list.filter(l=>l.status==='ok'&&!activeStatusInfo(l).stale);
-  if(activeQuick==='stale')list=list.filter(l=>activeStatusInfo(l).stale);
-  if(activeQuick==='pending')list=list.filter(l=>l.status==='pending');
-  if(activeQuick==='red')list=list.filter(l=>l.status==='down'||activeStatusInfo(l).cls.includes('red'));
+  if(activeQuick!=='all')list=list.filter(l=>activeSimpleState(l).key===activeQuick);
   const cardHtml=(l)=>{
     const info=activeStatusInfo(l);
+    const st=activeSimpleState(l);
     const idx=l._idx??-1;
-    const ageTxt=info.age!==null?`${info.age}d`:'';
     const obs=(l.obs||'').trim();
     const showObs=obs&&!(l.status==='ok'&&obs.toLowerCase()==='funcionando');
     const tk=ticketSummary(l.loja,l.num);
     const tkBadge=tk.total?`<span class="active-tk${tk.abertos?' has-open':''}" title="${tk.total} chamado(s)${tk.abertos?', '+tk.abertos+' em aberto':''}"><i class="fa-solid fa-headset"></i> ${tk.total}${tk.abertos?' · '+tk.abertos+' aberto'+(tk.abertos>1?'s':''):''}</span>`:'';
-    return `<div class="active-card ${info.cls}" title="${esc(info.label)}" onclick="openActiveModal(${idx},'${esc(activeKey(l))}')">
+    let subline='';
+    if((l.status==='pending'||l.status==='down')&&info.age!==null)subline=`pendente h&aacute; ${info.age}d`;
+    else if(info.stale&&info.age!==null)subline=`sem contato h&aacute; ${info.age}d`;
+    const pulse=info.cls.includes('pulse')?' pulse':'';
+    return `<div class="active-card ${st.key}${pulse}" onclick="openActiveModal(${idx},'${esc(activeKey(l))}')">
+      <div class="active-badge ${st.key}"><span class="bdot">${st.icon}</span>${st.label}</div>
       <div class="active-card-head">
         <div class="active-store">${esc(l.loja)}<small>${redeLabel(l.rede)}${l.num?`<span class="store-num-pill after">${esc(l.num)}</span>`:''}</small></div>
       </div>
       <div class="active-meta">${l.responsavel?`<span class="tag-resp">${esc(l.responsavel)}</span>`:''}${l._source==='auto'?'<span class="tag-db">auto</span>':''}${tkBadge}</div>
       ${showObs?`<div class="active-obs">${esc(obs)}</div>`:''}
-      ${ageTxt?`<div class="active-age">${ageTxt}</div>`:''}
+      ${subline?`<div class="active-subline">${subline}</div>`:''}
     </div>`;
   };
-  const colorOf=info=>info.cls.includes('red')?'red':info.cls==='orange'?'orange':info.cls==='yellow'?'yellow':info.cls==='blue'?'blue':'ok';
   const GROUPS=[
-    ['red','#e0563f','🔴 Crítico — alerta ou pendência há 3+ dias'],
-    ['orange','#e08a2f','🟠 Pendência — 2 dias'],
-    ['yellow','#d8b528','🟡 Pendência — recente (1 dia)'],
-    ['ok','#10a66f','🟢 Tudo ok'],
-    ['blue','#3b6fd0','🔵 Contato preventivo — loja quieta há 7+ dias, vale um check-in'],
+    ['prob','#cf3030','&#128308; Com problema'],
+    ['att','#d99b00','&#128993; Precisam de atenção'],
+    ['ok','#10a66f','&#128994; Funcionando'],
   ];
   let html='';
   GROUPS.forEach(([k,color,label])=>{
-    const grp=list.filter(l=>colorOf(activeStatusInfo(l))===k);
+    const grp=list.filter(l=>activeSimpleState(l).key===k);
     if(!grp.length)return;
     html+=`<div class="active-group-hdr" style="display:flex;align-items:center;gap:8px;margin:20px 0 10px;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#5b6470;border-left:4px solid ${color};padding-left:10px;">${label}<span style="font-weight:700;color:#9aa1ab;">${grp.length}</span></div><div class="active-grid">${grp.map(cardHtml).join('')}</div>`;
   });
@@ -1145,7 +1191,8 @@ function setPage(p){
   document.getElementById('pnav-sup').className='pnav-btn'+(p==='sup'?' on':'');
   renderPage();
 }
-function renderPage(){if(currentPage==='gl')renderGL();else if(currentPage==='active')renderActive();else if(currentPage==='db')renderDB();else renderSupport();}
+function updateSysSub(){const m={active:'Lojas em operação',gl:'Implantações em andamento',db:'Base geral de lojas',sup:'Chamados de suporte'};const el=document.getElementById('sys-sub');if(el)el.textContent=m[currentPage]||'';}
+function renderPage(){updateSysSub();if(currentPage==='gl')renderGL();else if(currentPage==='active')renderActive();else if(currentPage==='db')renderDB();else renderSupport();}
 
 // ── GO-LIVE PAGE ──
 let glView='lista',sortCol='goLive',sortAsc=true,glQuick='all';
