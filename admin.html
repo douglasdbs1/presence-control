@@ -392,7 +392,11 @@ body.admin.locked .kb-card, body.admin.locked tbody tr, body.admin.locked .tl-it
 .active-store{font-size:15px;font-weight:850;color:var(--text);line-height:1.18;max-width:220px;}
 .active-store small{display:flex;justify-content:center;align-items:center;gap:6px;font-size:10px;font-weight:700;color:var(--text3);margin-top:7px;}
 .active-meta{display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:12px;min-height:20px;}
-.active-obs{font-size:12px;color:var(--text2);line-height:1.4;min-height:34px;max-width:220px;text-align:center;white-space:pre-line;display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.active-obs{display:inline-block;list-style:none;margin:2px auto 0;padding:0;min-height:28px;max-width:212px;text-align:left;font-size:10px;color:var(--text2);line-height:1.4;}
+.active-obs li{position:relative;padding-left:11px;margin:2px 0;}
+.active-obs li:before{content:"\2022";position:absolute;left:1px;color:#bfc6cd;}
+.active-obs li.active-obs-more{color:var(--text3);font-weight:750;font-size:9px;}
+.active-obs li.active-obs-more:before{content:"";}
 .active-age{position:absolute;right:12px;bottom:10px;font-size:10px;font-weight:850;color:var(--text3);background:#eef2f5;border:1px solid #dbe2e8;border-radius:999px;padding:2px 7px;}
 .active-card .store-num-pill.after{margin-left:0;background:#f3f6f8;color:#5b6570;}
 .active-card .tag-rj,.active-card .tag-ml,.active-card .tag-mega{font-size:10px;padding:3px 8px;box-shadow:0 1px 2px rgba(21,23,26,.05);}
@@ -1153,6 +1157,7 @@ function renderActiveContent(){
     const st=activeSimpleState(l);
     const idx=l._idx??-1;
     const obs=(l.obs||'').trim();
+    const obsLines=obs.split(/\r?\n/).map(s=>s.replace(/^[•\-\s]+/,'').trim()).filter(Boolean);
     const showObs=obs&&!(l.status==='ok'&&obs.toLowerCase()==='funcionando');
     const tk=ticketSummary(l.loja,l.num);
     const tkBadge=tk.total?`<span class="active-tk${tk.abertos?' has-open':''}" title="${tk.total} chamado(s)${tk.abertos?', '+tk.abertos+' em aberto':''}"><i class="fa-solid fa-headset"></i> ${tk.total}${tk.abertos?' · '+tk.abertos+' aberto'+(tk.abertos>1?'s':''):''}</span>`:'';
@@ -1166,7 +1171,7 @@ function renderActiveContent(){
         <div class="active-store">${esc(l.loja)}<small>${redeLabel(l.rede)}${l.num?`<span class="store-num-pill after">${esc(l.num)}</span>`:''}</small></div>
       </div>
       <div class="active-meta">${l.responsavel?`<span class="tag-resp">${esc(l.responsavel)}</span>`:''}${l._source==='auto'?'<span class="tag-db">auto</span>':''}${tkBadge}</div>
-      ${showObs?`<div class="active-obs" title="${esc(obs)}">${esc(obs)}</div>`:''}
+      ${showObs?`<ul class="active-obs" title="${esc(obs)}">${obsLines.slice(0,3).map(li=>`<li>${esc(li)}</li>`).join('')}${obsLines.length>3?`<li class="active-obs-more">+${obsLines.length-3} mais</li>`:''}</ul>`:''}
       ${subline?`<div class="active-subline">${subline}</div>`:''}
     </div>`;
   };
