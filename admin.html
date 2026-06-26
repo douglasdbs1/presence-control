@@ -167,6 +167,8 @@ input.tb:focus,select.tb:focus{border-color:var(--teal-mid);}
 .qtab{font-family:var(--font);font-size:11px;font-weight:700;padding:5px 9px;border:1px solid var(--border);background:#fff;color:var(--text2);border-radius:999px;cursor:pointer;}
 .qtab:hover{background:var(--surface2);}
 .qtab.on{background:var(--text);border-color:var(--text);color:#fff;}
+.qt-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-right:1px;}
+.consultor-tabs .qtab.on{background:var(--indigo);border-color:var(--indigo);color:#fff;}
 
 /* TABLE */
 .table-wrap{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
@@ -1122,14 +1124,16 @@ function getActiveRecords(){
   });
 }
 
-let activeQuick='all';
+let activeQuick='all',activeResp='all';
 function setActiveQuick(v){activeQuick=v;renderActive();}
+function setActiveResp(v){activeResp=v;renderActive();}
 function renderActive(){
   const all=getActiveRecords().filter(l=>!isHQActive(l));
   const cnt={ok:0,att:0,prob:0};
   all.forEach(l=>{cnt[activeSimpleState(l).key]++;});
   const tot=all.length||1;
   const pct=k=>Math.round(cnt[k]/tot*100);
+  const resps=[...new Set(getActiveRecords().map(l=>l.responsavel).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt'));
   const MES=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
   const upcoming=lojas.filter(l=>l.status!=='concluido'&&inNextDays(l.goLive,10)).sort((a,b)=>parseDate(a.goLive)-parseDate(b.goLive));
   const glItems=upcoming.map(l=>{
@@ -1171,7 +1175,12 @@ function renderActive(){
           <button class="qtab${activeQuick==='att'?' on':''}" onclick="setActiveQuick('att')">Precisam de aten&ccedil;&atilde;o</button>
           <button class="qtab${activeQuick==='ok'?' on':''}" onclick="setActiveQuick('ok')">Funcionando</button>
         </div>
-        <button class="btn-add edit-only" onclick="startClaudeImport()" style="margin-left:auto"><i class="fa-solid fa-headset"></i> Importar chamados</button>
+        <div class="quick-tabs consultor-tabs" style="margin-left:auto">
+          <span class="qt-label">Consultor</span>
+          <button class="qtab${activeResp==='all'?' on':''}" onclick="setActiveResp('all')">Todos</button>
+          ${resps.map(r=>`<button class="qtab${activeResp===r?' on':''}" onclick="setActiveResp('${esc(r)}')">${esc(r)}</button>`).join('')}
+        </div>
+        <button class="btn-add edit-only" onclick="startClaudeImport()"><i class="fa-solid fa-headset"></i> Importar chamados</button>
         <button class="btn-add edit-only" onclick="openActiveModal()">+ Nova loja ativa</button>
       </div>
     </div>
@@ -1181,6 +1190,7 @@ function renderActive(){
 }
 function renderActiveContent(){
   let list=getActiveRecords();
+  if(activeResp!=='all')list=list.filter(l=>l.responsavel===activeResp);
   if(activeQuick!=='all')list=list.filter(l=>activeSimpleState(l).key===activeQuick);
   const hqList=list.filter(isHQActive);
   list=list.filter(l=>!isHQActive(l));
