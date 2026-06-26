@@ -1166,7 +1166,7 @@ function renderActiveContent(){
     else if(info.stale&&info.age!==null)subline=`sem contato h&aacute; ${info.age}d`;
     const pulse=info.cls.includes('pulse')?' pulse':'';
     return `<div class="active-card ${st.key}${pulse}" onclick="openActiveModal(${idx},'${esc(activeKey(l))}')">
-      <div class="active-badge ${st.key}"><span class="bdot">${st.icon}</span>${st.label}</div>
+      ${st.key!=='ok'?`<div class="active-badge ${st.key}"><span class="bdot">${st.icon}</span>${st.label}</div>`:''}
       <div class="active-card-head">
         <div class="active-store">${esc(l.loja)}<small>${redeLabel(l.rede)}${l.num?`<span class="store-num-pill after">${esc(l.num)}</span>`:''}</small></div>
       </div>
