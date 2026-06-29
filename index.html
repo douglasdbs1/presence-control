@@ -1031,13 +1031,19 @@ function isMegaStore(l){return (l.rede==='both') || (l.grupo||'').toLowerCase().
 function hasPresenceNumber(l){return !!(l.num||'').trim();}
 function inNextDays(dateStr,days){const d=daysDiff(dateStr);return d!==null&&d>=0&&d<=days;}
 function getDatabase(){
-  const fromGL=lojas.map(l=>({
+  const extras=dbExtra.map((l,i)=>({...l,_extraIdx:i,_fromGL:false}));
+  const exNums=new Set(extras.map(l=>(l.num||'').trim()).filter(Boolean));
+  const exNames=new Set(extras.map(l=>normLojaName(l.nome)));
+  const fromGL=lojas.filter(l=>{
+    const n=(l.num||'').trim();
+    if(n)return !exNums.has(n);                 // ja existe no cadastro (mesmo numero) -> nao duplica
+    return !exNames.has(normLojaName(l.loja));  // go-live sem numero: casa pelo nome
+  }).map(l=>({
     _glIdx:lojas.indexOf(l),nome:l.loja,num:l.num,
     rede:l.grupo&&l.grupo.toLowerCase().includes('minha lavanderia')?'ml':'rj',
     status:l.status==='concluido'?'ativo':'transicao',
     alerta:!!l.alerta,responsavel:l.responsavel||'',obs:'',_fromGL:true
   }));
-  const extras=dbExtra.map((l,i)=>({...l,_extraIdx:i,_fromGL:false}));
   return [...fromGL,...extras].sort((a,b)=>a.nome.localeCompare(b.nome,'pt'));
 }
 
