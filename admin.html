@@ -150,6 +150,7 @@ input.tb:focus,select.tb:focus{border-color:var(--teal-mid);}
 .tag-rj{font-size:9px;font-weight:700;padding:1px 5px;background:linear-gradient(90deg,#b41414,#19236e);color:#fff;}
 .tag-ml{font-size:9px;font-weight:700;padding:1px 5px;background:#0055be;color:#fff;}
 .tag-mega{font-size:9px;font-weight:700;padding:1px 5px;background:#0a5c47;color:#fff;}
+.tag-crm{font-size:9px;font-weight:800;padding:1px 5px;background:#fff3d6;color:#8a5a00;border:1px solid #edcf86;border-radius:3px;}
 .tag-resp{font-size:9px;font-weight:600;padding:1px 6px;background:var(--indigo-bg);color:var(--indigo);border-radius:3px;}
 .store-num-pill{display:inline-flex;align-items:center;font-size:9px;font-weight:700;line-height:1;padding:3px 6px;border-radius:999px;background:#f0ede8;color:var(--text3);border:1px solid var(--border);white-space:nowrap;vertical-align:middle;}
 .store-num-pill.before{margin-right:6px;}
@@ -373,6 +374,73 @@ body.admin.locked .kb-card, body.admin.locked tbody tr, body.admin.locked .tl-it
 .ticket-origin.zoho{background:#fff3d8;color:#7a4b00;}
 @media(max-width:900px){.support-layout{grid-template-columns:1fr;}.support-ticket{grid-template-columns:78px 1fr;}.support-meta{grid-column:1/-1;justify-content:flex-start;}}
 
+/* CRM */
+.sign-bar{position:relative;display:grid;grid-template-columns:1fr auto;gap:7px;align-items:center;margin-top:8px;}
+.sign-track{height:5px;background:#edf0f2;border-radius:999px;overflow:hidden;}
+.sign-fill{height:100%;border-radius:999px;}
+.sign-days{font-size:9px;font-weight:800;white-space:nowrap;}
+.sign-tip{display:none;position:absolute;left:0;bottom:15px;z-index:5;width:230px;background:#111110;color:#fff;border-radius:6px;padding:8px 9px;box-shadow:0 10px 24px rgba(0,0,0,.18);}
+.sign-tip b{display:block;font-size:10px;margin-bottom:3px;}
+.sign-tip small{display:block;font-size:9px;color:#d9d9d9;font-weight:500;}
+.sign-bar:hover .sign-tip{display:block;}
+.kb-date.crm{color:#8a5a00;font-weight:800;}
+
+/* TV */
+body.tv-mode{background:#0f1417;}
+body.tv-mode .topbar,body.tv-mode .page-nav{position:static;}
+body.tv-mode .content{max-width:none;padding:0;background:#0f1417;}
+.tv-wrap{min-height:calc(100vh - 104px);background:#0f1417;color:#f6f8f7;padding:28px 34px 30px;display:grid;grid-template-rows:auto 1fr auto;gap:20px;}
+.tv-head{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:start;}
+.tv-kicker{font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#7ee0b3;margin-bottom:6px;}
+.tv-title{font-size:clamp(34px,5vw,72px);font-weight:850;line-height:.95;}
+.tv-sub{font-size:clamp(14px,1.25vw,20px);font-weight:600;color:#aeb9bd;margin-top:10px;}
+.tv-clock{text-align:right;}
+.tv-time{font-size:clamp(30px,4vw,58px);font-weight:850;line-height:1;color:#fff;}
+.tv-date{font-size:14px;font-weight:700;color:#aeb9bd;margin-top:4px;text-transform:uppercase;letter-spacing:.08em;}
+.tv-stage{min-height:0;}
+.tv-slide{display:none;min-height:100%;animation:tvFade .45s ease;}
+.tv-slide.on{display:block;}
+@keyframes tvFade{from{opacity:.65;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.tv-grid{display:grid;grid-template-columns:1.45fr .55fr;gap:22px;height:100%;}
+.tv-main-list{display:grid;gap:14px;align-content:start;}
+.tv-gl-card{display:grid;grid-template-columns:118px 1fr auto;gap:18px;align-items:center;background:#182026;border:1px solid #2b363c;border-left:8px solid #7ee0b3;border-radius:8px;padding:18px 22px;min-height:112px;}
+.tv-gl-card.today{border-left-color:#ffcf5a;background:#242313;}
+.tv-gl-card.risk{border-left-color:#ff7777;background:#26191b;}
+.tv-day{font-size:48px;font-weight:850;line-height:.9;color:#fff;}
+.tv-mon{font-size:15px;font-weight:850;text-transform:uppercase;color:#aeb9bd;margin-top:5px;}
+.tv-store{font-size:clamp(24px,2.6vw,42px);font-weight:850;line-height:1.04;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tv-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:9px;color:#aeb9bd;font-size:14px;font-weight:700;}
+.tv-pill{display:inline-flex;align-items:center;gap:5px;border:1px solid #34434a;background:#202b31;color:#dfe7e4;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:850;white-space:nowrap;}
+.tv-pill.hot{background:#3c2020;border-color:#744040;color:#ffb0a8;}
+.tv-pill.good{background:#133329;border-color:#27644f;color:#7ee0b3;}
+.tv-pill.crm{background:#3a300f;border-color:#80692e;color:#ffdf86;}
+.tv-when{text-align:right;min-width:124px;}
+.tv-when b{display:block;font-size:clamp(24px,2.3vw,38px);line-height:1;color:#fff;}
+.tv-when span{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:#aeb9bd;}
+.tv-side{display:grid;gap:14px;align-content:start;}
+.tv-stat{background:#182026;border:1px solid #2b363c;border-radius:8px;padding:18px;}
+.tv-stat .n{font-size:clamp(42px,5vw,78px);font-weight:850;line-height:.9;color:#fff;}
+.tv-stat .l{font-size:14px;font-weight:800;color:#aeb9bd;text-transform:uppercase;letter-spacing:.08em;margin-top:8px;}
+.tv-section-title{font-size:22px;font-weight:850;margin-bottom:14px;color:#fff;}
+.tv-week{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;height:100%;}
+.tv-daycol{background:#182026;border:1px solid #2b363c;border-radius:8px;padding:16px;min-width:0;}
+.tv-daycol.today{border-color:#ffcf5a;box-shadow:inset 0 0 0 1px #ffcf5a;}
+.tv-dayname{font-size:15px;font-weight:850;text-transform:uppercase;letter-spacing:.08em;color:#aeb9bd;margin-bottom:11px;}
+.tv-week-item{background:#202b31;border:1px solid #34434a;border-radius:7px;padding:11px;margin-bottom:9px;}
+.tv-week-store{font-size:16px;font-weight:850;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tv-week-meta{font-size:11px;font-weight:800;color:#aeb9bd;margin-top:5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.tv-risk-list{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.tv-risk-card{background:#182026;border:1px solid #2b363c;border-left:6px solid #ff7777;border-radius:8px;padding:16px;}
+.tv-risk-card.warn{border-left-color:#ffcf5a;}
+.tv-risk-title{font-size:20px;font-weight:850;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tv-risk-meta{font-size:13px;font-weight:750;color:#aeb9bd;margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.tv-empty{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;color:#aeb9bd;font-size:26px;font-weight:800;background:#182026;border:1px dashed #34434a;border-radius:8px;padding:30px;}
+.tv-foot{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;color:#aeb9bd;font-size:13px;font-weight:700;}
+.tv-dots{display:flex;gap:8px;}
+.tv-dot{width:34px;height:5px;border-radius:999px;background:#34434a;}
+.tv-dot.on{background:#7ee0b3;}
+@media(max-width:900px){.tv-wrap{padding:18px;}.tv-head,.tv-grid{grid-template-columns:1fr;}.tv-clock{text-align:left;}.tv-gl-card{grid-template-columns:76px 1fr;}.tv-when{grid-column:1/-1;text-align:left;}.tv-week,.tv-risk-list{grid-template-columns:1fr;}.tv-store{white-space:normal;}.tv-foot{grid-template-columns:1fr;}}
+
 /* ACTIVE PRESENCE */
 .active-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:14px;}
 .active-card{position:relative;min-height:174px;background:linear-gradient(180deg,#fff 0,#fbfcfd 100%);border:1px solid var(--border);border-radius:12px;padding:20px 16px 14px;cursor:pointer;overflow:hidden;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;transition:transform .14s ease,box-shadow .14s ease,border-color .14s ease;}
@@ -553,6 +621,7 @@ td.oc{max-width:260px;}
   <button class="pnav-btn" id="pnav-gl" onclick="setPage('gl')"><i class="fa-solid fa-bolt pnav-icon"></i> Go-Live</button>
   <button class="pnav-btn" id="pnav-db" onclick="setPage('db')"><i class="fa-solid fa-store pnav-icon"></i> Lojas</button>
   <button class="pnav-btn" id="pnav-sup" onclick="setPage('sup')"><i class="fa-solid fa-headset pnav-icon"></i> Suporte</button>
+  <button class="pnav-btn edit-only" id="pnav-tv" onclick="setPage('tv')"><i class="fa-solid fa-display pnav-icon"></i> TV</button>
 </nav>
 
 <div class="content" id="content"></div>
@@ -800,7 +869,7 @@ function initSupabase(){
   return true;
 }
 function statePayload(){
-  return {version:1, updatedAt:new Date().toISOString(), golive:lojas, lojas:dbExtra, suporte:supportTickets, presenceAtivo:activeHealth};
+  return {version:1, updatedAt:new Date().toISOString(), golive:lojas, lojas:dbExtra, suporte:supportTickets, presenceAtivo:activeHealth, crm:crmData};
 }
 async function loadFromSupabase(){
   if(!supabaseEnabled) return false;
@@ -821,6 +890,7 @@ async function loadFromSupabase(){
     dbExtra = data.payload.lojas || [];
     supportTickets = data.payload.suporte || [];
     activeHealth = data.payload.presenceAtivo || JSON.parse(JSON.stringify(EMBEDDED_ACTIVE_HEALTH));
+    crmData = data.payload.crm || crmData;
     console.info("Dados carregados do Supabase:", data.updated_at);
     return true;
   }
@@ -844,7 +914,7 @@ async function seedSupabaseInitialState(){
 async function saveToSupabase(silent=false){
   if(isBooting) return;
   if(!canEdit()){ if(!silent) showToast("Modo somente leitura. Alterações não foram salvas.", true); return; }
-  saveLocal(); saveDbLocal(); saveSupportLocal(); saveActiveLocal();
+  saveLocal(); saveDbLocal(); saveSupportLocal(); saveActiveLocal(); saveCrmLocal();
   if(!supabaseEnabled){ if(!silent) showToast("Salvo localmente. Configure o Supabase para salvar online."); return; }
   const {error}=await supabaseClient.rpc("save_presence_control_state",{
     p_token: ADMIN_RPC_TOKEN,
@@ -855,7 +925,7 @@ async function saveToSupabase(silent=false){
 }
 async function initApp(){
   applyModeUi();
-  load(); loadDb(); loadSupport(); loadActive(); initSupabase();
+  load(); loadDb(); loadSupport(); loadActive(); loadCrm(); initSupabase();
   if(supabaseEnabled) await loadFromSupabase();
   isBooting=false;
   setPage("active");
@@ -901,6 +971,7 @@ let lojas   = [];
 let dbExtra = [];
 let supportTickets = [];
 let activeHealth = [];
+let crmData = {implantacao:[],atualizadoEm:''}; // preenchido pelo sync diário do Zoho (sync/zoho_sync.js)
 function buildStubs(){
   const xNums=new Set(lojas.map(l=>l.num).filter(n=>n&&n.trim()));
   const xNameRede=new Set(lojas.map(l=>l.loja+'|'+redeFromGrupo(l.grupo)));
@@ -927,6 +998,7 @@ function saveLocal()   { localStorage.setItem('pc_gl_v1',  JSON.stringify(lojas)
 function saveDbLocal() { localStorage.setItem('pc_db_v1',  JSON.stringify(dbExtra)); }
 function saveSupportLocal() { localStorage.setItem('pc_support_v1', JSON.stringify(supportTickets)); }
 function saveActiveLocal() { localStorage.setItem('pc_active_v1', JSON.stringify(activeHealth)); }
+function saveCrmLocal() { localStorage.setItem('pc_crm_v1', JSON.stringify(crmData)); }
 function save(){ saveToSupabase(); }
 function saveDb(){ saveToSupabase(); }
 function saveSupport(){ saveToSupabase(); }
@@ -935,6 +1007,7 @@ function load()   { lojas   = JSON.parse(localStorage.getItem('pc_gl_v1') || 'nu
 function loadDb() { dbExtra = JSON.parse(localStorage.getItem('pc_db_v1') || 'null') || JSON.parse(JSON.stringify(EMBEDDED_LOJAS));  }
 function loadSupport() { supportTickets = JSON.parse(localStorage.getItem('pc_support_v1') || 'null') || []; }
 function loadActive() { activeHealth = JSON.parse(localStorage.getItem('pc_active_v1') || 'null') || JSON.parse(JSON.stringify(EMBEDDED_ACTIVE_HEALTH)); }
+function loadCrm() { crmData = JSON.parse(localStorage.getItem('pc_crm_v1') || 'null') || crmData; }
 
 function saveAll() {
   const d={version:1,exportedAt:new Date().toISOString(),golive:lojas,lojas:dbExtra,suporte:supportTickets,presenceAtivo:activeHealth};
@@ -986,6 +1059,32 @@ function prevBusinessDay(d){const r=new Date(d);r.setDate(r.getDate()-1);while(r
 function fmtDateObj(d){const day=String(d.getDate()).padStart(2,'0');const mon=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'][d.getMonth()];return `${day}/${mon}`;}
 function esc(v){return String(v||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 function isOverdue(l){return l.status!=='concluido'&&l.goLive&&daysDiff(l.goLive)<0;}
+// ── CRM (Zoho, sync diário via sync/zoho_sync.js) ──
+function crmFor(l){
+  const n=String(l.num||'').replace(/\D/g,'');
+  if(!n||!crmData||!Array.isArray(crmData.implantacao))return null;
+  return crmData.implantacao.find(r=>String(r.num||'').replace(/\D/g,'')===n)||null;
+}
+function effGoLive(l){
+  if(l.goLive)return l.goLive;
+  const c=crmFor(l);
+  return (c&&c.golive)||'';
+}
+function crmSignBar(l){
+  if(l.status==='concluido')return '';
+  const c=crmFor(l);
+  if(!c||!c.assinatura)return '';
+  const d=parseDate(c.assinatura);
+  if(!d)return '';
+  const dias=Math.max(0,Math.round((TODAY-d)/86400000));
+  const pct=Math.min(100,Math.round(dias/60*100));
+  const cor=dias>=60?'#c0392b':dias>=45?'#d98200':'#10a66f';
+  return `<div class="sign-bar">
+    <div class="sign-track"><div class="sign-fill" style="width:${pct}%;background:${cor}"></div></div>
+    <span class="sign-days" style="color:${cor}">${dias}/60</span>
+    <div class="sign-tip"><b>${dias} dia${dias===1?'':'s'} desde o contrato assinado.</b><small>Contrato assinado dia ${esc(c.assinatura.slice(0,5))}</small></div>
+  </div>`;
+}
 function stepsDone(l){
   let done=[];
   for(let i=0;i<FASES.length;i++){
@@ -1141,14 +1240,16 @@ function renderActive(){
   const pct=k=>Math.round(cnt[k]/tot*100);
   const resps=[...new Set(getActiveRecords().map(l=>l.responsavel).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt'));
   const MES=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
-  const upcoming=lojas.filter(l=>l.status!=='concluido'&&inNextDays(l.goLive,10)).sort((a,b)=>parseDate(a.goLive)-parseDate(b.goLive));
+  const upcoming=lojas.filter(l=>l.status!=='concluido'&&inNextDays(effGoLive(l),10)).sort((a,b)=>parseDate(effGoLive(a))-parseDate(effGoLive(b)));
   const glItems=upcoming.map(l=>{
-    const d=parseDate(l.goLive),diff=daysDiff(l.goLive);
+    const gd=effGoLive(l);
+    const d=parseDate(gd),diff=daysDiff(gd);
     const day=String(d.getDate()).padStart(2,'0'),mon=MES[d.getMonth()];
     const when=diff===0?'HOJE':diff===1?'amanhã':'em '+diff+'d';
     const wc=diff===0?'#0b7a52':diff<=3?'#a85b00':'#5b6470';
     const rtag=(g=>{g=(g||'').toLowerCase();return g.includes('minha lavanderia')?'<span class="tag-ml">ML</span>':g.includes('mega')?'<span class="tag-mega">MEGA</span>':'<span class="tag-rj">RJ</span>';})(l.grupo);
-    return `<div class="gl-next-item" onclick="setPage('gl');openModal(${lojaIdx(l)})"><div class="gl-next-date"><span class="d">${day}</span><span class="m">${mon}</span></div><div class="gl-next-main"><div class="gl-next-loja">${esc(l.loja)}</div><div class="gl-next-sub">${rtag}${l.responsavel?'<span>'+esc(l.responsavel)+'</span>':''}</div></div><div class="gl-next-when" style="color:${wc}">${when}</div></div>`;
+    const crmTag=!l.goLive?'<span class="tag-crm" title="Data marcada no CRM (Zoho)">CRM</span>':'';
+    return `<div class="gl-next-item" onclick="setPage('gl');openModal(${lojaIdx(l)})"><div class="gl-next-date"><span class="d">${day}</span><span class="m">${mon}</span></div><div class="gl-next-main"><div class="gl-next-loja">${esc(l.loja)}</div><div class="gl-next-sub">${rtag}${crmTag}${l.responsavel?'<span>'+esc(l.responsavel)+'</span>':''}</div></div><div class="gl-next-when" style="color:${wc}">${when}</div></div>`;
   }).join('');
   const glCard=`<div class="gl-next"><div class="gl-next-hd"><i class="fa-solid fa-bolt"></i> Próximos go-lives <span style="font-weight:600;text-transform:none;letter-spacing:0;color:#9aa1ab;">10 dias</span><span class="c">${upcoming.length}</span></div><div class="gl-next-list">${glItems||'<div class="gl-next-empty">Nenhum go-live nos próximos 10 dias.</div>'}</div></div>`;
   document.getElementById('content').innerHTML=`
@@ -1243,16 +1344,174 @@ function renderActiveContent(){
 
 // ── PAGE NAV ──
 let currentPage='active';
+let tvSlide=0,tvTimer=null,tvClockTimer=null,tvRefreshTimer=null;
 function setPage(p){
+  if(p==='tv'&&!canEdit())p='active';
   currentPage=p;
+  document.body.classList.toggle('tv-mode',p==='tv');
   document.getElementById('pnav-gl').className='pnav-btn'+(p==='gl'?' on':'');
   document.getElementById('pnav-active').className='pnav-btn'+(p==='active'?' on':'');
   document.getElementById('pnav-db').className='pnav-btn'+(p==='db'?' on':'');
   document.getElementById('pnav-sup').className='pnav-btn'+(p==='sup'?' on':'');
+  document.getElementById('pnav-tv').className='pnav-btn edit-only'+(p==='tv'?' on':'');
+  if(p!=='tv')stopTV();
   renderPage();
 }
-function updateSysSub(){const m={active:'Lojas em operação',gl:'Implantações em andamento',db:'Base geral de lojas',sup:'Chamados de suporte'};const el=document.getElementById('sys-sub');if(el)el.textContent=m[currentPage]||'';}
-function renderPage(){updateSysSub();if(currentPage==='gl')renderGL();else if(currentPage==='active')renderActive();else if(currentPage==='db')renderDB();else renderSupport();}
+function updateSysSub(){const m={active:'Lojas em operação',gl:'Implantações em andamento',db:'Base geral de lojas',sup:'Chamados de suporte',tv:'Painel de monitor'};const el=document.getElementById('sys-sub');if(el)el.textContent=m[currentPage]||'';}
+function renderPage(){updateSysSub();if(currentPage==='gl')renderGL();else if(currentPage==='active')renderActive();else if(currentPage==='db')renderDB();else if(currentPage==='tv')renderTV();else renderSupport();}
+
+// ── TV PAGE ──
+function stopTV(){
+  if(tvTimer){clearInterval(tvTimer);tvTimer=null;}
+  if(tvClockTimer){clearInterval(tvClockTimer);tvClockTimer=null;}
+  if(tvRefreshTimer){clearInterval(tvRefreshTimer);tvRefreshTimer=null;}
+}
+function tvNow(){return new Date();}
+function tvStamp(){
+  const d=tvNow();
+  return d.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+}
+function tvDateParts(s){
+  const d=parseDate(s),mes=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  if(!d)return {day:'--',mon:'',week:''};
+  return {day:String(d.getDate()).padStart(2,'0'),mon:mes[d.getMonth()],week:d.toLocaleDateString('pt-BR',{weekday:'short'}).replace('.','')};
+}
+function tvWhen(diff){
+  if(diff===0)return {big:'Hoje',small:'go-live'};
+  if(diff===1)return {big:'Amanhã',small:'go-live'};
+  if(diff<0)return {big:`-${Math.abs(diff)}d`,small:'atrasado'};
+  return {big:`${diff}d`,small:'para o go-live'};
+}
+function tvRecord(l){
+  const g=effGoLive(l),d=parseDate(g),crm=crmFor(l);
+  return {...l,_tvDate:g,_tvParsed:d,_tvDiff:daysDiff(g),_tvCrm:!!(!l.goLive&&crm&&crm.golive),_tvAssinatura:crm&&crm.assinatura};
+}
+function tvUpcoming(){
+  return getViewLojas().filter(l=>l.status!=='concluido').map(tvRecord)
+    .filter(l=>l._tvParsed&&l._tvDiff!==null&&l._tvDiff>=0&&l._tvDiff<=30)
+    .sort((a,b)=>a._tvParsed-b._tvParsed);
+}
+function tvCard(l){
+  const p=tvDateParts(l._tvDate),w=tvWhen(l._tvDiff),pct=Math.round(countDone(l)/FASES.length*100);
+  const cls=l._tvDiff===0?' today':l._tvDiff<0?' risk':'';
+  const crm=l._tvCrm?'<span class="tv-pill crm">CRM</span>':'';
+  return `<div class="tv-gl-card${cls}">
+    <div><div class="tv-day">${p.day}</div><div class="tv-mon">${p.mon}</div></div>
+    <div>
+      <div class="tv-store">${esc(l.loja)}</div>
+      <div class="tv-meta">${redeTagHtml(l)}${crm}<span>${esc(l.responsavel||'Sem responsavel')}</span><span>${pct}% do fluxo</span></div>
+    </div>
+    <div class="tv-when"><b>${w.big}</b><span>${w.small}</span></div>
+  </div>`;
+}
+function tvBusinessDays(){
+  const out=[],d=new Date(TODAY);
+  while(out.length<5){
+    if(d.getDay()!==0&&d.getDay()!==6)out.push(new Date(d));
+    d.setDate(d.getDate()+1);
+  }
+  return out;
+}
+function tvSameDay(a,b){return a&&b&&a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
+function tvSlideUpcoming(items,stats){
+  const list=items.slice(0,5).map(tvCard).join('');
+  return `<section class="tv-slide on" data-tv-slide="0">
+    <div class="tv-grid">
+      <div>
+        <div class="tv-section-title">Próximos go-lives</div>
+        <div class="tv-main-list">${list||'<div class="tv-empty">Nenhum go-live marcado nos próximos 30 dias.</div>'}</div>
+      </div>
+      <div class="tv-side">
+        <div class="tv-stat"><div class="n">${stats.today}</div><div class="l">Hoje</div></div>
+        <div class="tv-stat"><div class="n">${stats.week}</div><div class="l">Próximos 7 dias</div></div>
+        <div class="tv-stat"><div class="n">${stats.noDate}</div><div class="l">Sem data</div></div>
+      </div>
+    </div>
+  </section>`;
+}
+function tvSlideWeek(items){
+  const days=tvBusinessDays();
+  return `<section class="tv-slide" data-tv-slide="1">
+    <div class="tv-section-title">Agenda da semana</div>
+    <div class="tv-week">${days.map(d=>{
+      const dayItems=items.filter(l=>tvSameDay(l._tvParsed,d)).slice(0,4);
+      const name=d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).replace('.','');
+      return `<div class="tv-daycol${tvSameDay(d,TODAY)?' today':''}">
+        <div class="tv-dayname">${esc(name)}</div>
+        ${dayItems.length?dayItems.map(l=>`<div class="tv-week-item"><div class="tv-week-store">${esc(l.loja)}</div><div class="tv-week-meta">${redeTagHtml(l)}<span>${esc(l.responsavel||'Sem responsavel')}</span>${l._tvCrm?'<span class="tv-pill crm">CRM</span>':''}</div></div>`).join(''):'<div class="tv-week-meta">Sem go-live marcado.</div>'}
+      </div>`;
+    }).join('')}</div>
+  </section>`;
+}
+function tvSignAge(l){
+  const d=parseDate(l._tvAssinatura||'');
+  if(!d)return null;
+  return Math.max(0,Math.round((TODAY-d)/86400000));
+}
+function tvSlideRisks(){
+  const active=getViewLojas().filter(l=>l.status!=='concluido').map(tvRecord);
+  const risks=[];
+  active.forEach(l=>{
+    if(l._tvDiff!==null&&l._tvDiff<0)risks.push({l,type:'Go-live atrasado',meta:`${Math.abs(l._tvDiff)} dia${Math.abs(l._tvDiff)===1?'':'s'} de atraso`,cls:''});
+    else if(!l._tvDate)risks.push({l,type:'Sem data de go-live',meta:'precisa agendamento',cls:'warn'});
+    const age=tvSignAge(l);
+    if(age!==null&&age>=45)risks.push({l,type:'Contrato assinado',meta:`${age}/60 dias`,cls:age>=60?'':'warn'});
+    if(countDone(l)<3)risks.push({l,type:'Fluxo inicial',meta:`${countDone(l)}/5 etapas concluídas`,cls:'warn'});
+  });
+  const seen=new Set();
+  const list=risks.filter(r=>{const k=(r.l.num||'')+'|'+r.l.loja+'|'+r.type;if(seen.has(k))return false;seen.add(k);return true;}).slice(0,8);
+  return `<section class="tv-slide" data-tv-slide="2">
+    <div class="tv-section-title">Pontos de atenção</div>
+    <div class="tv-risk-list">${list.length?list.map(r=>`<div class="tv-risk-card ${r.cls}">
+      <div class="tv-risk-title">${esc(r.l.loja)}</div>
+      <div class="tv-risk-meta">${redeTagHtml(r.l)}<span>${esc(r.l.responsavel||'Sem responsavel')}</span><span>${esc(r.type)}</span><span>${esc(r.meta)}</span></div>
+    </div>`).join(''):'<div class="tv-empty">Sem pontos críticos no momento.</div>'}</div>
+  </section>`;
+}
+function updateTVClock(){
+  const time=document.getElementById('tv-time'),date=document.getElementById('tv-date');
+  const now=tvNow();
+  if(time)time.textContent=now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  if(date)date.textContent=now.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'});
+}
+function showTVSlide(n){
+  const slides=[...document.querySelectorAll('.tv-slide')],dots=[...document.querySelectorAll('.tv-dot')];
+  if(!slides.length)return;
+  tvSlide=(n+slides.length)%slides.length;
+  slides.forEach((s,i)=>s.classList.toggle('on',i===tvSlide));
+  dots.forEach((d,i)=>d.classList.toggle('on',i===tvSlide));
+}
+function startTV(){
+  stopTV();
+  updateTVClock();
+  tvClockTimer=setInterval(updateTVClock,30000);
+  tvTimer=setInterval(()=>showTVSlide(tvSlide+1),18000);
+  tvRefreshTimer=setInterval(async()=>{if(currentPage==='tv'&&supabaseEnabled){await loadFromSupabase();renderTV();}},300000);
+}
+function renderTV(){
+  const items=tvUpcoming();
+  const all=getViewLojas().filter(l=>l.status!=='concluido').map(tvRecord);
+  const stats={
+    today:items.filter(l=>l._tvDiff===0).length,
+    week:items.filter(l=>l._tvDiff>=0&&l._tvDiff<=7).length,
+    noDate:all.filter(l=>!l._tvDate).length
+  };
+  const updated=crmData&&crmData.atualizadoEm?new Date(crmData.atualizadoEm).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'sem sincronização do CRM';
+  document.getElementById('content').innerHTML=`<div class="tv-wrap">
+    <div class="tv-head">
+      <div><div class="tv-kicker">Presence Control</div><div class="tv-title">Go-lives no radar</div><div class="tv-sub">Painel rotativo para acompanhamento da franqueadora</div></div>
+      <div class="tv-clock"><div class="tv-time" id="tv-time"></div><div class="tv-date" id="tv-date"></div></div>
+    </div>
+    <div class="tv-stage">
+      ${tvSlideUpcoming(items,stats)}
+      ${tvSlideWeek(items)}
+      ${tvSlideRisks()}
+    </div>
+    <div class="tv-foot"><div>Dados do painel atualizados automaticamente. CRM: ${esc(updated)}.</div><div class="tv-dots"><span class="tv-dot on"></span><span class="tv-dot"></span><span class="tv-dot"></span></div></div>
+  </div>`;
+  tvSlide=0;
+  startTV();
+}
 
 // ── GO-LIVE PAGE ──
 let glView='lista',sortCol='goLive',sortAsc=true,glQuick='all';
@@ -1295,14 +1554,15 @@ function renderGL(){
   const overdue=all.filter(l=>isOverdue(l)).length;
   const noDate=all.filter(l=>l.status!=='concluido'&&!l.goLive).length;
   const activeMonth=all.filter(l=>{const d=parseDate(l.goLive);return l.status==='concluido'&&d&&d.getMonth()===TODAY.getMonth()&&d.getFullYear()===TODAY.getFullYear();}).length;
-  const proxGL=all.filter(l=>l.goLive&&daysDiff(l.goLive)>=0&&daysDiff(l.goLive)<=6).sort((a,b)=>parseDate(a.goLive)-parseDate(b.goLive));
+  const proxGL=all.filter(l=>{const g=effGoLive(l);return g&&daysDiff(g)>=0&&daysDiff(g)<=6;}).sort((a,b)=>parseDate(effGoLive(a))-parseDate(effGoLive(b)));
   const proxPGL=all.filter(l=>l.goLive&&parseDate(l.goLive)).map(l=>({l,pgl:prevBusinessDay(parseDate(l.goLive))})).filter(x=>Math.round((x.pgl-TODAY)/86400000)>=0).sort((a,b)=>a.pgl-b.pgl).slice(0,2);
   const missingSchedule=all.filter(l=>l.status!=='concluido'&&!l.goLive).slice(0,3);
   const blocked=all.filter(l=>l.status!=='concluido'&&countDone(l)<3).slice(0,4);
 
   const glSpot=proxGL.length?proxGL.map(l=>{
-    const d=daysDiff(l.goLive),t=l.goLive.includes(' ')?l.goLive.trim().split(' ')[1]:'';
-    const lbl=d===0?`<span style="color:var(--teal-mid);font-weight:800">HOJE${t?' — '+t:''}</span>`:`<span style="color:#c0392b">${fmtDate(l.goLive)}</span>`;
+    const g=effGoLive(l);
+    const d=daysDiff(g),t=g.includes(' ')?g.trim().split(' ')[1]:'';
+    const lbl=d===0?`<span style="color:var(--teal-mid);font-weight:800">HOJE${t?' — '+t:''}</span>`:`<span style="color:#c0392b">${fmtDate(g)}${!l.goLive?' <small style="color:#8a91a0">CRM</small>':''}</span>`;
     return `<div class="spot-item"><div class="spot-name">${lojaNumPill(l)}${l.loja}<small>${l.responsavel||l.grupo}</small></div>${lbl}</div>`;
   }).join(''):'<div class="spot-empty">Nenhum agendado.</div>';
   const pglSpot=proxPGL.length?proxPGL.map(({l,pgl})=>`<div class="spot-item"><div class="spot-name">${lojaNumPill(l)}${l.loja}<small>${l.responsavel||l.grupo}</small></div><span class="spot-date" style="color:var(--indigo)">${fmtDateObj(pgl)}</span></div>`).join(''):'<div class="spot-empty">Nenhum agendado.</div>';
@@ -1432,13 +1692,15 @@ function renderKanban(active,concluded){
         const idx=lojaIdx(l);
         const pct=Math.round(countDone(l)/FASES.length*100);
         const od=isOverdue(l);
+        const crm=crmFor(l);
         const diff=daysDiff(l.goLive);
-        const dateLabel=!l.goLive?'<span class="kb-date">sem data</span>':diff===0?'<span class="kb-date today">HOJE</span>':diff!==null&&diff<0?`<span class="kb-date" style="color:#c0392b">atrasado ${Math.abs(diff)}d</span>`:`<span class="kb-date">${fmtDate(l.goLive)}</span>`;
+        const dateLabel=!l.goLive?(crm&&crm.golive?`<span class="kb-date crm" title="Data marcada no CRM (Zoho)">CRM ${fmtDate(crm.golive)}</span>`:'<span class="kb-date">sem data</span>'):diff===0?'<span class="kb-date today">HOJE</span>':diff!==null&&diff<0?`<span class="kb-date" style="color:#c0392b">atrasado ${Math.abs(diff)}d</span>`:`<span class="kb-date">${fmtDate(l.goLive)}</span>`;
         const rede=l.grupo&&l.grupo.toLowerCase().includes('minha lavanderia')?'<span class="tag-ml">ML</span>':'<span class="tag-rj">RJ</span>';
         return `<div class="kb-card${od?' overdue':''}${l._stub?' stub-card':''}" onclick="openModal(${idx})">
           <div class="kb-name">${lojaNumPill(l)}${l.loja}${l.alerta?'<span style="color:#c0392b;font-size:11px"> ⚠</span>':''}</div>
           <div class="kb-meta">${rede}${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:''}${l._stub?'<span class="tag-db">Lojas</span>':''}${dateLabel}</div>
           <div class="kb-prog"><div class="kb-prog-f" style="width:${pct}%"></div></div>
+          ${crmSignBar(l)}
         </div>`;
       }).join(''):'<div class="kb-empty">Nenhuma loja</div>'}
     </div>`;
