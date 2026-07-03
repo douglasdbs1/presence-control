@@ -1411,6 +1411,7 @@ function tvWhen(diff){
 }
 function tvHidden(l){
   const crm=crmFor(l);
+  if(l&&/rio grande/i.test(l.loja||''))return true;
   return l&&l.status==='aberto'&&crm&&/agendado/i.test(crm.status||'')&&daysDiff(crm.golive)<=0;
 }
 function tvRecord(l){
