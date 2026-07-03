@@ -387,7 +387,7 @@ body.admin.locked .kb-card, body.admin.locked tbody tr, body.admin.locked .tl-it
 
 /* TV */
 body.tv-mode{background:#0f1417;}
-body.tv-mode .topbar,body.tv-mode .page-nav{display:none;}
+body.tv-mode .logo-bar,body.tv-mode .topbar,body.tv-mode .page-nav{display:none;}
 body.tv-mode .content{max-width:none;padding:0;background:#0f1417;}
 .tv-wrap{min-height:100vh;background:#0f1417;color:#f6f8f7;padding:28px 34px 30px;display:grid;grid-template-rows:auto 1fr auto;gap:20px;}
 .tv-head{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:start;}
@@ -409,6 +409,8 @@ body.tv-mode .content{max-width:none;padding:0;background:#0f1417;}
 .tv-day{font-size:48px;font-weight:850;line-height:.9;color:#fff;}
 .tv-mon{font-size:15px;font-weight:850;text-transform:uppercase;color:#aeb9bd;margin-top:5px;}
 .tv-store{font-size:clamp(24px,2.6vw,42px);font-weight:850;line-height:1.04;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tv-consultor{font-size:clamp(22px,2.1vw,34px);font-weight:850;color:#fff;margin-top:8px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tv-consultor span{color:#7ee0b3;}
 .tv-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:9px;color:#aeb9bd;font-size:14px;font-weight:700;}
 .tv-pill{display:inline-flex;align-items:center;gap:5px;border:1px solid #34434a;background:#202b31;color:#dfe7e4;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:850;white-space:nowrap;}
 .tv-pill.hot{background:#3c2020;border-color:#744040;color:#ffb0a8;}
@@ -421,25 +423,26 @@ body.tv-mode .content{max-width:none;padding:0;background:#0f1417;}
 .tv-stat{background:#182026;border:1px solid #2b363c;border-radius:8px;padding:18px;}
 .tv-stat .n{font-size:clamp(42px,5vw,78px);font-weight:850;line-height:.9;color:#fff;}
 .tv-stat .l{font-size:14px;font-weight:800;color:#aeb9bd;text-transform:uppercase;letter-spacing:.08em;margin-top:8px;}
-.tv-section-title{font-size:22px;font-weight:850;margin-bottom:14px;color:#fff;}
-.tv-week{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;height:100%;}
-.tv-daycol{background:#182026;border:1px solid #2b363c;border-radius:8px;padding:16px;min-width:0;}
+.tv-section-title{font-size:clamp(30px,3.2vw,48px);font-weight:850;margin-bottom:18px;color:#fff;}
+.tv-week{display:grid;grid-template-columns:1fr;gap:14px;height:100%;}
+.tv-daycol{background:#182026;border:1px solid #2b363c;border-radius:8px;padding:20px 24px;min-width:0;display:grid;grid-template-columns:190px 1fr;gap:18px;align-items:start;min-height:118px;}
 .tv-daycol.today{border-color:#ffcf5a;box-shadow:inset 0 0 0 1px #ffcf5a;}
-.tv-dayname{font-size:15px;font-weight:850;text-transform:uppercase;letter-spacing:.08em;color:#aeb9bd;margin-bottom:11px;}
-.tv-week-item{background:#202b31;border:1px solid #34434a;border-radius:7px;padding:11px;margin-bottom:9px;}
-.tv-week-store{font-size:16px;font-weight:850;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.tv-week-meta{font-size:11px;font-weight:800;color:#aeb9bd;margin-top:5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
-.tv-risk-list{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.tv-risk-card{background:#182026;border:1px solid #2b363c;border-left:6px solid #ff7777;border-radius:8px;padding:16px;}
+.tv-dayname{font-size:clamp(28px,3vw,44px);font-weight:850;text-transform:uppercase;letter-spacing:.04em;color:#fff;line-height:1;}
+.tv-week-items{display:grid;gap:10px;}
+.tv-week-item{background:#202b31;border:1px solid #34434a;border-radius:7px;padding:14px 16px;margin-bottom:0;}
+.tv-week-store{font-size:clamp(26px,2.5vw,38px);font-weight:850;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.04;}
+.tv-week-meta{font-size:clamp(16px,1.45vw,22px);font-weight:800;color:#aeb9bd;margin-top:8px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.tv-risk-list{display:grid;grid-template-columns:1fr;gap:16px;}
+.tv-risk-card{background:#182026;border:1px solid #2b363c;border-left:8px solid #ff7777;border-radius:8px;padding:24px 28px;min-height:132px;display:flex;flex-direction:column;justify-content:center;}
 .tv-risk-card.warn{border-left-color:#ffcf5a;}
-.tv-risk-title{font-size:20px;font-weight:850;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.tv-risk-meta{font-size:13px;font-weight:750;color:#aeb9bd;margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
-.tv-empty{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;color:#aeb9bd;font-size:26px;font-weight:800;background:#182026;border:1px dashed #34434a;border-radius:8px;padding:30px;}
-.tv-foot{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;color:#aeb9bd;font-size:13px;font-weight:700;}
+.tv-risk-title{font-size:clamp(34px,3.5vw,54px);font-weight:850;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1;}
+.tv-risk-meta{font-size:clamp(18px,1.6vw,26px);font-weight:800;color:#aeb9bd;margin-top:12px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+.tv-empty{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;color:#aeb9bd;font-size:clamp(34px,3vw,52px);font-weight:850;background:#182026;border:1px dashed #34434a;border-radius:8px;padding:30px;}
+.tv-foot{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;color:#aeb9bd;font-size:16px;font-weight:800;}
 .tv-dots{display:flex;gap:8px;}
 .tv-dot{width:34px;height:5px;border-radius:999px;background:#34434a;}
 .tv-dot.on{background:#7ee0b3;}
-@media(max-width:900px){.tv-wrap{padding:18px;}.tv-head,.tv-grid{grid-template-columns:1fr;}.tv-clock{text-align:left;}.tv-gl-card{grid-template-columns:76px 1fr;}.tv-when{grid-column:1/-1;text-align:left;}.tv-week,.tv-risk-list{grid-template-columns:1fr;}.tv-store{white-space:normal;}.tv-foot{grid-template-columns:1fr;}}
+@media(max-width:900px){.tv-wrap{padding:18px;}.tv-head,.tv-grid{grid-template-columns:1fr;}.tv-clock{text-align:left;}.tv-gl-card{grid-template-columns:76px 1fr;}.tv-when{grid-column:1/-1;text-align:left;}.tv-week,.tv-risk-list{grid-template-columns:1fr;}.tv-daycol{grid-template-columns:1fr;}.tv-store,.tv-week-store,.tv-risk-title{white-space:normal;}.tv-foot{grid-template-columns:1fr;}}
 
 /* ACTIVE PRESENCE */
 .active-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:14px;}
@@ -1392,14 +1395,15 @@ function tvUpcoming(){
     .sort((a,b)=>a._tvParsed-b._tvParsed);
 }
 function tvCard(l){
-  const p=tvDateParts(l._tvDate),w=tvWhen(l._tvDiff),pct=Math.round(countDone(l)/FASES.length*100);
+  const p=tvDateParts(l._tvDate),w=tvWhen(l._tvDiff);
   const cls=l._tvDiff===0?' today':l._tvDiff<0?' risk':'';
   const crm=l._tvCrm?'<span class="tv-pill crm">CRM</span>':'';
   return `<div class="tv-gl-card${cls}">
     <div><div class="tv-day">${p.day}</div><div class="tv-mon">${p.mon}</div></div>
     <div>
       <div class="tv-store">${esc(l.loja)}</div>
-      <div class="tv-meta">${redeTagHtml(l)}${crm}<span>${esc(l.responsavel||'Sem responsavel')}</span><span>${pct}% do fluxo</span></div>
+      <div class="tv-consultor"><span>Consultor:</span> ${esc(l.responsavel||'Sem responsavel')}</div>
+      <div class="tv-meta">${redeTagHtml(l)}${crm}<span>${esc(l.status||'')}</span></div>
     </div>
     <div class="tv-when"><b>${w.big}</b><span>${w.small}</span></div>
   </div>`;
@@ -1414,7 +1418,7 @@ function tvBusinessDays(){
 }
 function tvSameDay(a,b){return a&&b&&a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
 function tvSlideUpcoming(items,stats){
-  const list=items.slice(0,5).map(tvCard).join('');
+  const list=items.slice(0,3).map(tvCard).join('');
   return `<section class="tv-slide on" data-tv-slide="0">
     <div class="tv-grid">
       <div>
@@ -1430,15 +1434,15 @@ function tvSlideUpcoming(items,stats){
   </section>`;
 }
 function tvSlideWeek(items){
-  const days=tvBusinessDays();
+  const days=tvBusinessDays().slice(0,2);
   return `<section class="tv-slide" data-tv-slide="1">
     <div class="tv-section-title">Agenda da semana</div>
     <div class="tv-week">${days.map(d=>{
-      const dayItems=items.filter(l=>tvSameDay(l._tvParsed,d)).slice(0,4);
+      const dayItems=items.filter(l=>tvSameDay(l._tvParsed,d)).slice(0,2);
       const name=d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).replace('.','');
       return `<div class="tv-daycol${tvSameDay(d,TODAY)?' today':''}">
         <div class="tv-dayname">${esc(name)}</div>
-        ${dayItems.length?dayItems.map(l=>`<div class="tv-week-item"><div class="tv-week-store">${esc(l.loja)}</div><div class="tv-week-meta">${redeTagHtml(l)}<span>${esc(l.responsavel||'Sem responsavel')}</span>${l._tvCrm?'<span class="tv-pill crm">CRM</span>':''}</div></div>`).join(''):'<div class="tv-week-meta">Sem go-live marcado.</div>'}
+        <div class="tv-week-items">${dayItems.length?dayItems.map(l=>`<div class="tv-week-item"><div class="tv-week-store">${esc(l.loja)}</div><div class="tv-week-meta">${redeTagHtml(l)}<span>${esc(l.responsavel||'Sem responsavel')}</span>${l._tvCrm?'<span class="tv-pill crm">CRM</span>':''}</div></div>`).join(''):'<div class="tv-week-meta">Sem go-live marcado.</div>'}</div>
       </div>`;
     }).join('')}</div>
   </section>`;
@@ -1456,10 +1460,9 @@ function tvSlideRisks(){
     else if(!l._tvDate)risks.push({l,type:'Sem data de go-live',meta:'precisa agendamento',cls:'warn'});
     const age=tvSignAge(l);
     if(age!==null&&age>=45)risks.push({l,type:'Contrato assinado',meta:`${age}/60 dias`,cls:age>=60?'':'warn'});
-    if(countDone(l)<3)risks.push({l,type:'Fluxo inicial',meta:`${countDone(l)}/5 etapas concluídas`,cls:'warn'});
   });
   const seen=new Set();
-  const list=risks.filter(r=>{const k=(r.l.num||'')+'|'+r.l.loja+'|'+r.type;if(seen.has(k))return false;seen.add(k);return true;}).slice(0,8);
+  const list=risks.filter(r=>{const k=(r.l.num||'')+'|'+r.l.loja+'|'+r.type;if(seen.has(k))return false;seen.add(k);return true;}).slice(0,3);
   return `<section class="tv-slide" data-tv-slide="2">
     <div class="tv-section-title">Pontos de atenção</div>
     <div class="tv-risk-list">${list.length?list.map(r=>`<div class="tv-risk-card ${r.cls}">
