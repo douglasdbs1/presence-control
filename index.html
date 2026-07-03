@@ -431,15 +431,18 @@ body.tv-mode .content{max-width:none;padding:0;background:#0f1417;}
 .tv-stat .n{font-size:clamp(42px,5vw,78px);font-weight:850;line-height:.9;color:#fff;}
 .tv-stat .l{font-size:14px;font-weight:800;color:#aeb9bd;text-transform:uppercase;letter-spacing:.08em;margin-top:8px;}
 .tv-section-title{font-size:clamp(30px,3.2vw,48px);font-weight:850;margin-bottom:18px;color:#fff;}
-.tv-week{display:grid;grid-template-columns:1fr;gap:14px;height:100%;}
-.tv-daycol{background:#182026;border:1px solid #2b363c;border-radius:8px;padding:20px 24px;min-width:0;display:grid;grid-template-columns:190px 1fr;gap:18px;align-items:start;min-height:118px;}
+.tv-week{display:grid;grid-template-columns:1fr;gap:10px;height:100%;}
+.tv-daycol{background:#182026;border:1px solid #2b363c;border-radius:8px;padding:14px 20px;min-width:0;display:grid;grid-template-columns:178px 1fr;gap:16px;align-items:start;min-height:102px;}
 .tv-daycol.today{border-color:#ffcf5a;box-shadow:inset 0 0 0 1px #ffcf5a;}
-.tv-dayname{font-size:clamp(28px,3vw,44px);font-weight:850;text-transform:uppercase;letter-spacing:.04em;color:#fff;line-height:1;}
-.tv-week-items{display:grid;gap:10px;}
-.tv-week-item{background:#202b31;border:1px solid #34434a;border-radius:7px;padding:14px 16px;margin-bottom:0;}
-.tv-week-store{font-size:clamp(26px,2.5vw,38px);font-weight:850;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.04;}
+.tv-dayname{font-size:clamp(26px,2.8vw,40px);font-weight:850;text-transform:uppercase;letter-spacing:.04em;color:#fff;line-height:1;}
+.tv-week-items{display:grid;gap:8px;}
+.tv-week-item{background:#202b31;border:1px solid #34434a;border-radius:7px;padding:10px 14px;margin-bottom:0;}
+.tv-week-store{font-size:clamp(24px,2.35vw,34px);font-weight:850;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.04;}
 .tv-week-meta{font-size:clamp(16px,1.45vw,22px);font-weight:800;color:#aeb9bd;margin-top:8px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
 .tv-risk-list{display:grid;grid-template-columns:1fr;gap:12px;}
+.tv-risk-viewport{height:348px;overflow:hidden;}
+.tv-risk-viewport.roll .tv-risk-list{animation:tvRiskRoll var(--risk-duration,18s) linear infinite alternate;}
+@keyframes tvRiskRoll{from{transform:translateY(0)}to{transform:translateY(var(--risk-offset,0))}}
 .tv-risk-card{background:#182026;border:1px solid #2b363c;border-left:8px solid #ff7777;border-radius:8px;padding:18px 22px;min-height:108px;display:flex;align-items:center;justify-content:space-between;gap:18px;}
 .tv-risk-card.warn{border-left-color:#ffcf5a;}
 .tv-risk-main{min-width:0;}
@@ -1407,8 +1410,11 @@ function tvWhen(diff){
   return {big:`${diff}d`,small:'para o go-live'};
 }
 function tvRecord(l){
-  const g=effGoLive(l),d=parseDate(g),crm=crmFor(l);
-  return {...l,_tvDate:g,_tvParsed:d,_tvDiff:daysDiff(g),_tvCrm:!!(!l.goLive&&crm&&crm.golive),_tvAssinatura:crm&&crm.assinatura};
+  const crm=crmFor(l);
+  const crmAgendado=crm&&crm.golive&&/agendado/i.test(crm.status||'');
+  const g=l.goLive||(crmAgendado?crm.golive:'');
+  const d=parseDate(g);
+  return {...l,_tvDate:g,_tvParsed:d,_tvDiff:daysDiff(g),_tvCrm:!!(!l.goLive&&crmAgendado),_tvAssinatura:crm&&crm.assinatura,_tvSource:l.goLive?'PRESENCE':crmAgendado?'ZOHO':''};
 }
 function tvUpcoming(){
   return getViewLojas().filter(l=>l.status!=='concluido').map(tvRecord)
@@ -1418,7 +1424,7 @@ function tvUpcoming(){
 function tvCard(l){
   const p=tvDateParts(l._tvDate),w=tvWhen(l._tvDiff);
   const cls=l._tvDiff===0?' today':l._tvDiff<0?' risk':'';
-  const crm=l._tvCrm?'<span class="tv-pill crm">CRM</span>':'';
+  const crm=l._tvCrm?'<span class="tv-pill crm">ZOHO</span>':'';
   return `<div class="tv-gl-card${cls}">
     <div><div class="tv-day">${p.day}</div><div class="tv-mon">${p.mon}</div></div>
     <div>
@@ -1463,7 +1469,7 @@ function tvSlideWeek(items){
       const name=d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).replace('.','');
       return `<div class="tv-daycol${tvSameDay(d,TODAY)?' today':''}">
         <div class="tv-dayname">${esc(name)}</div>
-        <div class="tv-week-items">${dayItems.length?dayItems.map(l=>`<div class="tv-week-item"><div class="tv-week-store">${esc(l.loja)}</div><div class="tv-consultor"><span>Consultor:</span> ${esc(l.responsavel||'Sem responsável')}</div><div class="tv-week-meta">${redeTagHtml(l)}${l._tvCrm?'<span class="tv-pill crm">CRM</span>':''}</div></div>`).join(''):'<div class="tv-week-meta">Sem go-live marcado.</div>'}</div>
+        <div class="tv-week-items">${dayItems.length?dayItems.map(l=>`<div class="tv-week-item"><div class="tv-week-store">${esc(l.loja)}</div><div class="tv-consultor"><span>Consultor:</span> ${esc(l.responsavel||'Sem responsável')}</div><div class="tv-week-meta">${redeTagHtml(l)}${l._tvCrm?'<span class="tv-pill crm">ZOHO</span>':''}</div></div>`).join(''):'<div class="tv-week-meta">Sem go-live marcado.</div>'}</div>
       </div>`;
     }).join('')}</div>
   </section>`;
@@ -1480,17 +1486,19 @@ function tvSlideRisks(){
     .filter(x=>x.age!==null)
     .filter(x=>{const k=(x.l.num&&x.l.num.trim())||x.l.loja;if(seen.has(k))return false;seen.add(k);return true;})
     .sort((a,b)=>b.age-a.age)
-    .slice(0,3);
+    .slice(0,8);
+  const visible=3,rowH=120,extra=Math.max(0,list.length-visible);
+  const rollStyle=extra?` style="--risk-offset:-${extra*rowH}px;--risk-duration:${TV_SLIDE_MS}ms"`:'';
   return `<section class="tv-slide" data-tv-slide="2">
     <div class="tv-section-title">Lojas com contrato assinado há mais tempo</div>
-    <div class="tv-risk-list">${list.length?list.map(r=>`<div class="tv-risk-card ${r.age>=60?'':'warn'}">
+    <div class="tv-risk-viewport${extra?' roll':''}"${rollStyle}><div class="tv-risk-list">${list.length?list.map(r=>`<div class="tv-risk-card ${r.age>=60?'':'warn'}">
       <div class="tv-risk-main">
         <div class="tv-risk-title">${esc(r.l.loja)}</div>
         <div class="tv-consultor"><span>Consultor:</span> ${esc(r.l.responsavel||'Sem responsável')}</div>
         <div class="tv-risk-meta">${redeTagHtml(r.l)}<span>assinado em ${esc(fmtDate(r.l._tvAssinatura)||'—')}</span></div>
       </div>
       <div class="tv-risk-days${r.age>=60?' hot':''}"><b>${r.age}<small>/60</small></b><span>dias</span></div>
-    </div>`).join(''):'<div class="tv-empty">Nenhum contrato aguardando go-live.</div>'}</div>
+    </div>`).join(''):'<div class="tv-empty">Nenhum contrato aguardando go-live.</div>'}</div></div>
   </section>`;
 }
 function updateTVClock(){
