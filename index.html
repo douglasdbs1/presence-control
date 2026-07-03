@@ -386,10 +386,10 @@ body.admin.locked .kb-card, body.admin.locked tbody tr, body.admin.locked .tl-it
 .kb-date.crm{color:#8a5a00;font-weight:800;}
 
 /* TV */
-body.tv-mode{background:#0f1417;}
+body.tv-mode{background:#0f1417;overflow:hidden;}
 body.tv-mode .logo-bar,body.tv-mode .topbar,body.tv-mode .page-nav{display:none;}
 body.tv-mode .content{max-width:none;padding:0;background:#0f1417;}
-.tv-wrap{min-height:100vh;background:#0f1417;color:#f6f8f7;padding:28px 34px 30px;display:grid;grid-template-rows:auto 1fr auto auto;gap:20px;}
+.tv-wrap{height:100vh;background:#0f1417;color:#f6f8f7;padding:20px 28px 22px;display:grid;grid-template-rows:auto minmax(0,1fr) auto auto;gap:14px;overflow:hidden;}
 .tv-head{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:start;}
 .tv-kicker{font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#7ee0b3;margin-bottom:6px;}
 .tv-title{font-size:clamp(34px,5vw,72px);font-weight:850;line-height:.95;text-transform:uppercase;}
@@ -397,7 +397,7 @@ body.tv-mode .content{max-width:none;padding:0;background:#0f1417;}
 .tv-clock{text-align:right;}
 .tv-time{font-size:clamp(38px,4.8vw,70px);font-weight:850;line-height:1;color:#fff;}
 .tv-date{font-size:clamp(17px,1.5vw,24px);font-weight:700;color:#aeb9bd;margin-top:6px;text-transform:uppercase;letter-spacing:.08em;}
-.tv-stage{min-height:0;display:grid;grid-template-columns:1fr 250px;gap:22px;}
+.tv-stage{min-height:0;display:grid;grid-template-columns:1fr 250px;gap:18px;}
 .tv-slides{min-height:0;}
 .tv-rail{display:grid;gap:14px;align-content:start;}
 .tv-rail .tv-stat .n{font-size:clamp(38px,4vw,64px);}
@@ -439,8 +439,8 @@ body.tv-mode .content{max-width:none;padding:0;background:#0f1417;}
 .tv-week-item{background:#202b31;border:1px solid #34434a;border-radius:7px;padding:14px 16px;margin-bottom:0;}
 .tv-week-store{font-size:clamp(26px,2.5vw,38px);font-weight:850;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.04;}
 .tv-week-meta{font-size:clamp(16px,1.45vw,22px);font-weight:800;color:#aeb9bd;margin-top:8px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
-.tv-risk-list{display:grid;grid-template-columns:1fr;gap:16px;}
-.tv-risk-card{background:#182026;border:1px solid #2b363c;border-left:8px solid #ff7777;border-radius:8px;padding:24px 28px;min-height:132px;display:flex;align-items:center;justify-content:space-between;gap:22px;}
+.tv-risk-list{display:grid;grid-template-columns:1fr;gap:12px;}
+.tv-risk-card{background:#182026;border:1px solid #2b363c;border-left:8px solid #ff7777;border-radius:8px;padding:18px 22px;min-height:108px;display:flex;align-items:center;justify-content:space-between;gap:18px;}
 .tv-risk-card.warn{border-left-color:#ffcf5a;}
 .tv-risk-main{min-width:0;}
 .tv-risk-title{font-size:clamp(34px,3.5vw,54px);font-weight:850;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1;}
@@ -931,13 +931,14 @@ async function saveToSupabase(silent=false){
   if(isBooting) return;
   if(!canEdit()){ if(!silent) showToast("Modo somente leitura. Alterações não foram salvas.", true); return; }
   saveLocal(); saveDbLocal(); saveSupportLocal(); saveActiveLocal(); saveCrmLocal();
-  if(!supabaseEnabled){ if(!silent) showToast("Salvo localmente. Configure o Supabase para salvar online."); return; }
+  if(!supabaseEnabled){ if(!silent) showToast("Salvo localmente. Configure o Supabase para salvar online."); refreshTVIfOpen(); return; }
   const {error}=await supabaseClient.rpc("save_presence_control_state",{
     p_token: ADMIN_RPC_TOKEN,
     p_payload: statePayload()
   });
   if(error){console.error("Supabase save error:", error); if(!silent) showToast("Erro ao salvar no Supabase. Backup local mantido.",true);}
   else if(!silent) showToast("Salvo no Supabase.");
+  refreshTVIfOpen();
 }
 async function initApp(){
   applyModeUi();
@@ -1362,6 +1363,7 @@ function renderActiveContent(){
 // ── PAGE NAV ──
 let currentPage='active';
 let tvSlide=0,tvTimer=null,tvClockTimer=null,tvRefreshTimer=null;
+const TV_REFRESH_MS=60000;
 function setPage(p){
   currentPage=p;
   document.body.classList.toggle('tv-mode',p==='tv');
@@ -1377,6 +1379,12 @@ function updateSysSub(){const m={active:'Lojas em operação',gl:'Implantações
 function renderPage(){updateSysSub();if(currentPage==='gl')renderGL();else if(currentPage==='active')renderActive();else if(currentPage==='db')renderDB();else if(currentPage==='tv')renderTV();else renderSupport();}
 
 // ── TV PAGE ──
+function refreshTVIfOpen(){if(currentPage==='tv')renderTV();}
+function refreshTVFromLocalIfOpen(){
+  if(currentPage!=='tv')return;
+  load(); loadDb(); loadSupport(); loadActive(); loadCrm();
+  renderTV();
+}
 function stopTV(){
   if(tvTimer){clearInterval(tvTimer);tvTimer=null;}
   if(tvClockTimer){clearInterval(tvClockTimer);tvClockTimer=null;}
@@ -1513,7 +1521,7 @@ function startTV(){
   tvRestartProgress();
   tvClockTimer=setInterval(updateTVClock,30000);
   tvTimer=setInterval(()=>showTVSlide(tvSlide+1),TV_SLIDE_MS);
-  tvRefreshTimer=setInterval(async()=>{if(currentPage==='tv'&&supabaseEnabled){await loadFromSupabase();renderTV();}},300000);
+  tvRefreshTimer=setInterval(async()=>{if(currentPage==='tv'&&supabaseEnabled){await loadFromSupabase();renderTV();}},TV_REFRESH_MS);
 }
 function renderTV(){
   const items=tvUpcoming();
@@ -2573,6 +2581,9 @@ function deleteLoja(){
 }
 
 // ── INIT ──
+window.addEventListener('storage',e=>{
+  if(['pc_gl_v1','pc_db_v1','pc_support_v1','pc_active_v1','pc_crm_v1'].includes(e.key))refreshTVFromLocalIfOpen();
+});
 document.getElementById('hdate').textContent='Hoje: '+TODAY.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
 initApp();
 </script>
