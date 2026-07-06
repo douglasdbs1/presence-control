@@ -542,11 +542,18 @@ body.tv-mode .content{max-width:none;padding:0;background:#0f1417;}
 .consultor-login p{font-size:12px;color:var(--text2);line-height:1.45;margin-bottom:16px;}
 .consultor-login input,.consultor-login select{width:100%;font-family:var(--font);font-size:13px;padding:10px 11px;border:1px solid var(--border2);border-radius:6px;margin-bottom:10px;}
 .consultor-login button{width:100%;font-family:var(--font);font-size:13px;font-weight:800;padding:10px 14px;border:1px solid var(--teal-mid);border-radius:6px;background:var(--teal-bg);color:var(--teal);cursor:pointer;}
-.check-note{font-size:12px;line-height:1.5;color:var(--text2);background:#f7f9fb;border:1px solid #dbe2e8;border-radius:8px;padding:12px 14px;margin-bottom:14px;}
-.check-list{display:grid;gap:8px;margin-bottom:14px;}
-.check-item{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer;}
-.check-item input{width:18px;height:18px;accent-color:var(--teal-mid);margin-top:1px;cursor:pointer;}
-.check-item span{font-size:13px;font-weight:700;line-height:1.35;color:var(--text);}
+.check-modal{width:760px;max-height:96vh;}
+.check-modal .mhdr{padding:12px 16px;}
+.check-modal .mbody{padding:14px 16px 10px;}
+.check-modal .mfooter{padding:10px 16px;}
+.check-modal textarea{min-height:54px!important;}
+.check-note{font-size:11px;line-height:1.35;color:var(--text2);background:#f7f9fb;border:1px solid #dbe2e8;border-radius:8px;padding:9px 11px;margin-bottom:10px;}
+.check-list{display:grid;gap:6px;margin-bottom:10px;}
+.check-item{display:grid;grid-template-columns:auto 1fr;gap:9px;align-items:start;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 10px;cursor:pointer;transition:background .12s ease,border-color .12s ease,box-shadow .12s ease;}
+.check-item input{width:17px;height:17px;accent-color:var(--teal-mid);margin-top:0;cursor:pointer;}
+.check-item span{font-size:12px;font-weight:750;line-height:1.25;color:var(--text);}
+.check-item:has(input:checked),.check-item.checked{background:#dff6ec;border-color:var(--teal-mid);box-shadow:inset 0 0 0 1px rgba(21,138,97,.14);}
+.check-item:has(input:checked) span,.check-item.checked span{color:var(--teal);font-weight:850;}
 .active-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px;}
 @media(max-width:800px){.active-summary{grid-template-columns:repeat(2,1fr);}.active-grid{grid-template-columns:1fr;}}
 /* HERO RESUMO ATIVO */
@@ -880,7 +887,7 @@ td.oc{max-width:260px;}
 
 <!-- MODAL CHECKLIST CADASTROS -->
 <div class="overlay" id="ov-check" onclick="if(event.target===this)closeChecklistModal()">
-<div class="modal">
+<div class="modal check-modal">
   <div class="mhdr"><h2 id="check-mtitle">Checklist de cadastros</h2><button class="xbtn" onclick="closeChecklistModal()">&times;</button></div>
   <div class="mbody">
     <input type="hidden" id="check-key" value="">
@@ -888,8 +895,8 @@ td.oc{max-width:260px;}
       Os cadastros iniciais s&atilde;o de responsabilidade do franqueado, pois somente ele conhece a realidade e os funcion&aacute;rios da pr&oacute;pria loja. O papel do consultor &eacute; orientar, validar e esclarecer d&uacute;vidas durante esse processo para reduzir o risco de cancelamento da transi&ccedil;&atilde;o.
     </div>
     <div class="check-list" id="check-list"></div>
-    <div class="fg full"><label>Observa&ccedil;&otilde;es</label><textarea id="check-obs" style="min-height:82px;" placeholder="Pend&ecirc;ncias, retorno do franqueado ou pontos para o suporte..."></textarea></div>
-    <div id="check-meta" style="font-size:11px;color:var(--text3);margin-top:8px;"></div>
+    <div class="fg full"><label>Observa&ccedil;&otilde;es</label><textarea id="check-obs" placeholder="Pend&ecirc;ncias, retorno do franqueado ou pontos para o suporte..."></textarea></div>
+    <div id="check-meta" style="font-size:10px;color:var(--text3);margin-top:6px;"></div>
   </div>
   <div class="mfooter">
     <button class="btn-cancel" onclick="closeChecklistModal()">Cancelar</button>
@@ -1042,15 +1049,15 @@ const FASES = [
 ];
 const FASE_DEFAULTS = ['','','','17:30','09:00'];
 const CHECKLIST_ITENS = [
-  {key:'precosFranquia',label:'Revisar e confirmar os Preços da Franquia.'},
-  {key:'produtosIndispensaveis',label:'Verificar produtos ou serviços indispensáveis para a operação da loja.'},
-  {key:'pacotes',label:'Conferir se os pacotes utilizados pela loja estão cadastrados.'},
-  {key:'servicoKg',label:'Cadastrar o serviço por kg.'},
-  {key:'equipe',label:'Cadastrar toda a equipe e funcionários.'},
-  {key:'fornecedores',label:'Cadastrar fornecedores e transportadoras.'},
-  {key:'whatsapp',label:'Testar e validar o WhatsApp.'},
-  {key:'testeBasico',label:'Realizar teste básico do sistema, incluindo criação de ROLs e serviços recorrentes.'},
-  {key:'pendenciasProdutos',label:'Relatar produtos e serviços ainda não cadastrados para avaliação do suporte.'},
+  {key:'precosFranquia',label:'Revisar e confirmar os Preços da Franquia'},
+  {key:'produtosIndispensaveis',label:'Verificar produtos ou serviços indispensáveis para a operação da loja'},
+  {key:'pacotes',label:'Conferir se os pacotes utilizados pela loja estão cadastrados'},
+  {key:'servicoKg',label:'Cadastrar o serviço por kg'},
+  {key:'equipe',label:'Cadastrar toda a equipe e funcionários'},
+  {key:'fornecedores',label:'Cadastrar fornecedores e transportadoras'},
+  {key:'whatsapp',label:'Testar e validar o WhatsApp'},
+  {key:'testeBasico',label:'Realizar teste básico do sistema, incluindo criação de ROLs e serviços recorrentes'},
+  {key:'pendenciasProdutos',label:'Relatar produtos e serviços ainda não cadastrados para avaliação do suporte'},
 ];
 const ACTIVE_DEFAULT_UPDATED = '15/06/2026';
 const EMBEDDED_ACTIVE_HEALTH = [
@@ -1494,7 +1501,7 @@ function openChecklistModal(idx){
   const c=checklistFor(l),p=checklistProgress(l);
   document.getElementById('check-key').value=currentChecklistKey;
   document.getElementById('check-mtitle').textContent='Checklist - '+l.loja;
-  document.getElementById('check-list').innerHTML=CHECKLIST_ITENS.map(i=>`<label class="check-item"><input type="checkbox" data-check="${i.key}" ${c.itens&&c.itens[i.key]?'checked':''}><span>${esc(i.label)}</span></label>`).join('');
+  document.getElementById('check-list').innerHTML=CHECKLIST_ITENS.map(i=>`<label class="check-item ${c.itens&&c.itens[i.key]?'checked':''}"><input type="checkbox" data-check="${i.key}" ${c.itens&&c.itens[i.key]?'checked':''} onchange="this.closest('.check-item').classList.toggle('checked',this.checked)"><span>${esc(i.label)}</span></label>`).join('');
   document.getElementById('check-obs').value=c.obs||'';
   document.getElementById('check-meta').textContent=c.updatedAt?`Última atualização: ${new Date(c.updatedAt).toLocaleString('pt-BR')} por ${c.updatedBy||'-'} | ${p.done}/${p.total} concluídos`:'Ainda sem atualização.';
   document.getElementById('ov-check').classList.add('open');
