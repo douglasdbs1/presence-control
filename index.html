@@ -1944,10 +1944,11 @@ function setDbQuick(v){dbQuick=v;renderDB();}
 function renderDB(){
   const database=getDatabase();
   const total=database.length,ativo=database.filter(l=>l.status==='ativo').length,trans=database.filter(l=>l.status==='transicao').length,antigo=database.filter(l=>l.status==='antigo').length;
+  const ativoTotal=crmMetric('implantados',ativo);
   document.getElementById('content').innerHTML=`
     <div class="db-stats">
       <div class="db-stat"><div class="lbl">Total de lojas</div><div class="val">${total}</div></div>
-      <div class="db-stat"><div class="lbl">Presence Ativo</div><div class="val g">${ativo}</div></div>
+      <div class="db-stat"><div class="lbl">Presence Ativo</div><div class="val g">${ativoTotal}</div></div>
       <div class="db-stat"><div class="lbl">Contrato assinado</div><div class="val i">${trans}</div></div>
       <div class="db-stat"><div class="lbl">Sistema Antigo</div><div class="val" style="color:var(--text3)">${antigo}</div></div>
     </div>
