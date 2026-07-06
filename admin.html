@@ -551,9 +551,9 @@ body.tv-mode .content{max-width:none;padding:0;background:#0f1417;}
 .check-modal{width:760px;max-height:96vh;}
 .check-modal .mhdr{padding:12px 16px;}
 .check-modal .mbody{padding:14px 16px 10px;}
-.check-modal .mfooter{padding:10px 16px;}
+.check-modal .mfooter{padding:10px 16px;align-items:center;flex-wrap:wrap;}
 .check-modal textarea{min-height:54px!important;}
-.check-note{font-size:10px;line-height:1.35;color:var(--text3);background:transparent;border:none;padding:0 2px;margin-bottom:8px;font-weight:600;}
+.check-note{font-size:10px;line-height:1.35;color:var(--text3);background:transparent;border:none;padding:0 2px;font-weight:600;margin-right:auto;flex:1;min-width:260px;}
 .check-list{display:grid;gap:6px;margin-bottom:10px;}
 .check-item{display:grid;grid-template-columns:auto 1fr;gap:9px;align-items:start;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 10px;cursor:pointer;transition:background .12s ease,border-color .12s ease,box-shadow .12s ease;}
 .check-item input{width:17px;height:17px;accent-color:var(--teal-mid);margin-top:0;cursor:pointer;}
@@ -897,14 +897,12 @@ td.oc{max-width:260px;}
   <div class="mhdr"><h2 id="check-mtitle">Checklist de cadastros</h2><button class="xbtn" onclick="closeChecklistModal()">&times;</button></div>
   <div class="mbody">
     <input type="hidden" id="check-key" value="">
-    <div class="check-note">
-      Lembrete: cadastros iniciais ficam com o franqueado; o consultor acompanha, orienta e valida
-    </div>
     <div class="check-list" id="check-list"></div>
     <div class="fg full"><label>Observa&ccedil;&otilde;es</label><textarea id="check-obs" placeholder="Pend&ecirc;ncias, retorno do franqueado ou pontos para o suporte..."></textarea></div>
     <div id="check-meta" style="font-size:10px;color:var(--text3);margin-top:6px;"></div>
   </div>
   <div class="mfooter">
+    <div class="check-note">Lembrete: cadastros iniciais ficam com o franqueado; o consultor acompanha, orienta e valida.</div>
     <button class="btn-cancel" onclick="closeChecklistModal()">Cancelar</button>
     <button class="btn-save" onclick="saveChecklistModal()">Salvar</button>
   </div>
