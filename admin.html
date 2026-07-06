@@ -1642,6 +1642,15 @@ function tvBusinessDays(){
   return out;
 }
 function tvSameDay(a,b){return a&&b&&a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
+function tvAgendaDays(items){
+  const seen=new Set();
+  return items
+    .filter(l=>l._tvParsed&&l._tvDiff>=0&&l._tvDiff<=7)
+    .sort((a,b)=>a._tvParsed-b._tvParsed)
+    .map(l=>l._tvParsed)
+    .filter(d=>{const k=d.toISOString().slice(0,10);if(seen.has(k))return false;seen.add(k);return true;})
+    .slice(0,5);
+}
 function tvSlideUpcoming(items,stats){
   const list=items.slice(0,3).map(tvCard).join('');
   return `<section class="tv-slide on" data-tv-slide="0">
@@ -1659,17 +1668,17 @@ function tvSlideUpcoming(items,stats){
   </section>`;
 }
 function tvSlideWeek(items){
-  const days=tvBusinessDays().slice(0,2);
+  const days=tvAgendaDays(items);
   return `<section class="tv-slide" data-tv-slide="1">
     <div class="tv-section-title">Agenda da semana</div>
-    <div class="tv-week">${days.map(d=>{
-      const dayItems=items.filter(l=>tvSameDay(l._tvParsed,d)).slice(0,2);
+    <div class="tv-week">${days.length?days.map(d=>{
+      const dayItems=items.filter(l=>tvSameDay(l._tvParsed,d)).slice(0,3);
       const name=d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).replace('.','');
       return `<div class="tv-daycol${tvSameDay(d,TODAY)?' today':''}">
         <div class="tv-dayname">${esc(name)}</div>
         <div class="tv-week-items">${dayItems.length?dayItems.map(l=>`<div class="tv-week-item"><div class="tv-week-store">${esc(l.loja)}</div><div class="tv-consultor"><span>Consultor:</span> ${esc(l.responsavel||'Sem responsável')}</div><div class="tv-week-meta">${redeTagHtml(l)}${l._tvCrm?'<span class="tv-pill crm">ZOHO</span>':''}</div></div>`).join(''):'<div class="tv-week-meta">Sem go-live marcado.</div>'}</div>
       </div>`;
-    }).join('')}</div>
+    }).join(''):'<div class="tv-empty">Nenhum go-live marcado nos prÃ³ximos 7 dias.</div>'}</div>
   </section>`;
 }
 function tvSignAge(l){
