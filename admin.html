@@ -543,6 +543,12 @@ body.tv-mode .content{max-width:none;padding:0;background:#0f1417;}
 .mine-progress-top{display:flex;justify-content:space-between;gap:10px;font-size:11px;font-weight:800;color:var(--text2);margin-bottom:6px;}
 .mine-track{height:7px;background:#eef1f3;border-radius:999px;overflow:hidden;}
 .mine-fill{height:100%;background:var(--teal-mid);border-radius:999px;}
+.mine-cons-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px 18px;margin-bottom:14px;}
+.mine-cons-title{font-size:13px;font-weight:800;color:var(--text);margin-bottom:12px;}
+.mine-cons-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px 18px;}
+.mine-cons-top{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;font-weight:700;color:var(--text);margin-bottom:5px;}
+.mine-cons-pct{font-size:13px;font-weight:850;}
+.mine-cons-sub{font-size:11px;color:var(--text2);margin-top:5px;}
 .mine-deadline{margin-top:10px;}
 .mine-deadline-top{display:flex;justify-content:space-between;gap:10px;font-size:9px;font-weight:850;color:var(--text3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.03em;}
 .mine-deadline-track{height:6px;background:#edf0f2;border-radius:999px;overflow:hidden;}
@@ -1503,6 +1509,8 @@ function mineStores(){
   const name=consultorUser&&normLojaName(consultorUser.nome);
   if(canEdit()){
     return list.sort((a,b)=>{
+      const pa=checklistProgress(a).done,pb=checklistProgress(b).done;
+      if(pb-pa)return pb-pa;
       const ta=Date.parse(checklistFor(a).updatedAt||'')||0;
       const tb=Date.parse(checklistFor(b).updatedAt||'')||0;
       if(tb-ta)return tb-ta;
@@ -1522,8 +1530,22 @@ function renderMine(){
   currentMineStores=mineStores();
   const who=canEdit()?'Douglas':consultorUser.nome;
   const doneCount=currentMineStores.filter(l=>checklistProgress(l).done===CHECKLIST_ITENS.length).length;
+  let consCard='';
+  if(canEdit()&&currentMineStores.length){
+    const groups={};
+    currentMineStores.forEach(l=>{const r=l.responsavel||'Sem consultor';(groups[r]=groups[r]||[]).push(l);});
+    const rows=Object.entries(groups).map(([r,ls])=>{
+      const done=ls.reduce((s,l)=>s+checklistProgress(l).done,0);
+      const total=ls.length*CHECKLIST_ITENS.length;
+      const pct=total?Math.round(done/total*100):0;
+      const full=ls.filter(l=>checklistProgress(l).done===CHECKLIST_ITENS.length).length;
+      return {r,n:ls.length,done,total,pct,full};
+    }).sort((a,b)=>b.pct-a.pct||a.r.localeCompare(b.r,'pt'));
+    const color=p=>p>=80?'#10a66f':p>=40?'#d99b00':'#c0392b';
+    consCard=`<div class="mine-cons-card"><div class="mine-cons-title">Preenchimento do checklist por consultor</div><div class="mine-cons-grid">${rows.map(g=>`<div><div class="mine-cons-top"><span>${esc(g.r)}</span><span class="mine-cons-pct" style="color:${color(g.pct)}">${g.pct}%</span></div><div class="mine-track"><div class="mine-fill" style="width:${g.pct}%;background:${color(g.pct)}"></div></div><div class="mine-cons-sub">${g.done}/${g.total} itens · ${g.n} loja${g.n===1?'':'s'} · ${g.full} completa${g.full===1?'':'s'}</div></div>`).join('')}</div></div>`;
+  }
   const cards=currentMineStores.map((l,i)=>{const p=checklistProgress(l),c=checklistFor(l),cls=p.done===p.total?' ready':p.done?' warn':'';const updated=c.updatedAt?`Atualizado ${new Date(c.updatedAt).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}`:'Sem atualização';return `<div class="mine-card${cls}" onclick="openChecklistModal(${i})"><div><div class="mine-card-title">${esc(l.loja)}</div><div class="mine-card-meta">${redeTagHtml(l)}${l.num?`<span class="store-num-pill after">${esc(l.num)}</span>`:''}<span class="tag-resp">${esc(l.responsavel||'Sem consultor')}</span>${badgeHtml(l.status)}</div></div><div class="mine-progress"><div class="mine-progress-top"><span>${p.done}/${p.total} itens concluídos</span><span>${p.pct}%</span></div><div class="mine-track"><div class="mine-fill" style="width:${p.pct}%"></div></div><div class="mine-sub" style="margin-top:8px">${esc(updated)}</div>${contractAgeBar(l)}</div></div>`;}).join('');
-  document.getElementById('content').innerHTML=`<div class="mine-head"><div><div class="mine-title">Minhas lojas</div><div class="mine-sub">${currentMineStores.length} loja(s) em acompanhamento. ${doneCount} com checklist completo.</div></div><div class="mine-user"><span class="tag-resp">${esc(who)}</span>${consultorUser?'<button class="btn-sm" onclick="consultorLogout()">Sair</button>':''}</div></div>${cards?`<div class="mine-grid">${cards}</div>`:'<div class="mine-empty">Nenhuma loja em implantação para este consultor.</div>'}`;
+  document.getElementById('content').innerHTML=`<div class="mine-head"><div><div class="mine-title">Minhas lojas</div><div class="mine-sub">${currentMineStores.length} loja(s) em acompanhamento. ${doneCount} com checklist completo.</div></div><div class="mine-user"><span class="tag-resp">${esc(who)}</span>${consultorUser?'<button class="btn-sm" onclick="consultorLogout()">Sair</button>':''}</div></div>${consCard}${cards?`<div class="mine-grid">${cards}</div>`:'<div class="mine-empty">Nenhuma loja em implantação para este consultor.</div>'}`;
 }
 function openChecklistModal(idx){
   const l=currentMineStores[idx];if(!l)return;currentChecklistKey=checklistKey(l);
