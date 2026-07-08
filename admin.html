@@ -579,6 +579,8 @@ body.tv-mode .content{max-width:none;padding:0;background:#0f1417;}
 .inst-badge.conf{background:#fdeada;color:#a34d00;}
 .stage-check{padding:6px 9px;}
 .stage-when{display:block;font-size:10px;font-weight:600;color:var(--text3);margin-top:2px;}
+.check-item.locked{cursor:default;}
+.check-item.locked input{cursor:default;}
 .check-modal .check-list{grid-template-columns:1fr 1fr;gap:5px;margin-bottom:0;}
 .check-modal .check-item{padding:6px 9px;}
 #check-obs{height:46px;min-height:46px;}
@@ -1520,7 +1522,7 @@ function stageDateInfo(flag,em){
 function instalacaoInfo(l){return stageDateInfo(l.instalacao,l.instalacaoEm);}
 function instBadgeHtml(l){
   const i=instalacaoInfo(l);
-  if(i.state==='done')return '<span class="inst-badge ok">&#10003; Sistema instalado</span>';
+  if(i.state==='done'||checklistProgress(l).done>0)return '<span class="inst-badge ok">&#10003; Sistema instalado</span>';
   if(i.state==='past')return '<span class="inst-badge conf">Confirmar instala&ccedil;&atilde;o</span>';
   if(i.state==='sched')return '<span class="inst-badge wait">Instala&ccedil;&atilde;o '+esc((i.txt||'').split(' ')[0])+'</span>';
   return '<span class="inst-badge none">Instala&ccedil;&atilde;o sem data</span>';
@@ -1595,21 +1597,37 @@ function openChecklistModal(idx){
   const c=checklistFor(l),p=checklistProgress(l);
   document.getElementById('check-key').value=currentChecklistKey;
   document.getElementById('check-mtitle').textContent='Implantação - '+l.loja;
-  const stageCheck=(id,label,flag,em,noneTxt)=>{
+  const started=p.done>0;
+  const stageCheck=(id,label,flag,em,noneTxt,checked,locked)=>{
     const i=stageDateInfo(flag,em);
-    const sub=i.state==='past'?esc(i.txt)+' — confirmar com o franqueado':i.state==='sched'?'Agendado: '+esc(i.txt):i.txt?esc(i.txt):noneTxt;
-    return `<label class="check-item stage-check ${flag==='1'?'checked':''}"><input type="checkbox" id="${id}" ${flag==='1'?'checked':''} onchange="this.closest('.check-item').classList.toggle('checked',this.checked)"><span>${label}<span class="stage-when">${sub}</span></span></label>`;
+    const sub=checked?(i.txt?esc(i.txt):noneTxt):i.state==='past'?esc(i.txt)+' — confirmar com o franqueado':i.state==='sched'?'Agendado: '+esc(i.txt):noneTxt;
+    return `<label class="check-item stage-check ${checked?'checked':''}${locked?' locked':''}"><input type="checkbox" id="${id}" ${checked?'checked':''} ${locked?'disabled':''} onchange="this.dataset.touched='1';this.closest('.check-item').classList.toggle('checked',this.checked)"><span>${label}<span class="stage-when">${sub}</span></span></label>`;
   };
+  const trainChecked=f=>f==='1'||(started&&f!=='0');
   document.getElementById('check-stage1').innerHTML=
-    stageCheck('check-inst','Instalação local concluída',l.instalacao,l.instalacaoEm,'Sem data definida com a Presence');
+    stageCheck('check-inst','Instalação local concluída',l.instalacao,l.instalacaoEm,'Sem data definida com a Presence',l.instalacao==='1'||started,started)+
+    (started?'<div class="stage-when" style="padding:3px 2px 0">Checklist iniciado — o sistema precisa estar instalado.</div>':'');
   document.getElementById('check-stage2').innerHTML=
-    stageCheck('check-tretag','Treinamento retaguarda',l.treinRetag,l.treinRetagEm,'Agendar via link da Presence')+
-    stageCheck('check-tloja','Treinamento balcão / loja',l.treinLoja,l.treinLojaEm,'Agendar via link da Presence');
+    stageCheck('check-tretag','Treinamento retaguarda',l.treinRetag,l.treinRetagEm,'Agendar via link da Presence',trainChecked(l.treinRetag),false)+
+    stageCheck('check-tloja','Treinamento balcão / loja',l.treinLoja,l.treinLojaEm,'Agendar via link da Presence',trainChecked(l.treinLoja),false);
   document.getElementById('check-stage3-count').textContent=p.done+'/'+p.total;
-  document.getElementById('check-list').innerHTML=CHECKLIST_ITENS.map(i=>`<label class="check-item ${c.itens&&c.itens[i.key]?'checked':''}"><input type="checkbox" data-check="${i.key}" ${c.itens&&c.itens[i.key]?'checked':''} onchange="this.closest('.check-item').classList.toggle('checked',this.checked)"><span>${esc(i.label)}</span></label>`).join('');
+  document.getElementById('check-list').innerHTML=CHECKLIST_ITENS.map(i=>`<label class="check-item ${c.itens&&c.itens[i.key]?'checked':''}"><input type="checkbox" data-check="${i.key}" ${c.itens&&c.itens[i.key]?'checked':''} onchange="this.closest('.check-item').classList.toggle('checked',this.checked);updateStageAuto()"><span>${esc(i.label)}</span></label>`).join('');
   document.getElementById('check-obs').value=c.obs||'';
   document.getElementById('check-meta').textContent=c.updatedAt?`Última atualização: ${new Date(c.updatedAt).toLocaleString('pt-BR')} por ${c.updatedBy||'-'} | ${p.done}/${p.total} concluídos`:'Ainda sem atualização.';
   document.getElementById('ov-check').classList.add('open');
+}
+function updateStageAuto(){
+  const any=[...document.querySelectorAll('#check-list input[data-check]')].some(i=>i.checked);
+  const gi=document.getElementById('check-inst');
+  if(gi){
+    if(any){gi.checked=true;gi.disabled=true;}else{gi.disabled=false;}
+    gi.closest('.check-item').classList.toggle('checked',gi.checked);
+    gi.closest('.check-item').classList.toggle('locked',gi.disabled);
+  }
+  if(any)['check-tretag','check-tloja'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el&&!el.dataset.touched&&!el.checked){el.checked=true;el.closest('.check-item').classList.add('checked');}
+  });
 }
 function closeChecklistModal(){document.getElementById('ov-check').classList.remove('open');currentChecklistKey='';currentChecklistLoja=null;}
 async function persistChecklist(){
@@ -1625,10 +1643,11 @@ async function saveChecklistModal(){
   const itens={};document.querySelectorAll('#check-list input[data-check]').forEach(i=>{itens[i.dataset.check]=i.checked;});
   checklistCadastros[key]={itens,obs:document.getElementById('check-obs').value.trim(),updatedAt:new Date().toISOString(),updatedBy:canEdit()?'Douglas':(consultorUser?consultorUser.nome:'Admin')};
   if(currentChecklistLoja&&!currentChecklistLoja._stub){
+    const anyItem=Object.values(itens).some(Boolean);
     const gi=document.getElementById('check-inst'),tr=document.getElementById('check-tretag'),tl=document.getElementById('check-tloja');
-    if(gi)currentChecklistLoja.instalacao=gi.checked?'1':'';
-    if(tr)currentChecklistLoja.treinRetag=tr.checked?'1':'';
-    if(tl)currentChecklistLoja.treinLoja=tl.checked?'1':'';
+    if(gi)currentChecklistLoja.instalacao=(gi.checked||anyItem)?'1':'';
+    if(tr)currentChecklistLoja.treinRetag=tr.checked?'1':(anyItem?'0':'');
+    if(tl)currentChecklistLoja.treinLoja=tl.checked?'1':(anyItem?'0':'');
     saveLocal();
   }
   closeChecklistModal();await persistChecklist();
