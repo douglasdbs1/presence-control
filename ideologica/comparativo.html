@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comparativo — Faturamento Ideologica</title>
+<link rel="canonical" href="https://douglasdbs1.github.io/presence-control/ideologica/comparativo.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <span class="sys-title">Comparativo</span>
+  <span class="sys-sub">Faturamento e serviços por loja</span>
+  <div class="spacer"></div>
+  <a class="topbar-link" href="index.html">Visão geral ↗</a>
+</div>
+
+<div class="content">
+
+  <div class="filters">
+    <div class="fg">
+      <label>Loja</label>
+      <select id="f-loja"><option value="">Todas</option></select>
+    </div>
+    <div class="fg">
+      <label>Serviço/Produto</label>
+      <select id="f-servico"><option value="">Todos</option></select>
+    </div>
+    <div class="fg">
+      <label>Consultor</label>
+      <select id="f-consultor"><option value="">Todos</option></select>
+    </div>
+    <div class="fg">
+      <label>Referência: de</label>
+      <input type="date" id="ref-ini">
+    </div>
+    <div class="fg">
+      <label>até</label>
+      <input type="date" id="ref-fim">
+    </div>
+    <div class="fg">
+      <label>Comparação: de</label>
+      <input type="date" id="cmp-ini">
+    </div>
+    <div class="fg">
+      <label>até</label>
+      <input type="date" id="cmp-fim">
+    </div>
+    <button class="btn-clear" id="btn-clear">Limpar filtros</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-view="loja">Por Loja</button>
+    <button class="tab-btn" data-view="consultor">Por Consultor</button>
+  </div>
+
+  <div id="groups">
+    <div class="state-msg">Carregando...</div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/comparativo.js"></script>
+</body>
+</html>
