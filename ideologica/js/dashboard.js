@@ -77,11 +77,26 @@ function getFiltered(){
   });
 }
 
+// Cada relatório é uma leitura ACUMULADA do mês até periodo_fim (corte do dia
+// 15 = faturamento de 01 a 15; corte do dia 30 já inclui o do dia 15) — não são
+// fatias que se somam. Pra KPIs e rankings, usa só a leitura mais recente por
+// loja dentro do filtro; a tabela abaixo continua mostrando todo relatório
+// importado (histórico de cada corte).
+function latestPerLoja(rows){
+  const best = new Map();
+  for(const r of rows){
+    const cur = best.get(r.loja);
+    if(!cur || r.periodo_fim > cur.periodo_fim) best.set(r.loja, r);
+  }
+  return [...best.values()];
+}
+
 function render(){
   const filtered = getFiltered();
-  renderKpis(filtered);
-  renderRanking("rank-consultor", groupSum(filtered,"consultor"));
-  renderRanking("rank-loja", groupSum(filtered,"loja"));
+  const snapshot = latestPerLoja(filtered);
+  renderKpis(snapshot);
+  renderRanking("rank-consultor", groupSum(snapshot,"consultor"));
+  renderRanking("rank-loja", groupSum(snapshot,"loja"));
   renderTable(filtered);
 }
 
