@@ -24,15 +24,22 @@ function deltaClass(v){
   if(v==null||v===0) return "delta-zero";
   return v>0 ? "delta-pos" : "delta-neg";
 }
-// So marca a bandeira quando o nome da loja deixa isso claro (o texto vem
-// livre do relatório do Allegro.Net) — sem sinal, fica sem tag em vez de chutar.
-function brandTag(loja){
+// So identifica a bandeira quando o nome da loja deixa isso claro (o texto
+// vem livre do relatório do Allegro.Net) — sem sinal, fica null em vez de chutar.
+function brandOf(loja){
   const l = (loja||"").toLowerCase();
   const isRJ = l.includes("restaura jeans") || l.includes("jeans");
   const isML = l.includes("lavanderia");
-  if((isRJ && isML) || l.includes("mega")) return '<span class="tag-mega">MEGA</span> ';
-  if(isML) return '<span class="tag-ml">ML</span> ';
-  if(isRJ) return '<span class="tag-rj">RJ</span> ';
+  if((isRJ && isML) || l.includes("mega")) return "mega";
+  if(isML) return "ml";
+  if(isRJ) return "rj";
+  return null;
+}
+function brandTag(loja){
+  const b = brandOf(loja);
+  if(b==="mega") return '<span class="tag-mega">MEGA</span> ';
+  if(b==="ml") return '<span class="tag-ml">ML</span> ';
+  if(b==="rj") return '<span class="tag-rj">RJ</span> ';
   return "";
 }
 
@@ -101,11 +108,13 @@ function defaultPeriods(){
 // Por isso, pra uma data escolhida, pega só a leitura mais recente até aquela
 // data — uma por grupo — em vez de somar todo relatório que "cai" no intervalo.
 function pickSnapshots(targetDate, groupField){
+  const bandeira = document.getElementById("f-bandeira").value;
   const loja = document.getElementById("f-loja").value;
   const consultor = document.getElementById("f-consultor").value;
   const best = new Map(); // groupName -> relatorio mais recente <= targetDate
   for(const r of allRelatorios){
     if(!targetDate || r.periodo_fim > targetDate) continue;
+    if(bandeira && brandOf(r.loja)!==bandeira) continue;
     if(loja && r.loja!==loja) continue;
     if(consultor && r.consultor!==consultor) continue;
     const groupName = r[groupField] || "(sem "+groupField+")";
@@ -261,10 +270,11 @@ function initTabHandlers(){
 }
 
 function initFilterHandlers(){
-  ["f-loja","f-servico","f-consultor","ref-data","cmp-data"].forEach(id=>{
+  ["f-bandeira","f-loja","f-servico","f-consultor","ref-data","cmp-data"].forEach(id=>{
     document.getElementById(id).addEventListener("change",render);
   });
   document.getElementById("btn-clear").addEventListener("click",()=>{
+    document.getElementById("f-bandeira").value="";
     document.getElementById("f-loja").value="";
     document.getElementById("f-servico").value="";
     document.getElementById("f-consultor").value="";

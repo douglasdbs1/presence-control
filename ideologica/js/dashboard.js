@@ -14,16 +14,22 @@ function fmtDate(d){
   const [y,m,day] = d.split("-");
   return `${day}/${m}/${y}`;
 }
-// So marca a bandeira quando o nome da loja deixa isso claro (o texto vem
-// livre do relatório do Allegro.Net) — sem sinal, fica sem tag em vez de chutar.
-function brandTag(loja){
+// So identifica a bandeira quando o nome da loja deixa isso claro (o texto
+// vem livre do relatório do Allegro.Net) — sem sinal, fica null em vez de chutar.
+function brandOf(loja){
   const l = (loja||"").toLowerCase();
   const isRJ = l.includes("restaura jeans") || l.includes("jeans");
   const isML = l.includes("lavanderia");
-  if(isRJ && isML) return '<span class="tag-mega">MEGA</span> ';
-  if(l.includes("mega")) return '<span class="tag-mega">MEGA</span> ';
-  if(isML) return '<span class="tag-ml">ML</span> ';
-  if(isRJ) return '<span class="tag-rj">RJ</span> ';
+  if((isRJ && isML) || l.includes("mega")) return "mega";
+  if(isML) return "ml";
+  if(isRJ) return "rj";
+  return null;
+}
+function brandTag(loja){
+  const b = brandOf(loja);
+  if(b==="mega") return '<span class="tag-mega">MEGA</span> ';
+  if(b==="ml") return '<span class="tag-ml">ML</span> ';
+  if(b==="rj") return '<span class="tag-rj">RJ</span> ';
   return "";
 }
 function showToast(msg){
@@ -76,11 +82,13 @@ function populateFilterOptions(){
 }
 
 function getFiltered(){
+  const bandeira = document.getElementById("f-bandeira").value;
   const loja = document.getElementById("f-loja").value;
   const consultor = document.getElementById("f-consultor").value;
   const dataIni = document.getElementById("f-data-ini").value;
   const dataFim = document.getElementById("f-data-fim").value;
   return allRelatorios.filter(r=>{
+    if(bandeira && brandOf(r.loja)!==bandeira) return false;
     if(loja && r.loja!==loja) return false;
     if(consultor && r.consultor!==consultor) return false;
     if(dataIni && r.periodo_fim < dataIni) return false;
@@ -185,10 +193,11 @@ function initSortHandlers(){
 }
 
 function initFilterHandlers(){
-  ["f-loja","f-consultor","f-data-ini","f-data-fim"].forEach(id=>{
+  ["f-bandeira","f-loja","f-consultor","f-data-ini","f-data-fim"].forEach(id=>{
     document.getElementById(id).addEventListener("change",render);
   });
   document.getElementById("btn-clear").addEventListener("click",()=>{
+    document.getElementById("f-bandeira").value="";
     document.getElementById("f-loja").value="";
     document.getElementById("f-consultor").value="";
     document.getElementById("f-data-ini").value="";
