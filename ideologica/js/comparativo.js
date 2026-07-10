@@ -34,7 +34,8 @@ async function loadData(){
       .select("*, itens:faturamento_itens(*)")
       .order("periodo_inicio",{ascending:true});
     if(error) throw error;
-    allRelatorios = data || [];
+    // ignora relatorios de amostra/teste (nunca sao dados reais de loja)
+    allRelatorios = (data || []).filter(r => !(r.arquivo_origem||"").startsWith("AMOSTRA_"));
     populateFilterOptions();
     defaultPeriods();
     render();

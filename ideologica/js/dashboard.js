@@ -31,7 +31,8 @@ async function loadRelatorios(){
       .select("*")
       .order("periodo_fim",{ascending:false});
     if(error) throw error;
-    allRelatorios = data || [];
+    // ignora relatorios de amostra/teste (nunca sao dados reais de loja)
+    allRelatorios = (data || []).filter(r => !(r.arquivo_origem||"").startsWith("AMOSTRA_"));
     populateFilterOptions();
     render();
   }catch(err){
