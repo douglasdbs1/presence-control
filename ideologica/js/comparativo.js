@@ -24,6 +24,17 @@ function deltaClass(v){
   if(v==null||v===0) return "delta-zero";
   return v>0 ? "delta-pos" : "delta-neg";
 }
+// So marca a bandeira quando o nome da loja deixa isso claro (o texto vem
+// livre do relatório do Allegro.Net) — sem sinal, fica sem tag em vez de chutar.
+function brandTag(loja){
+  const l = (loja||"").toLowerCase();
+  const isRJ = l.includes("restaura jeans") || l.includes("jeans");
+  const isML = l.includes("lavanderia");
+  if((isRJ && isML) || l.includes("mega")) return '<span class="tag-mega">MEGA</span> ';
+  if(isML) return '<span class="tag-ml">ML</span> ';
+  if(isRJ) return '<span class="tag-rj">RJ</span> ';
+  return "";
+}
 
 async function loadData(){
   const el = document.getElementById("groups");
@@ -215,7 +226,7 @@ function render(){
     return `
     <div class="group-block">
       <div class="group-head">
-        <span class="name">${name}</span>
+        <span class="name">${currentView==="loja"?brandTag(name):""}${name}</span>
         <span class="sub">Total: ${fmtMoney(totalRef)} → ${fmtMoney(totalCmp)}
           (<span class="${deltaClass(totalDif)}">${fmtMoney(totalDif)}</span>,
            <span class="${deltaClass(totalPct)}">${fmtPct(totalPct)}</span>)</span>

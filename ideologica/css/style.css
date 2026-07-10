@@ -1,14 +1,22 @@
 :root{
   --bg:#f2f0ec;--surface:#fff;--surface2:#f7f5f1;--border:#e0ddd5;--border2:#c8c4bb;
   --text:#111110;--text2:#5c5a56;--text3:#9b9a92;
-  --teal:#0a5c47;--teal-bg:#e0f5ec;--teal-mid:#158a61;
-  --indigo:#2d3a8c;--indigo-bg:#e0e4f8;
-  --red:#8b1a1a;--red-bg:#fce4e4;
-  --blue:#103d7c;--blue-bg:#dceafa;
+  --teal:#065f46;--teal-bg:#def7ec;--teal-mid:#0f8b63;
+  --indigo:#33439b;--indigo-bg:#e7eafd;
+  --red:#9d1c1c;--red-bg:#fde5e5;
+  --blue:#15559a;--blue-bg:#e0efff;
+  --rj-1:#b41414;--rj-2:#19236e;--ml:#0055be;
   --font:'Montserrat',system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:var(--font);font-weight:600;background:var(--bg);color:var(--text);font-size:13px;min-height:100vh;}
+
+.logo-bar{background:#fff;text-align:center;padding:14px 16px;border-bottom:1px solid #e6e6e6;}
+.logo-bar img{height:56px;width:auto;max-width:90%;display:inline-block;vertical-align:middle;}
+
+.tag-rj{font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;background:linear-gradient(90deg,var(--rj-1),var(--rj-2));color:#fff;letter-spacing:.03em;}
+.tag-ml{font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--ml);color:#fff;letter-spacing:.03em;}
+.tag-mega{font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--teal);color:#fff;letter-spacing:.03em;}
 
 .topbar{background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;display:flex;align-items:center;padding:0 24px;gap:10px;height:52px;}
 .sys-title{font-size:13px;font-weight:600;color:var(--text);}
@@ -56,7 +64,7 @@ tr:hover td{background:var(--surface2);}
 .muted{color:var(--text3);font-weight:500;}
 
 .state-msg{padding:40px;text-align:center;color:var(--text3);font-size:12px;}
-.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#8b1a1a;color:#fff;font-family:var(--font);font-size:12px;padding:8px 18px;z-index:9999;border-radius:6px;pointer-events:none;}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--red);color:#fff;font-family:var(--font);font-size:12px;padding:8px 18px;z-index:9999;border-radius:6px;pointer-events:none;}
 
 @media(max-width:900px){
   .kpis{grid-template-columns:repeat(2,1fr);}

@@ -14,6 +14,18 @@ function fmtDate(d){
   const [y,m,day] = d.split("-");
   return `${day}/${m}/${y}`;
 }
+// So marca a bandeira quando o nome da loja deixa isso claro (o texto vem
+// livre do relatório do Allegro.Net) — sem sinal, fica sem tag em vez de chutar.
+function brandTag(loja){
+  const l = (loja||"").toLowerCase();
+  const isRJ = l.includes("restaura jeans") || l.includes("jeans");
+  const isML = l.includes("lavanderia");
+  if(isRJ && isML) return '<span class="tag-mega">MEGA</span> ';
+  if(l.includes("mega")) return '<span class="tag-mega">MEGA</span> ';
+  if(isML) return '<span class="tag-ml">ML</span> ';
+  if(isRJ) return '<span class="tag-rj">RJ</span> ';
+  return "";
+}
 function showToast(msg){
   const t=document.createElement("div");
   t.className="toast";
@@ -96,7 +108,7 @@ function render(){
   const snapshot = latestPerLoja(filtered);
   renderKpis(snapshot);
   renderRanking("rank-consultor", groupSum(snapshot,"consultor"));
-  renderRanking("rank-loja", groupSum(snapshot,"loja"));
+  renderRanking("rank-loja", groupSum(snapshot,"loja"), true);
   renderTable(filtered);
 }
 
@@ -120,7 +132,7 @@ function groupSum(rows,key){
   return [...map.entries()].sort((a,b)=>b[1]-a[1]);
 }
 
-function renderRanking(elId, entries){
+function renderRanking(elId, entries, isLoja){
   const el = document.getElementById(elId);
   if(!entries.length){
     el.innerHTML = `<div class="state-msg">Sem dados no período/filtro selecionado.</div>`;
@@ -129,7 +141,7 @@ function renderRanking(elId, entries){
   const max = entries[0][1] || 1;
   el.innerHTML = entries.slice(0,10).map(([name,val])=>`
     <div class="bar-row">
-      <div class="bar-name" title="${name}">${name}</div>
+      <div class="bar-name" title="${name}">${isLoja?brandTag(name):""}${name}</div>
       <div class="bar-track"><div class="bar-fill" style="width:${Math.max(2,(val/max)*100)}%"></div></div>
       <div class="bar-value">${fmtMoney(val)}</div>
     </div>
@@ -151,7 +163,7 @@ function renderTable(rows){
     const ticketMedio = r.total_tickets ? r.total_faturado/r.total_tickets : 0;
     return `
     <tr>
-      <td>${r.loja}</td>
+      <td>${brandTag(r.loja)}${r.loja}</td>
       <td class="muted">${r.consultor||"—"}</td>
       <td>${fmtDate(r.periodo_inicio)} – ${fmtDate(r.periodo_fim)}</td>
       <td class="num">${fmtMoney(r.total_faturado)}</td>
