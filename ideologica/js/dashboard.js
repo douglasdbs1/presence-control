@@ -201,10 +201,13 @@ function renderTable(rows){
     list.sort((a,b)=> a.periodo_fim < b.periodo_fim ? -1 : a.periodo_fim > b.periodo_fim ? 1 : 0);
     const wantedCut = activeCutByGroup.get(key);
     const chosen = list.find(r=>r.periodo_fim===wantedCut) || list[list.length-1];
-    return {key, list, chosen};
+    // ordena sempre pelo corte mais completo do mês (o último, ex. dia 30),
+    // não pelo corte exibido — clicar numa pill não deve mexer a posição da linha.
+    const sortBasis = list[list.length-1];
+    return {key, list, chosen, sortBasis};
   });
   groupRows.sort((a,b)=>{
-    const va=a.chosen[sortKey], vb=b.chosen[sortKey];
+    const va=a.sortBasis[sortKey], vb=b.sortBasis[sortKey];
     if(typeof va === "string") return sortDir*va.localeCompare(vb);
     return sortDir*((va||0)-(vb||0));
   });
