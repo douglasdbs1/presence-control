@@ -4,24 +4,47 @@ Como trazer um "Demonstrativo de Faturamento" (`.xls`) exportado do
 Ideologica/Allegro.Net para dentro do `faturamento_relatorios` /
 `faturamento_itens` no Supabase.
 
-## Passo a passo (quando pedido ao Claude Code)
+## Passo a passo (uso normal — pasta do Drive sincronizada localmente)
 
-1. Achar o arquivo novo na pasta do Drive
-   (`IDEOLÓGICA SISTEMA/<Consultor>/<Mês>/`) via conector do Google Drive.
+O Google Drive está sincronizado como unidade local (`G:\Meu Drive\IDEOLÓGICA
+SISTEMA\<Consultor>\<Mês>\*.xls`) — não precisa mais passar arquivo por
+arquivo pelo chat/conector. Pra importar tudo que é novo:
+
+```
+node ideologica/import/import_all.js "G:\Meu Drive\IDEOLÓGICA SISTEMA" --dry-run
+```
+
+Varre a pasta inteira, compara contra o que já está no Supabase (loja +
+período) e mostra só os arquivos novos. Confere a lista, roda de novo sem
+`--dry-run` pra gravar de verdade. Reporta no final quantos foram importados,
+quantos já existiam (ignorados) e quais deram erro — não trava o lote inteiro
+por causa de um arquivo ruim.
+
+O nome do consultor vem do nome da PASTA (`<Consultor>`), não do campo
+"Colaborador" dentro do relatório — esse campo interno às vezes é outra
+pessoa (quem gerou o relatório no balcão, não o consultor responsável).
+
+## Importar um arquivo específico (fora do fluxo em lote)
+
+```
+node ideologica/import/import.js <caminho do .xls> <NomeDoConsultor> --dry-run
+```
+
+Útil pra testar um arquivo isolado ou reimportar um específico com `--force`
+não aplicável aqui — nesse caso é só rodar sem `--dry-run` de novo (o upsert
+por loja+período sobrescreve).
+
+## Se o Drive não estiver sincronizado (fallback antigo)
+
+1. Achar o arquivo na pasta do Drive via conector do Google Drive.
 2. Baixar o conteúdo (`download_file_content`) — vem em base64.
 3. Salvar esse base64 num `.txt` (ex. no scratchpad da sessão) — **não**
    precisa decodificar antes, o `import.js` aceita os dois formatos.
-4. Rodar primeiro em modo de teste:
-   ```
-   node ideologica/import/import.js <arquivo.txt> <NomeDoConsultor> --dry-run
-   ```
-   Confere o JSON impresso: loja, período, total batendo com o que se espera
-   (ex. total = soma das categorias de serviço + produto).
-5. Se estiver certo, roda de novo sem `--dry-run` pra gravar de verdade.
+4. Seguir o mesmo passo a passo do `import.js` acima.
 
-O nome do consultor vem da pasta do Drive (`<Consultor>`), não do campo
-"Colaborador" dentro do relatório — esse campo interno às vezes é outra
-pessoa (quem gerou o relatório no balcão, não o consultor responsável).
+Esse caminho é mais lento e arriscado (arquivos grandes corrompem na
+retranscrição — ver seção abaixo) e só deve ser usado se por algum motivo a
+sincronização local não estiver disponível.
 
 ## Por que não dá pra usar um leitor de `.xls` normal
 
