@@ -48,7 +48,7 @@ body{font-family:var(--font);font-weight:600;background:var(--bg);color:var(--te
 .kpi-value.teal{color:var(--teal);}
 
 /* PANELS */
-.panels{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+.panels{display:grid;grid-template-columns:7fr 3fr;gap:14px;margin-bottom:18px;}
 .panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;}
 .panel h3{font-size:12px;font-weight:700;color:var(--text2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.03em;}
 .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px;}
