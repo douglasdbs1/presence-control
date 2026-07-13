@@ -37,6 +37,15 @@ function brandTag(loja){
   if(b==="rj") return '<span class="tag-rj">RJ</span> ';
   return "";
 }
+// O campo "Loja:" do relatório vem de uma caixa de texto de largura fixa no
+// Crystal Reports e às vezes corta o nome (ex. "MINHA LAVANDERIA - TEUT").
+// Não afeta o valor gravado (usado pra agrupar/filtrar) — só a exibição.
+const LOJA_DISPLAY_OVERRIDES = {
+  "MINHA LAVANDERIA - TEUT": "MINHA LAVANDERIA - TEUTÔNIA",
+};
+function displayLoja(loja){
+  return LOJA_DISPLAY_OVERRIDES[loja] || loja;
+}
 function showToast(msg){
   const t=document.createElement("div");
   t.className="toast";
@@ -72,7 +81,7 @@ function populateFilterOptions(){
     const lojas = [...new Set(allRelatorios.map(r=>r.loja))].sort();
     for(const l of lojas){
       const opt=document.createElement("option");
-      opt.value=l; opt.textContent=l;
+      opt.value=l; opt.textContent=displayLoja(l);
       lojaSel.appendChild(opt);
     }
   }
@@ -154,37 +163,76 @@ function renderRanking(elId, entries, isLoja){
   const max = entries[0][1] || 1;
   el.innerHTML = entries.slice(0,10).map(([name,val])=>`
     <div class="bar-row">
-      <div class="bar-name" title="${name}">${isLoja?brandTag(name):""}${name}</div>
+      <div class="bar-name" title="${isLoja?displayLoja(name):name}">${isLoja?brandTag(name)+displayLoja(name):name}</div>
       <div class="bar-track"><div class="bar-fill" style="width:${Math.max(2,(val/max)*100)}%"></div></div>
       <div class="bar-value">${fmtMoney(val)}</div>
     </div>
   `).join("");
 }
 
+// A tabela agrupa por loja+mês (mesmo `periodo_inicio`) pra não repetir a
+// loja uma vez por corte (15/30 dias...). Cada grupo mostra uma linha só,
+// com pills clicáveis pro corte ativo — a escolha fica lembrada em
+// activeCutByGroup até o usuário trocar de novo.
+const activeCutByGroup = new Map(); // groupKey -> periodo_fim escolhido
+let lastTableRows = [];
+
+function groupKey(r){
+  return r.loja+"|||"+(r.periodo_inicio||"");
+}
+function cutDay(periodoFim){
+  return Number((periodoFim||"").slice(8,10)) || "?";
+}
+
 function renderTable(rows){
+  lastTableRows = rows;
   const tbody = document.getElementById("tbody");
   if(!rows.length){
     tbody.innerHTML = `<tr><td colspan="7" class="state-msg">Nenhum relatório encontrado para esse filtro.</td></tr>`;
     return;
   }
-  const sorted = [...rows].sort((a,b)=>{
-    const va=a[sortKey], vb=b[sortKey];
+  const groups = new Map();
+  for(const r of rows){
+    const key = groupKey(r);
+    if(!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(r);
+  }
+  const groupRows = [...groups.entries()].map(([key, list])=>{
+    list.sort((a,b)=> a.periodo_fim < b.periodo_fim ? -1 : a.periodo_fim > b.periodo_fim ? 1 : 0);
+    const wantedCut = activeCutByGroup.get(key);
+    const chosen = list.find(r=>r.periodo_fim===wantedCut) || list[list.length-1];
+    return {key, list, chosen};
+  });
+  groupRows.sort((a,b)=>{
+    const va=a.chosen[sortKey], vb=b.chosen[sortKey];
     if(typeof va === "string") return sortDir*va.localeCompare(vb);
     return sortDir*((va||0)-(vb||0));
   });
-  tbody.innerHTML = sorted.map(r=>{
-    const ticketMedio = r.total_tickets ? r.total_faturado/r.total_tickets : 0;
+  tbody.innerHTML = groupRows.map(({key, list, chosen})=>{
+    const ticketMedio = chosen.total_tickets ? chosen.total_faturado/chosen.total_tickets : 0;
+    const pills = list.length>1 ? `<span class="cut-pills">${list.map(r=>
+      `<button type="button" class="cut-pill${r.periodo_fim===chosen.periodo_fim?" active":""}" data-group="${encodeURIComponent(key)}" data-periodo="${r.periodo_fim}">${cutDay(r.periodo_fim)}</button>`
+    ).join("")}</span>` : "";
     return `
     <tr>
-      <td>${brandTag(r.loja)}${r.loja}</td>
-      <td class="muted">${r.consultor||"—"}</td>
-      <td>${fmtDate(r.periodo_inicio)} – ${fmtDate(r.periodo_fim)}</td>
-      <td class="num">${fmtMoney(r.total_faturado)}</td>
-      <td class="num">${fmtNum(r.total_tickets)}</td>
+      <td>${brandTag(chosen.loja)}${displayLoja(chosen.loja)}${pills}</td>
+      <td class="muted">${chosen.consultor||"—"}</td>
+      <td>${fmtDate(chosen.periodo_inicio)} – ${fmtDate(chosen.periodo_fim)}</td>
+      <td class="num">${fmtMoney(chosen.total_faturado)}</td>
+      <td class="num">${fmtNum(chosen.total_tickets)}</td>
       <td class="num">${fmtMoney(ticketMedio)}</td>
-      <td class="num muted">${fmtMoney(r.valor_anulado)}</td>
+      <td class="num muted">${fmtMoney(chosen.valor_anulado)}</td>
     </tr>`;
   }).join("");
+}
+
+function initCutPillHandler(){
+  document.getElementById("tbody").addEventListener("click",(e)=>{
+    const pill = e.target.closest(".cut-pill");
+    if(!pill) return;
+    activeCutByGroup.set(decodeURIComponent(pill.dataset.group), pill.dataset.periodo);
+    renderTable(lastTableRows);
+  });
 }
 
 function initSortHandlers(){
@@ -219,5 +267,6 @@ function initFilterHandlers(){
   supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   initFilterHandlers();
   initSortHandlers();
+  initCutPillHandler();
   await loadRelatorios();
 })();

@@ -57,6 +57,15 @@ function brandTag(loja){
   if(b==="rj") return '<span class="tag-rj">RJ</span> ';
   return "";
 }
+// O campo "Loja:" do relatório vem de uma caixa de texto de largura fixa no
+// Crystal Reports e às vezes corta o nome (ex. "MINHA LAVANDERIA - TEUT").
+// Não afeta o valor gravado (usado pra agrupar/filtrar) — só a exibição.
+const LOJA_DISPLAY_OVERRIDES = {
+  "MINHA LAVANDERIA - TEUT": "MINHA LAVANDERIA - TEUTÔNIA",
+};
+function displayLoja(loja){
+  return LOJA_DISPLAY_OVERRIDES[loja] || loja;
+}
 
 async function loadData(){
   const el = document.getElementById("groups");
@@ -87,7 +96,7 @@ function populateFilterOptions(){
   const lojas = [...new Set(allRelatorios.map(r=>r.loja))].sort();
   for(const l of lojas){
     const opt=document.createElement("option");
-    opt.value=l; opt.textContent=l;
+    opt.value=l; opt.textContent=displayLoja(l);
     lojaSel.appendChild(opt);
   }
   const consultores = [...new Set(allRelatorios.map(r=>r.consultor).filter(Boolean))].sort();
@@ -242,7 +251,7 @@ function renderProgressao(){
     return `
     <div class="group-block">
       <div class="group-head">
-        <span class="name">${brandTag(lojaName)}${lojaName}</span>
+        <span class="name">${brandTag(lojaName)}${displayLoja(lojaName)}</span>
         <span class="sub">${mesLabel(mes)}${projecaoHtml}</span>
       </div>
       <table>
@@ -345,7 +354,7 @@ function render(){
     return `
     <div class="group-block">
       <div class="group-head">
-        <span class="name">${currentView==="loja"?brandTag(name):""}${name}</span>
+        <span class="name">${currentView==="loja"?brandTag(name)+displayLoja(name):name}</span>
         <span class="sub">Total: ${fmtMoney(totalRef)} → ${fmtMoney(totalCmp)}
           (<span class="${deltaClass(totalDif)}">${fmtMoney(totalDif)}</span>,
            <span class="${deltaClass(totalPct)}">${fmtPct(totalPct)}</span>)</span>

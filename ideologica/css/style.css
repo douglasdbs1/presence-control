@@ -18,6 +18,11 @@ body{font-family:var(--font);font-weight:600;background:var(--bg);color:var(--te
 .tag-ml{font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--ml);color:#fff;letter-spacing:.03em;}
 .tag-mega{font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--teal);color:#fff;letter-spacing:.03em;}
 
+.cut-pills{display:inline-flex;gap:3px;margin-left:6px;vertical-align:middle;}
+.cut-pill{font-family:var(--font);font-size:9px;font-weight:700;line-height:1;padding:3px 6px;border-radius:999px;border:1px solid var(--border2);background:var(--surface2);color:var(--text3);cursor:pointer;}
+.cut-pill:hover{border-color:var(--teal-mid);color:var(--teal-mid);}
+.cut-pill.active{background:var(--teal);border-color:var(--teal);color:#fff;}
+
 .topbar{background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;display:flex;align-items:center;padding:0 24px;gap:10px;height:52px;}
 .sys-title{font-size:13px;font-weight:600;color:var(--text);}
 .sys-sub{font-size:11px;color:var(--text3);margin-left:6px;}
