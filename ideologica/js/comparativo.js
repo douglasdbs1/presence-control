@@ -36,7 +36,12 @@ function deltaClass(v){
 }
 // So identifica a bandeira quando o nome da loja deixa isso claro (o texto
 // vem livre do relatório do Allegro.Net) — sem sinal, fica null em vez de chutar.
+// Lojas cujo nome no relatório não denuncia a bandeira entram aqui manualmente.
+const BRAND_OVERRIDES = {
+  "RS - PORTO ALEGRE": "rj",
+};
 function brandOf(loja){
+  if(BRAND_OVERRIDES[loja]) return BRAND_OVERRIDES[loja];
   const l = (loja||"").toLowerCase();
   const isRJ = l.includes("restaura jeans") || l.includes("jeans");
   const isML = l.includes("lavanderia");
