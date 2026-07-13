@@ -127,15 +127,68 @@ function parseReport(buf, consultor, arquivoOrigem) {
   // embutida no relatorio desloca os indices do BIFF) — por isso usa a
   // ORDEM RELATIVA dos valores dentro da linha, que segue sempre:
   // Faturamento, %, Volume, %Volume, Méd.Serv., Tickets, Méd.Tck.
-  function buildItems(names, tipo, rowList) {
-    return names.map((name, i) => {
+  function rowVals(r) {
+    return [...(rows.get(r) || new Map()).entries()].sort((a, b) => a[0] - b[0]).map(e => e[1]);
+  }
+
+  // NÃO CONFIA na quantidade de nomes de categoria extraídos das strings pra
+  // decidir quantas linhas de dado existem — um nome pode ter se perdido na
+  // extração (categoria real sem nome) OU uma categoria nomeada pode não ter
+  // gerado linha nenhuma (sem nenhum movimento no período, célula 100% em
+  // branco). As duas coisas já aconteceram no mesmo relatório real.
+  //
+  // Em vez disso, detecta a linha de TOTAL pelo próprio formato dos dados:
+  // uma linha de categoria tem ~7 valores; uma linha de total tem só ~3
+  // (faturamento, volume, tickets) e o primeiro valor bate com a soma
+  // acumulada das linhas de categoria desde o total anterior.
+  // expectedBlocks: para de tentar reconhecer categoria/total assim que os
+  // blocos esperados (Serviço, e Produto se existir) já fecharam — o que
+  // sobra é sempre o bloco de totais finais, mesmo quando ele tem MAIS de 3
+  // valores populados (Total Final, Total Volume, Total Tickets, Total Final
+  // Faturado de novo, Taxa Adicional, Valor Anulado — até 6 valores na mesma
+  // linha). Sem esse limite, essa linha seria lida como uma categoria extra.
+  function segmentBlocks(rowList, expectedBlocks) {
+    const blocks = [];
+    let currentData = [];
+    let runningSum = 0;
+    let i = 0;
+    for (; i < rowList.length && blocks.length < expectedBlocks; i++) {
       const r = rowList[i];
-      const colMap = rows.get(r) || new Map();
-      const vals = [...colMap.entries()].sort((a, b) => a[0] - b[0]).map(e => e[1]);
+      const vals = rowVals(r);
+      if (vals.length <= 3) {
+        if (currentData.length && Math.abs(vals[0] - runningSum) < 0.02) {
+          blocks.push({ dataRows: currentData, totalRow: r });
+          currentData = [];
+          runningSum = 0;
+          continue;
+        }
+        break; // linha esparsa que não fecha o bloco atual -> começa o bloco de totais finais
+      }
+      currentData.push(r);
+      runningSum += vals[0];
+    }
+    return { blocks, remainingRows: rowList.slice(i) };
+  }
+
+  const expectedBlocks = iProdutoLbl !== -1 ? 2 : 1;
+  const { blocks, remainingRows } = segmentBlocks(sortedRows, expectedBlocks);
+  const servicoRows = (blocks[0] || {}).dataRows || [];
+  const produtoRows = (blocks[1] || {}).dataRows || [];
+  const warnings = [];
+  if (servicoNames.length !== servicoRows.length) {
+    warnings.push(`Serviço: ${servicoNames.length} nome(s) extraído(s) mas ${servicoRows.length} linha(s) de dado encontrada(s) — categorias sem nome vão aparecer como "(categoria N)".`);
+  }
+  if (produtoNames.length !== produtoRows.length) {
+    warnings.push(`Produto: ${produtoNames.length} nome(s) extraído(s) mas ${produtoRows.length} linha(s) de dado encontrada(s) — categorias sem nome vão aparecer como "(categoria N)".`);
+  }
+
+  function buildItems(names, tipo, rowList) {
+    return rowList.map((r, i) => {
+      const vals = rowVals(r).slice();
       while (vals.length < 7) vals.push(null);
       const [fat, pct, vol, pctvol, mserv, tix, mtck] = vals;
       return sanitizeItem({
-        tipo, categoria: name,
+        tipo, categoria: names[i] || `(categoria ${i + 1})`,
         faturamento: fat != null ? round2(fat) : 0,
         percentual: pct != null ? round2(pct) : null,
         volume: vol != null ? Math.round(vol) : null,
@@ -146,15 +199,6 @@ function parseReport(buf, consultor, arquivoOrigem) {
       });
     });
   }
-
-  const nServ = servicoNames.length;
-  const nProd = produtoNames.length;
-  const servicoRows = sortedRows.slice(0, nServ);
-  const produtoRows = sortedRows.slice(nServ + 1, nServ + 1 + nProd);
-  // se HA secao de produto, pula a linha de total dela tambem; senao, o
-  // que vem depois da linha de total do servico ja e o bloco de totais finais
-  const skip = nServ + 1 + nProd + (nProd ? 1 : 0);
-  const remainingRows = sortedRows.slice(skip);
 
   const itens = [
     ...buildItems(servicoNames, 'servico', servicoRows),
@@ -203,7 +247,7 @@ function parseReport(buf, consultor, arquivoOrigem) {
     gerado_em: geradoEm,
   };
 
-  return { relatorio, itens };
+  return { relatorio, itens, warnings };
 }
 
 module.exports = { parseReport, extractNumbers, extractStrings };

@@ -49,7 +49,9 @@ async function main() {
 
   const buf = loadBuffer(filePath);
   const arquivoOrigem = path.basename(filePath);
-  const { relatorio, itens } = parseReport(buf, consultor, arquivoOrigem);
+  const { relatorio, itens, warnings } = parseReport(buf, consultor, arquivoOrigem);
+
+  for (const w of warnings) console.log('  aviso:', w);
 
   console.log(JSON.stringify(relatorio, null, 2));
   console.log(`${itens.length} itens (${itens.filter(i => i.tipo === 'servico').length} serviço, ${itens.filter(i => i.tipo === 'produto').length} produto)`);
