@@ -64,6 +64,9 @@ async function main() {
   if (!relatorio.loja || !relatorio.periodo_inicio || !relatorio.periodo_fim) {
     throw new Error('loja/periodo não identificados — confira se o arquivo é o relatório certo antes de forçar o import.');
   }
+  if (!relatorio.bandeira) {
+    console.log('  aviso: nome do arquivo não começa com RJ/ML/MEGA — bandeira ficará em branco (renomeie o arquivo no Drive seguindo o padrão).');
+  }
 
   if (dryRun) {
     console.log('--dry-run: nada foi salvo no Supabase.');

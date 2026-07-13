@@ -52,6 +52,21 @@ function extractStrings(buf) {
   return seen;
 }
 
+// A bandeira vem do NOME DO ARQUIVO, não do texto dentro do relatório —
+// o campo "Loja:" é livre e nem sempre denuncia a bandeira (ex. uma loja
+// Mega pode ter "Loja:" só com "RESTAURA JEANS ..."). O nome do arquivo no
+// Drive é o que os consultores realmente controlam e mantêm consistente:
+// prefixo "RJ" = Restaura Jeans, "ML" = Minha Lavanderia, "MEGA" = loja
+// combinada (as duas). Isso sempre prevalece sobre qualquer detecção
+// automática por texto.
+function bandeiraFromArquivo(arquivoOrigem) {
+  const base = (arquivoOrigem || '').split(/[\\/]/).pop().trim().toUpperCase();
+  if (base.startsWith('MEGA')) return 'mega';
+  if (base.startsWith('RJ')) return 'rj';
+  if (base.startsWith('ML')) return 'ml';
+  return null;
+}
+
 function toIsoDate(ddmmyyyy) {
   const [dd, mm, yyyy] = ddmmyyyy.split('/');
   return `${yyyy}-${mm}-${dd}`;
@@ -245,9 +260,10 @@ function parseReport(buf, consultor, arquivoOrigem) {
     total_volume: volTotal,
     arquivo_origem: arquivoOrigem,
     gerado_em: geradoEm,
+    bandeira: bandeiraFromArquivo(arquivoOrigem),
   };
 
   return { relatorio, itens, warnings };
 }
 
-module.exports = { parseReport, extractNumbers, extractStrings };
+module.exports = { parseReport, extractNumbers, extractStrings, bandeiraFromArquivo };

@@ -14,15 +14,16 @@ function fmtDate(d){
   const [y,m,day] = d.split("-");
   return `${day}/${m}/${y}`;
 }
-// So identifica a bandeira quando o nome da loja deixa isso claro (o texto
-// vem livre do relatório do Allegro.Net) — sem sinal, fica null em vez de chutar.
-// Lojas cujo nome no relatório não denuncia a bandeira entram aqui manualmente.
+// Prioridade da bandeira: 1) coluna `bandeira` gravada no import (vem do
+// PREFIXO DO NOME DO ARQUIVO no Drive — RJ/ML/MEGA — sempre a fonte mais
+// confiável, ver bandeiraFromArquivo() em ideologica/import/parse_report.js);
+// 2) override manual, só pra loja antiga já importada antes dessa coluna
+// existir; 3) heurística de texto no nome da loja, último recurso.
 const BRAND_OVERRIDES = {
   "RS - PORTO ALEGRE": "rj",
   "RESTAURA JEANS RS - SANTA ROSA": "mega",
 };
-function brandOf(loja){
-  if(BRAND_OVERRIDES[loja]) return BRAND_OVERRIDES[loja];
+function brandFromText(loja){
   const l = (loja||"").toLowerCase();
   const isRJ = l.includes("restaura jeans") || l.includes("jeans");
   const isML = l.includes("lavanderia");
@@ -30,6 +31,18 @@ function brandOf(loja){
   if(isML) return "ml";
   if(isRJ) return "rj";
   return null;
+}
+let lojaBandeiraMap = new Map();
+function buildLojaBandeiraMap(rows){
+  const map = new Map();
+  for(const r of rows){
+    if(map.has(r.loja) && map.get(r.loja)) continue; // já achou um valor não-nulo pra essa loja
+    map.set(r.loja, r.bandeira || BRAND_OVERRIDES[r.loja] || brandFromText(r.loja));
+  }
+  return map;
+}
+function brandOf(loja){
+  return lojaBandeiraMap.get(loja) || BRAND_OVERRIDES[loja] || brandFromText(loja);
 }
 function brandTag(loja){
   const b = brandOf(loja);
@@ -66,6 +79,7 @@ async function loadRelatorios(){
     if(error) throw error;
     // ignora relatorios de amostra/teste (nunca sao dados reais de loja)
     allRelatorios = (data || []).filter(r => !(r.arquivo_origem||"").startsWith("AMOSTRA_"));
+    lojaBandeiraMap = buildLojaBandeiraMap(allRelatorios);
     populateFilterOptions();
     render();
   }catch(err){

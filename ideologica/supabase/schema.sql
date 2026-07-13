@@ -26,8 +26,19 @@ create table if not exists faturamento_relatorios (
   arquivo_origem text,
   gerado_em timestamptz,
   importado_em timestamptz not null default now(),
+  -- bandeira vem do PREFIXO DO NOME DO ARQUIVO no Drive (RJ/ML/MEGA), não de
+  -- texto dentro do relatório — ver bandeiraFromArquivo() em
+  -- ideologica/import/parse_report.js. Null nos relatórios importados antes
+  -- dessa coluna existir; o frontend cai pra heurística de texto nesse caso.
+  bandeira text check (bandeira in ('rj','ml','mega')),
   unique (loja, periodo_inicio, periodo_fim)
 );
+
+-- Migração: se a tabela já existia antes da coluna bandeira, adiciona agora
+-- (no-op se você está rodando isso pela primeira vez, já vem no create table acima).
+alter table faturamento_relatorios add column if not exists bandeira text;
+alter table faturamento_relatorios drop constraint if exists faturamento_relatorios_bandeira_check;
+alter table faturamento_relatorios add constraint faturamento_relatorios_bandeira_check check (bandeira in ('rj','ml','mega'));
 
 create index if not exists idx_fr_loja on faturamento_relatorios (loja);
 create index if not exists idx_fr_consultor on faturamento_relatorios (consultor);
@@ -89,7 +100,7 @@ begin
   insert into faturamento_relatorios
     (loja, consultor, periodo_inicio, periodo_fim, total_faturado,
      total_taxa_adicional, valor_anulado, total_tickets, total_volume,
-     arquivo_origem, gerado_em)
+     arquivo_origem, gerado_em, bandeira)
   values (
     p_relatorio->>'loja',
     p_relatorio->>'consultor',
@@ -101,7 +112,8 @@ begin
     coalesce((p_relatorio->>'total_tickets')::int, 0),
     coalesce((p_relatorio->>'total_volume')::int, 0),
     p_relatorio->>'arquivo_origem',
-    (p_relatorio->>'gerado_em')::timestamptz
+    (p_relatorio->>'gerado_em')::timestamptz,
+    p_relatorio->>'bandeira'
   )
   on conflict (loja, periodo_inicio, periodo_fim)
   do update set
@@ -113,6 +125,7 @@ begin
     total_volume = excluded.total_volume,
     arquivo_origem = excluded.arquivo_origem,
     gerado_em = excluded.gerado_em,
+    bandeira = excluded.bandeira,
     importado_em = now()
   returning id into v_id;
 
