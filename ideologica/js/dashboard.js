@@ -3,6 +3,22 @@ let allRelatorios = [];
 let tingimentoPorRelatorio = new Map(); // relatorio_id -> peças (volume) captadas p/ tingimento
 let sortKey = "total_faturado";
 let sortDir = -1;
+let mesFiltro = ""; // "" = todos, ou "YYYY-MM"
+
+const MESES_PT = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+function mesLabel(ym){
+  const nome = MESES_PT[Number(ym.slice(5,7))-1] || ym;
+  return nome.charAt(0).toUpperCase()+nome.slice(1);
+}
+// Enquanto há poucos meses de dados, pills (um por mês existente) são mais
+// diretos que um seletor de data-a-data. Se o histórico crescer muito, vale
+// voltar pra um seletor de intervalo.
+function renderMesPills(){
+  const meses = [...new Set(allRelatorios.map(r=>r.periodo_inicio.slice(0,7)))].sort();
+  document.getElementById("f-mes-pills").innerHTML =
+    `<button type="button" class="pill-btn${mesFiltro===""?" on":""}" data-mes="">Todos</button>` +
+    meses.map(m=>`<button type="button" class="pill-btn${mesFiltro===m?" on":""}" data-mes="${m}">${mesLabel(m)}</button>`).join("");
+}
 
 function fmtMoney(v){
   return (v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0});
@@ -121,20 +137,18 @@ function populateFilterOptions(){
       consultorSel.appendChild(opt);
     }
   }
+  renderMesPills();
 }
 
 function getFiltered(){
   const bandeira = document.getElementById("f-bandeira").value;
   const loja = document.getElementById("f-loja").value;
   const consultor = document.getElementById("f-consultor").value;
-  const dataIni = document.getElementById("f-data-ini").value;
-  const dataFim = document.getElementById("f-data-fim").value;
   return allRelatorios.filter(r=>{
     if(bandeira && brandOf(r.loja)!==bandeira) return false;
     if(loja && r.loja!==loja) return false;
     if(consultor && r.consultor!==consultor) return false;
-    if(dataIni && r.periodo_fim < dataIni) return false;
-    if(dataFim && r.periodo_inicio > dataFim) return false;
+    if(mesFiltro && !r.periodo_inicio.startsWith(mesFiltro)) return false;
     return true;
   });
 }
@@ -287,15 +301,22 @@ function initSortHandlers(){
 }
 
 function initFilterHandlers(){
-  ["f-bandeira","f-loja","f-consultor","f-data-ini","f-data-fim"].forEach(id=>{
+  ["f-bandeira","f-loja","f-consultor"].forEach(id=>{
     document.getElementById(id).addEventListener("change",render);
+  });
+  document.getElementById("f-mes-pills").addEventListener("click",(e)=>{
+    const btn = e.target.closest(".pill-btn");
+    if(!btn) return;
+    mesFiltro = btn.dataset.mes;
+    renderMesPills();
+    render();
   });
   document.getElementById("btn-clear").addEventListener("click",()=>{
     document.getElementById("f-bandeira").value="";
     document.getElementById("f-loja").value="";
     document.getElementById("f-consultor").value="";
-    document.getElementById("f-data-ini").value="";
-    document.getElementById("f-data-fim").value="";
+    mesFiltro="";
+    renderMesPills();
     render();
   });
 }

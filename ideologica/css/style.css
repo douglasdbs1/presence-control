@@ -40,6 +40,11 @@ body{font-family:var(--font);font-weight:600;background:var(--bg);color:var(--te
 .btn-clear{font-family:var(--font);font-size:11px;padding:7px 12px;border:1px solid var(--border2);background:#fff;color:var(--text2);border-radius:6px;cursor:pointer;height:fit-content;}
 .btn-clear:hover{background:var(--surface2);}
 
+.pill-toggle{display:flex;flex-wrap:wrap;gap:6px;}
+.pill-btn{font-family:var(--font);font-size:11px;font-weight:700;padding:7px 12px;border:1px solid var(--border2);background:#fff;color:var(--text2);border-radius:999px;cursor:pointer;}
+.pill-btn:hover{border-color:var(--teal-mid);color:var(--teal-mid);}
+.pill-btn.on{background:var(--teal-mid);border-color:var(--teal-mid);color:#fff;}
+
 /* KPI CARDS */
 .kpis{display:grid;grid-template-columns:1.15fr 1fr 1fr 1.15fr .65fr;gap:12px;margin-bottom:18px;}
 .kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
