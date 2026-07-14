@@ -1503,7 +1503,7 @@ function renderActiveContent(){
 // ── PAGE NAV ──
 // Minhas lojas / checklist
 let currentMineStores=[];
-let mineSortMode='golive'; // 'golive' | 'contratos'
+let mineSortMode='golive'; // 'golive' | 'contratos' | 'checklist'
 let currentChecklistKey='';
 let currentChecklistLoja=null;
 function consultorLogin(){
@@ -1562,9 +1562,15 @@ function contractAgeBar(l){
 }
 // Ordenação de "Minhas lojas": 'golive' cruza Presence + Zoho (tvRecord, a
 // mesma lógica da TV) pra achar a data de go-live mais confiável; 'contratos'
-// usa a data de assinatura. Lojas sem data ficam sempre por último.
+// usa a data de assinatura; 'checklist' ordena pelas lojas com maior % de
+// checklist preenchido. Lojas sem data ficam sempre por último.
 function setMineSort(mode){mineSortMode=mode;renderMine();}
 function mineSortCompare(a,b){
+  if(mineSortMode==='checklist'){
+    const pa=checklistProgress(a).pct,pb=checklistProgress(b).pct;
+    if(pa!==pb)return pb-pa;
+    return String(a.loja).localeCompare(String(b.loja),'pt');
+  }
   const da=mineSortMode==='golive'?tvRecord(a)._tvParsed:contractSignedDate(a);
   const db=mineSortMode==='golive'?tvRecord(b)._tvParsed:contractSignedDate(b);
   if(da&&db&&da-db)return da-db;
@@ -1608,7 +1614,7 @@ function renderMine(){
     consCard=`<div class="mine-cons-card"><div class="mine-cons-title">Preenchimento do checklist por consultor</div><div class="mine-cons-grid">${rows.map(g=>`<div><div class="mine-cons-top"><span>${esc(g.r)}</span><span class="mine-cons-pct" style="color:${color(g.pct)}">${g.pct}%</span></div><div class="mine-track"><div class="mine-fill" style="width:${g.pct}%;background:${color(g.pct)}"></div></div><div class="mine-cons-sub">${g.done}/${g.total} itens · ${g.n} loja${g.n===1?'':'s'} · ${g.full} completa${g.full===1?'':'s'}</div></div>`).join('')}</div></div>`;
   }
   const cards=currentMineStores.map((l,i)=>{const p=checklistProgress(l),c=checklistFor(l),cls=p.done===p.total?' ready':p.done?' warn':'';const updated=c.updatedAt?`Atualizado ${new Date(c.updatedAt).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}`:'Sem atualização';return `<div class="mine-card${cls}" onclick="openChecklistModal(${i})">${mineGoliveBadgeHtml(l)}<div><div class="mine-card-title">${esc(l.loja)}</div><div class="mine-card-meta">${redeTagHtml(l)}${l.num?`<span class="store-num-pill after">${esc(l.num)}</span>`:''}<span class="tag-resp">${esc(l.responsavel||'Sem consultor')}</span>${badgeHtml(l.status)}${instBadgeHtml(l)}</div></div><div class="mine-progress"><div class="mine-progress-top"><span>${p.done}/${p.total} itens concluídos</span><span>${p.pct}%</span></div><div class="mine-track"><div class="mine-fill" style="width:${p.pct}%"></div></div><div class="mine-sub" style="margin-top:8px">${esc(updated)}</div>${contractAgeBar(l)}</div></div>`;}).join('');
-  const sortToggle=`<div class="mine-sort-toggle"><button class="mine-sort-opt${mineSortMode==='golive'?' on':''}" onclick="setMineSort('golive')">Próximos go-lives</button><button class="mine-sort-opt${mineSortMode==='contratos'?' on':''}" onclick="setMineSort('contratos')">Contratos</button></div>`;
+  const sortToggle=`<div class="mine-sort-toggle"><button class="mine-sort-opt${mineSortMode==='golive'?' on':''}" onclick="setMineSort('golive')">Próximos go-lives</button><button class="mine-sort-opt${mineSortMode==='contratos'?' on':''}" onclick="setMineSort('contratos')">Contratos</button><button class="mine-sort-opt${mineSortMode==='checklist'?' on':''}" onclick="setMineSort('checklist')">Checklist preenchido</button></div>`;
   document.getElementById('content').innerHTML=`<div class="mine-head"><div><div class="mine-title">Minhas lojas</div><div class="mine-sub">${currentMineStores.length} loja(s) em acompanhamento. ${doneCount} com checklist completo.</div></div><div class="mine-user">${sortToggle}<span class="tag-resp">${esc(who)}</span>${consultorUser?'<button class="btn-sm" onclick="consultorLogout()">Sair</button>':''}</div></div>${consCard}${cards?`<div class="mine-grid">${cards}</div>`:'<div class="mine-empty">Nenhuma loja em implantação para este consultor.</div>'}`;
 }
 function openChecklistModal(idx){
