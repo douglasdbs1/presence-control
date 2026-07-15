@@ -55,7 +55,7 @@ body{font-family:var(--font);font-weight:600;background:var(--bg);color:var(--te
 .btn-save-all:hover{background:var(--teal-mid);color:#fff;}
 .topbar-link{font-size:11px;color:var(--text3);text-decoration:none;margin-right:10px;}
 .topbar-link:hover{color:var(--teal-mid);}
-.app-switch{display:flex;align-items:stretch;height:26px;border:1px solid var(--border2);border-radius:999px;overflow:hidden;font-size:11px;font-weight:700;margin-right:10px;}
+.app-switch{display:flex;align-items:stretch;height:26px;border:1px solid var(--border2);border-radius:999px;overflow:hidden;font-size:11px;font-weight:700;margin-left:10px;}
 .app-switch a,.app-switch span{display:flex;align-items:center;padding:0 14px;text-decoration:none;color:var(--text3);}
 .app-switch a:hover{color:var(--teal-mid);}
 .app-switch span.on{background:var(--teal-mid);color:#fff;}
@@ -735,13 +735,13 @@ td.oc{max-width:260px;}
   <span class="sys-title">Presence Control</span>
   <span class="sys-sub" id="sys-sub">Implantações em andamento</span>
   <div class="spacer"></div>
+  <span class="topbar-date" id="hdate"></span>
+  <span id="mode-pill" class="readonly-pill"></span><button class="btn-save-all edit-only" onclick="saveAll()">↓ Salvar tudo</button>
   <div class="app-switch">
     <span class="on">Presence</span>
     <span class="app-switch-div"></span>
     <a href="../ideologica/index.html">Ideológica</a>
   </div>
-  <span class="topbar-date" id="hdate"></span>
-  <span id="mode-pill" class="readonly-pill"></span><button class="btn-save-all edit-only" onclick="saveAll()">↓ Salvar tudo</button>
 </div>
 
 <nav class="page-nav">
