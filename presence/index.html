@@ -429,10 +429,9 @@ body.tv-mode .content{max-width:none;padding:0;background:#0a1330;}
 .tv-clock{text-align:right;}
 .tv-time{font-size:clamp(38px,4.8vw,70px);font-weight:850;line-height:1;color:#fff;}
 .tv-date{font-size:clamp(17px,1.5vw,24px);font-weight:700;color:#93a0c4;margin-top:6px;text-transform:uppercase;letter-spacing:.08em;}
-.tv-stage{min-height:0;display:grid;grid-template-columns:1fr 250px;gap:18px;}
+.tv-stage{min-height:0;display:grid;grid-template-columns:1fr 300px;gap:18px;}
 .tv-slides{min-height:0;}
-.tv-rail{display:grid;gap:14px;align-content:start;}
-.tv-rail .tv-stat .n{font-size:clamp(38px,4vw,64px);}
+.tv-rail{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;align-content:start;}
 .tv-rail .tv-stat.ok .n{color:#4fd1a5;}
 .tv-progress{height:6px;border-radius:999px;background:#1a2463;overflow:hidden;}
 .tv-progress-fill{height:100%;width:0;border-radius:999px;background:#4fd1a5;}
@@ -440,7 +439,6 @@ body.tv-mode .content{max-width:none;padding:0;background:#0a1330;}
 .tv-slide{display:none;min-height:100%;animation:tvFade .45s ease;}
 .tv-slide.on{display:block;}
 @keyframes tvFade{from{opacity:.65;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.tv-grid{display:grid;grid-template-columns:1.45fr .55fr;gap:22px;height:100%;}
 .tv-main-list{display:grid;gap:14px;align-content:start;}
 .tv-gl-card{display:grid;grid-template-columns:118px 1fr auto;gap:18px;align-items:center;background:#131c42;border:1px solid #262f5c;border-left:8px solid #4fd1a5;border-radius:8px;padding:18px 22px;min-height:112px;}
 .tv-gl-card.today{border-left-color:#ffcf5a;background:#131c42;}
@@ -458,9 +456,8 @@ body.tv-mode .content{max-width:none;padding:0;background:#0a1330;}
 .tv-when{text-align:right;min-width:124px;}
 .tv-when b{display:block;font-size:clamp(24px,2.3vw,38px);line-height:1;color:#fff;}
 .tv-when span{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:#93a0c4;}
-.tv-side{display:grid;gap:14px;align-content:start;}
 .tv-stat{background:#131c42;border:1px solid #262f5c;border-radius:8px;padding:18px;}
-.tv-stat .n{font-size:clamp(42px,5vw,78px);font-weight:850;line-height:.9;color:#fff;}
+.tv-stat .n{font-size:clamp(32px,3.4vw,52px);font-weight:850;line-height:.9;color:#fff;}
 .tv-stat .l{font-size:14px;font-weight:800;color:#93a0c4;text-transform:uppercase;letter-spacing:.08em;margin-top:8px;}
 .tv-section-title{font-size:clamp(30px,3.2vw,48px);font-weight:850;margin-bottom:18px;color:#fff;}
 .tv-week{display:grid;grid-template-columns:1fr;gap:10px;height:100%;}
@@ -492,7 +489,7 @@ body.tv-mode .content{max-width:none;padding:0;background:#0a1330;}
 .tv-dots{display:flex;gap:8px;}
 .tv-dot{width:34px;height:5px;border-radius:999px;background:#33407a;}
 .tv-dot.on{background:#4fd1a5;}
-@media(max-width:900px){.tv-wrap{padding:18px;}.tv-head,.tv-grid,.tv-stage{grid-template-columns:1fr;}.tv-rail{grid-template-columns:repeat(3,1fr);}.tv-clock{text-align:left;}.tv-gl-card{grid-template-columns:76px 1fr;}.tv-when{grid-column:1/-1;text-align:left;}.tv-week,.tv-risk-list{grid-template-columns:1fr;}.tv-daycol{grid-template-columns:1fr;}.tv-store,.tv-week-store,.tv-risk-title{white-space:normal;}.tv-foot{grid-template-columns:1fr;}}
+@media(max-width:900px){.tv-wrap{padding:18px;}.tv-head,.tv-stage{grid-template-columns:1fr;}.tv-rail{grid-template-columns:repeat(3,1fr);}.tv-clock{text-align:left;}.tv-gl-card{grid-template-columns:76px 1fr;}.tv-when{grid-column:1/-1;text-align:left;}.tv-week,.tv-risk-list{grid-template-columns:1fr;}.tv-daycol{grid-template-columns:1fr;}.tv-store,.tv-week-store,.tv-risk-title{white-space:normal;}.tv-foot{grid-template-columns:1fr;}}
 
 /* ACTIVE PRESENCE */
 .active-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:14px;}
@@ -1745,7 +1742,7 @@ function tvAgendaDays(items){
     .filter(d=>{const k=d.toISOString().slice(0,10);if(seen.has(k))return false;seen.add(k);return true;})
     .slice(0,5);
 }
-function tvSlideUpcoming(items,stats){
+function tvSlideUpcoming(items){
   // mostra todos os go-lives de hoje+amanha (minimo 3 — completa com os
   // proximos mais proximos se hoje+amanha tiver menos que isso); acima de 3
   // linhas, rola automaticamente (mesmo mecanismo da tela de contratos aguardando)
@@ -1755,17 +1752,8 @@ function tvSlideUpcoming(items,stats){
   const rollStyle=extra?` style="--main-offset:-${extra*rowH}px;--main-duration:${tvSlideMs(0)}ms"`:'';
   const list=rows.map(tvCard).join('');
   return `<section class="tv-slide on" data-tv-slide="0">
-    <div class="tv-grid">
-      <div>
-        <div class="tv-section-title">Próximos go-lives</div>
-        <div class="tv-main-viewport${extra?' roll':''}"${rollStyle}><div class="tv-main-list">${list||'<div class="tv-empty">Nenhum go-live marcado nos próximos 30 dias.</div>'}</div></div>
-      </div>
-      <div class="tv-side">
-        <div class="tv-stat"><div class="n">${stats.today}</div><div class="l">Hoje</div></div>
-        <div class="tv-stat"><div class="n">${stats.week}</div><div class="l">Próximos 7 dias</div></div>
-        <div class="tv-stat"><div class="n">${stats.noDate}</div><div class="l">Sem data</div></div>
-      </div>
-    </div>
+    <div class="tv-section-title">Próximos go-lives</div>
+    <div class="tv-main-viewport${extra?' roll':''}"${rollStyle}><div class="tv-main-list">${list||'<div class="tv-empty">Nenhum go-live marcado nos próximos 30 dias.</div>'}</div></div>
   </section>`;
 }
 function tvSlideWeek(items){
@@ -1873,18 +1861,21 @@ function renderTV(){
   };
   document.getElementById('content').innerHTML=`<div class="tv-wrap">
     <div class="tv-head">
-      <div><div class="tv-kicker">Presence Control</div><div class="tv-title">Go-lives no radar</div><div class="tv-sub">Painel rotativo para acompanhamento da franqueadora</div></div>
+      <div><div class="tv-title">Go-lives no radar</div><div class="tv-sub">Painel rotativo para acompanhamento da franqueadora</div></div>
       <div class="tv-clock"><div class="tv-time" id="tv-time"></div><div class="tv-date" id="tv-date"></div></div>
     </div>
     <div class="tv-stage">
       <div class="tv-slides">
-        ${tvSlideUpcoming(items,stats)}
+        ${tvSlideUpcoming(items)}
         ${tvSlideWeek(items)}
         ${tvSlideRisks()}
       </div>
       <aside class="tv-rail">
+        <div class="tv-stat"><div class="n">${stats.today}</div><div class="l">Hoje</div></div>
         <div class="tv-stat ok"><div class="n">${rail.ativo}</div><div class="l">Sistema ativo</div></div>
+        <div class="tv-stat"><div class="n">${stats.week}</div><div class="l">Próximos 7 dias</div></div>
         <div class="tv-stat"><div class="n">${rail.assinado}</div><div class="l">Contratos assinados</div></div>
+        <div class="tv-stat"><div class="n">${stats.noDate}</div><div class="l">Sem data</div></div>
         <div class="tv-stat"><div class="n">${rail.agendado}</div><div class="l">Go-live agendado</div></div>
       </aside>
     </div>
