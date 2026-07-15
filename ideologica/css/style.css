@@ -1,6 +1,6 @@
 :root{
-  --bg:#f2f0ec;--surface:#fff;--surface2:#f7f5f1;--border:#e0ddd5;--border2:#c8c4bb;
-  --text:#111110;--text2:#5c5a56;--text3:#9b9a92;
+  --bg:#eef1f4;--surface:#ffffff;--surface2:#f6f8fa;--border:#dde3e8;--border2:#b8c2cc;
+  --text:#15171a;--text2:#4d5761;--text3:#7d8790;
   --teal:#065f46;--teal-bg:#def7ec;--teal-mid:#0f8b63;
   --indigo:#33439b;--indigo-bg:#e7eafd;
   --red:#9d1c1c;--red-bg:#fde5e5;
@@ -9,7 +9,7 @@
   --font:'Montserrat',system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:var(--font);font-weight:600;background:var(--bg);color:var(--text);font-size:13px;min-height:100vh;}
+body{font-family:var(--font);font-weight:600;background:linear-gradient(180deg,#f7f8fa 0,#eef1f4 220px,#eef1f4 100%);color:var(--text);font-size:13px;min-height:100vh;}
 
 .logo-bar{background:#fff;text-align:center;padding:14px 16px;border-bottom:1px solid #e6e6e6;}
 .logo-bar img{height:56px;width:auto;max-width:90%;display:inline-block;vertical-align:middle;}
