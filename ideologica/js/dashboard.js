@@ -215,11 +215,11 @@ function lojaDetailHtml(lojaName, periodoFim){
   const sumField = (list,f) => list.reduce((s,it)=>s+Number(it[f]||0),0);
   const totalRow = (list) => {
     const fat = sumField(list,"faturamento"), vol = sumField(list,"volume"), tix = sumField(list,"tickets");
-    return `<tr class="total-row"><td>Total</td><td class="num">${fmtMoney(fat)}</td><td class="num">${fmtNum(vol)}</td><td class="num">${fmtMoney(tix?fat/tix:0)}</td></tr>`;
+    return `<tr class="total-row"><td>Total</td><td class="num">${fmtNum(vol)}</td><td class="num">${fmtMoney(tix?fat/tix:0)}</td><td class="num">${fmtMoney(fat)}</td></tr>`;
   };
   const catTable = (titulo, list) => !list.length ? "" : `
-    <table class="mini-table"><thead><tr><th>${titulo}</th><th class="num">Faturamento</th><th class="num">Volume</th><th class="num">Ticket médio</th></tr></thead>
-    <tbody>${list.map(it=>`<tr><td>${it.categoria}</td><td class="num">${fmtMoney(it.faturamento)}</td><td class="num">${fmtNum(it.volume)}</td><td class="num">${fmtMoney(it.media_ticket)}</td></tr>`).join("")}${totalRow(list)}</tbody></table>`;
+    <table class="mini-table"><thead><tr><th>${titulo}</th><th class="num">Volume</th><th class="num">Ticket médio</th><th class="num">Faturamento</th></tr></thead>
+    <tbody>${list.map(it=>`<tr><td>${it.categoria}</td><td class="num">${fmtNum(it.volume)}</td><td class="num">${fmtMoney(it.media_ticket)}</td><td class="num">${fmtMoney(it.faturamento)}</td></tr>`).join("")}${totalRow(list)}</tbody></table>`;
   const totalGeral = sumField(servicos,"faturamento") + sumField(produtos,"faturamento");
   return `
     <div class="loja-detail">
