@@ -81,6 +81,17 @@ const LOJA_DISPLAY_OVERRIDES = {
 function displayLoja(loja){
   return LOJA_DISPLAY_OVERRIDES[loja] || loja;
 }
+// Pré-seleciona o filtro de consultor pela identidade logada no hall (auth.js),
+// sem travar a tela pra quem chegar aqui direto sem login (fica em "Todos").
+function normHallName(s){return (s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim();}
+function applyHallConsultorFilter(consultorSel){
+  if(typeof hallGetUser!=="function") return;
+  const hu = hallGetUser();
+  if(!hu || hu.role!=="consultor") return;
+  const alvo = normHallName(hu.nome);
+  const match = [...consultorSel.options].find(o=>o.value && normHallName(o.value)===alvo);
+  if(match) consultorSel.value = match.value;
+}
 
 // Enquanto há poucos meses de dados, pills (um por mês existente) são mais
 // diretos que um seletor de data-a-data pra escolher o "até" de cada
@@ -152,6 +163,7 @@ function populateFilterOptions(){
     opt.value=c; opt.textContent=c;
     consultorSel.appendChild(opt);
   }
+  applyHallConsultorFilter(consultorSel);
   const categorias = new Set();
   for(const r of allRelatorios) for(const it of (r.itens||[])) categorias.add(it.categoria);
   for(const c of [...categorias].sort()){
@@ -454,6 +466,13 @@ function initFilterHandlers(){
 }
 
 (async function init(){
+  if(typeof hallGetUser==="function"){
+    const hu = hallGetUser();
+    if(hu && hu.role==="admin"){
+      const a = document.getElementById("switch-presence");
+      if(a) a.href = "../presence/admin.html";
+    }
+  }
   if(!window.supabase){
     showToast("Biblioteca do Supabase não carregou.");
     return;

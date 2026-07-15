@@ -3,16 +3,72 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Presence Control</title>
-<link rel="canonical" href="https://douglasdbs1.github.io/gruporestaura/presence/">
-<meta http-equiv="refresh" content="0; url=./presence/">
-<script>location.replace('./presence/');</script>
+<title>Grupo Restaura</title>
+<link rel="canonical" href="https://douglasdbs1.github.io/gruporestaura/">
 <style>
-body{font-family:system-ui,sans-serif;background:#f2f0ec;color:#111110;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;}
-a{color:#158a61;}
+:root{--teal:#0a5c47;--teal-mid:#158a61;--teal-bg:#e0f5ec;--border:#e2ded4;--border2:#c8c4bb;--text:#111110;--text2:#5c5a56;--text3:#9b9a92;--bg:#f2f0ec;--font:'Montserrat',system-ui,sans-serif;}
+*{box-sizing:border-box;}
+body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.hall-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:34px 30px;max-width:360px;width:100%;box-shadow:0 10px 34px rgba(0,0,0,.08);text-align:center;}
+.hall-logo{height:60px;width:auto;max-width:90%;margin-bottom:22px;}
+.hall-title{font-size:16px;font-weight:700;margin-bottom:4px;}
+.hall-sub{font-size:12px;color:var(--text3);margin-bottom:20px;line-height:1.5;}
+.hall-card select,.hall-card input[type=password]{width:100%;font-family:var(--font);font-size:13px;padding:9px 10px;border:1px solid var(--border2);border-radius:7px;margin-bottom:10px;background:#fff;color:var(--text);}
+.hall-btn{width:100%;font-family:var(--font);font-size:13px;font-weight:700;padding:10px;border:1px solid var(--teal-mid);background:var(--teal-mid);color:#fff;border-radius:7px;cursor:pointer;}
+.hall-btn:hover{opacity:.9;}
+.hall-msg{font-size:12px;color:#8b1a1a;margin-top:8px;display:none;}
+.hall-welcome{font-size:13px;color:var(--text2);margin-bottom:18px;}
+.hall-apps{display:flex;flex-direction:column;gap:10px;}
+.hall-app-btn{display:block;font-family:var(--font);font-size:14px;font-weight:700;padding:14px;border:1px solid var(--border2);border-radius:10px;text-decoration:none;color:var(--text);background:#fff;transition:border-color .15s,color .15s;}
+.hall-app-btn:hover{border-color:var(--teal-mid);color:var(--teal-mid);}
+.hall-logout{display:inline-block;margin-top:18px;font-size:11px;color:var(--text3);text-decoration:none;}
+.hall-logout:hover{color:var(--teal-mid);}
 </style>
 </head>
 <body>
-<p>Redirecionando para o <a href="./presence/">Presence Control</a>...</p>
+<div class="hall-card" id="hall"></div>
+<script src="./auth.js"></script>
+<script>
+function renderHall(){
+  const user = hallGetUser();
+  const el = document.getElementById('hall');
+  if(!user){
+    el.innerHTML = `
+      <img class="hall-logo" src="./logo.png" alt="Grupo Restaura Franchising">
+      <div class="hall-title">Acesso interno</div>
+      <div class="hall-sub">Selecione seu usuário e digite a senha para entrar.</div>
+      <select id="hall-user">
+        <option value="">Selecione...</option>
+        ${HALL_USERS.map(u=>`<option value="${u.id}">${u.nome}</option>`).join('')}
+      </select>
+      <input id="hall-pass" type="password" placeholder="Senha" onkeydown="if(event.key==='Enter')hallDoLogin()">
+      <button class="hall-btn" onclick="hallDoLogin()">Entrar</button>
+      <div class="hall-msg" id="hall-msg">Usuário ou senha incorretos.</div>
+    `;
+  }else{
+    const presenceHref = user.role==='admin' ? './presence/admin.html' : './presence/index.html';
+    el.innerHTML = `
+      <img class="hall-logo" src="./logo.png" alt="Grupo Restaura Franchising">
+      <div class="hall-title">Olá, ${user.nome}</div>
+      <div class="hall-welcome">Escolha o sistema que quer abrir.</div>
+      <div class="hall-apps">
+        <a class="hall-app-btn" href="${presenceHref}">Presence</a>
+        <a class="hall-app-btn" href="./ideologica/index.html">Ideológica</a>
+      </div>
+      <a class="hall-logout" href="#" onclick="hallDoLogout();return false;">Trocar de usuário</a>
+    `;
+  }
+}
+function hallDoLogin(){
+  const id = document.getElementById('hall-user').value;
+  const senha = document.getElementById('hall-pass').value;
+  const u = hallCheckLogin(id, senha);
+  if(!u){ document.getElementById('hall-msg').style.display='block'; return; }
+  hallSetUser(u);
+  renderHall();
+}
+function hallDoLogout(){ hallLogout(); renderHall(); }
+renderHall();
+</script>
 </body>
 </html>

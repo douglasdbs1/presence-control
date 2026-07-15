@@ -21,10 +21,11 @@
   <div class="spacer"></div>
   <a class="topbar-link" href="index.html">Visão geral ↗</a>
   <div class="app-switch">
-    <a href="../presence/index.html">Presence</a>
+    <a href="../presence/index.html" id="switch-presence">Presence</a>
     <span class="app-switch-div"></span>
     <span class="on">Ideológica</span>
   </div>
+  <a class="topbar-link" href="#" onclick="hallLogout();location.href='../index.html';return false;" style="margin-left:10px;">Sair</a>
 </div>
 
 <div class="content">
@@ -77,6 +78,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../auth.js"></script>
 <script src="js/config.js"></script>
 <script src="js/comparativo.js"></script>
 </body>

@@ -742,6 +742,7 @@ td.oc{max-width:260px;}
     <span class="app-switch-div"></span>
     <a href="../ideologica/index.html">Ideológica</a>
   </div>
+  <a class="topbar-link" href="#" onclick="hallSignOut();return false;" style="margin-right:0;margin-left:10px;">Sair</a>
 </div>
 
 <nav class="page-nav">
@@ -991,6 +992,7 @@ td.oc{max-width:260px;}
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../auth.js"></script>
 <script>
 // ── SUPABASE CONFIG ── (build 2026-07-03b)
 const SUPABASE_URL = "https://ldkthfsczvqmotauqyis.supabase.co";
@@ -998,16 +1000,19 @@ const SUPABASE_ANON_KEY = "sb_publishable_OtUjDdX6GbNjFFY7XyGLoQ_sOCikmgr";
 const SUPABASE_TABLE = "presence_control_state";
 const SUPABASE_STATE_KEY = "main";
 const APP_MODE = "viewer"; // viewer | admin
-const ADMIN_PASSWORD = "douglas2026"; // troque se quiser
 const ADMIN_RPC_TOKEN = "pc_edit_token_douglas_2026_4c2a9b8f"; // precisa ser igual ao token do SQL
-const CONSULTOR_USERS = [
-  {id:"marcelo",nome:"Marcelo",senha:"marcelo2026"},
-  {id:"glavio",nome:"Gl\u00e1vio",senha:"glavio2026"},
-  {id:"maiara",nome:"Maiara",senha:"maiara2026"},
-  {id:"bruno",nome:"Bruno",senha:"bruno2026"},
-];
-let adminUnlocked = APP_MODE === "admin" && sessionStorage.getItem("pc_admin_unlocked") === "1";
-let consultorUser = JSON.parse(sessionStorage.getItem("pc_consultor_user") || "null");
+let adminUnlocked = false;
+let consultorUser = null;
+// Identidade vem do hall (login unico em /index.html), nao de senha local
+// nesta pagina. Sem usuario no hall, redireciona pra la antes de montar nada.
+function applyHallIdentity(){
+  const hu = hallGetUser();
+  if(!hu){ location.replace('../index.html'); return false; }
+  if(hu.role==='admin'){ adminUnlocked = true; }
+  else { consultorUser = {id:hu.id, nome:hu.nome}; }
+  return true;
+}
+function hallSignOut(){ hallLogout(); location.replace('../index.html'); }
 function canEdit(){ return APP_MODE === "admin" && adminUnlocked; }
 function canSaveChecklist(){ return canEdit() || !!consultorUser; }
 function applyModeUi(){
@@ -1089,12 +1094,12 @@ async function saveToSupabase(silent=false){
   refreshTVIfOpen();
 }
 async function initApp(){
+  if(!applyHallIdentity()) return;
   applyModeUi();
   load(); loadDb(); loadSupport(); loadActive(); loadCrm(); loadChecklist(); initSupabase();
   if(supabaseEnabled) await loadFromSupabase();
   isBooting=false;
-  setPage(APP_MODE === "viewer" ? "mine" : "active");
-  if(APP_MODE === "admin" && !adminUnlocked) renderAdminLogin();
+  setPage("mine");
   applyModeUi();
 }
 
@@ -1512,20 +1517,7 @@ let currentMineStores=[];
 let mineSortMode='golive'; // 'golive' | 'contratos' | 'checklist'
 let currentChecklistKey='';
 let currentChecklistLoja=null;
-function consultorLogin(){
-  const id=(document.getElementById('consultor-user')||{value:''}).value;
-  const senha=(document.getElementById('consultor-pass')||{value:''}).value;
-  const u=CONSULTOR_USERS.find(x=>x.id===id&&x.senha===senha);
-  if(!u){const m=document.getElementById('consultor-login-msg');if(m)m.style.display='block';return;}
-  consultorUser={id:u.id,nome:u.nome};
-  sessionStorage.setItem('pc_consultor_user',JSON.stringify(consultorUser));
-  applyModeUi();
-  setPage('mine');
-}
-function consultorLogout(){sessionStorage.removeItem('pc_consultor_user');consultorUser=null;applyModeUi();setPage('mine');}
-function renderConsultorLogin(){
-  document.getElementById('content').innerHTML=`<div class="consultor-login"><h2>Acesso do consultor</h2><p>Entre para ver somente suas lojas em implantação e atualizar o checklist de cadastros iniciais.</p><select id="consultor-user"><option value="marcelo">Marcelo</option><option value="glavio">Gl&aacute;vio</option><option value="maiara">Maiara</option><option value="bruno">Bruno</option></select><input id="consultor-pass" type="password" placeholder="Senha" onkeydown="if(event.key==='Enter')consultorLogin()"><button onclick="consultorLogin()">Entrar</button><p id="consultor-login-msg" style="display:none;color:#8b1a1a;margin:10px 0 0">Usuário ou senha inválidos.</p></div>`;
-}
+function consultorLogout(){hallSignOut();}
 function checklistKey(l){return (l.num&&l.num.trim())?'num:'+l.num.trim():'loja:'+normLojaName(l.loja)+'|'+redeFromGrupo(l.grupo,l.rede);}
 function checklistFor(l){return checklistCadastros[checklistKey(l)]||{itens:{},obs:'',updatedAt:'',updatedBy:''};}
 function checklistProgress(l){const c=checklistFor(l),done=CHECKLIST_ITENS.filter(i=>c.itens&&c.itens[i.key]).length,total=CHECKLIST_ITENS.length;return {done,total,pct:Math.round(done/total*100)};}
@@ -1598,9 +1590,8 @@ function mineStores(){
   return list.filter(l=>canEdit()||!name||normLojaName(l.responsavel)===name).sort(mineSortCompare);
 }
 function renderMine(){
-  if(!canEdit()&&!consultorUser){renderConsultorLogin();return;}
   currentMineStores=mineStores();
-  const who=canEdit()?'Admin':consultorUser.nome;
+  const who=consultorUser?consultorUser.nome:'Admin';
   const doneCount=currentMineStores.filter(l=>checklistProgress(l).done===CHECKLIST_ITENS.length).length;
   const cards=currentMineStores.map((l,i)=>{const p=checklistProgress(l),c=checklistFor(l),cls=p.done===p.total?' ready':p.done?' warn':'';const updated=c.updatedAt?`Atualizado ${new Date(c.updatedAt).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}`:'Sem atualização';return `<div class="mine-card${cls}" onclick="openChecklistModal(${i})">${mineGoliveBadgeHtml(l)}<div><div class="mine-card-title">${esc(l.loja)}</div><div class="mine-card-meta">${redeTagHtml(l)}${l.num?`<span class="store-num-pill after">${esc(l.num)}</span>`:''}<span class="tag-resp">${esc(l.responsavel||'Sem consultor')}</span>${badgeHtml(l.status)}${instBadgeHtml(l)}</div></div><div class="mine-progress"><div class="mine-progress-top"><span>${p.done}/${p.total} itens concluídos</span><span>${p.pct}%</span></div><div class="mine-track"><div class="mine-fill" style="width:${p.pct}%"></div></div><div class="mine-sub" style="margin-top:8px">${esc(updated)}</div>${contractAgeBar(l)}</div></div>`;}).join('');
   const sortToggle=`<div class="mine-sort-toggle"><button class="mine-sort-opt${mineSortMode==='golive'?' on':''}" onclick="setMineSort('golive')">Próximos go-lives</button><button class="mine-sort-opt${mineSortMode==='contratos'?' on':''}" onclick="setMineSort('contratos')">Contratos</button><button class="mine-sort-opt${mineSortMode==='checklist'?' on':''}" onclick="setMineSort('checklist')">Checklist preenchido</button></div>`;
@@ -2734,29 +2725,7 @@ function setModalReadonly(modalId){
     el.style.display=ro?'none':'';
   });
 }
-function renderAdminLogin(){
-  if(APP_MODE!=="admin" || adminUnlocked) return;
-  const c=document.getElementById('content');
-  c.innerHTML = `<div class="login-box"><h2>Acesso administrativo</h2><p>Digite a senha local para liberar edição nesta sessão. A visualização continua carregando os dados do Supabase.</p><input id="admin-pass" type="password" placeholder="Senha do Douglas" onkeydown="if(event.key==='Enter')adminLogin()"><button onclick="adminLogin()">Entrar como admin</button><p id="admin-login-msg" style="margin-top:10px;color:#8b1a1a;display:none">Senha incorreta.</p></div>`;
-}
-function adminLogin(){
-  const v=(document.getElementById('admin-pass')||{value:''}).value;
-  if(v===ADMIN_PASSWORD){
-    adminUnlocked=true;
-    sessionStorage.setItem('pc_admin_unlocked','1');
-    applyModeUi();
-    setPage('active');
-    showToast('Edição liberada para esta sessão.');
-  }else{
-    const m=document.getElementById('admin-login-msg'); if(m) m.style.display='block';
-  }
-}
-function adminLogout(){
-  sessionStorage.removeItem('pc_admin_unlocked');
-  adminUnlocked=false;
-  applyModeUi();
-  renderAdminLogin();
-}
+function adminLogout(){hallSignOut();}
 function openModal(idx=-1){
   let l,isStub=false;
   if(idx<=-2){

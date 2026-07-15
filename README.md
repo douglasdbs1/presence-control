@@ -11,11 +11,14 @@ O sistema mora na pasta `presence/`:
 - `presence/index.html`: visão de acompanhamento, pensada para consultores e diretoria.
 - `presence/admin.html`: visão administrativa, usada pelo Douglas para editar lojas, cronogramas, observações e status.
 
-A raiz do site (`index.html`) é só um redirect automático para `presence/`, mantido pra não quebrar links antigos que apontavam direto pra raiz.
+A raiz do site (`index.html`) agora é o **hall de login**: cada pessoa entra selecionando seu usuário (Marcelo, Maiara, Glávio, Bruno ou Admin) e a senha, e a identidade fica salva no `localStorage` do navegador (`auth.js`, compartilhado com o `ideologica/`) — não precisa logar de novo em cada sistema nem repetir senha dentro do `admin.html`. Depois de logar, a tela mostra a logo e dois botões: **Presence** e **Ideológica**.
 
-Na prática, o link principal pode apontar para `presence/index.html`. Para editar, acesse o mesmo endereço usando `presence/admin.html`.
+- Consultor → Presence abre direto em **Minhas lojas**, filtrado pra ele; Ideológica abre com o filtro de Consultor já pré-selecionado (mas pode trocar pra ver os outros).
+- Admin → Presence abre `presence/admin.html` já destravado (sem senha própria); Ideológica abre sem filtro (vê tudo).
 
-O outro sistema do repositório, `ideologica/` (faturamento/comparativo), tem um botão de transição no topo de cada tela pra ir e voltar entre os dois.
+Quem acessar `presence/index.html` ou `presence/admin.html` sem ter passado pelo hall é redirecionado pra lá automaticamente. O `ideologica/` continua acessível sem login (só não pré-filtra o consultor nesse caso).
+
+Cada tela tem um botão de transição (pill "Presence / Ideológica") e um link "Sair" no canto superior direito pra trocar de usuário.
 
 Ao abrir, o sistema mostra primeiro a página **Sistema Presence Ativo**, onde cada loja aparece como um card com a saúde da operação e um indicador (🎧) dos chamados vinculados.
 
@@ -48,7 +51,7 @@ Ao abrir, o sistema tenta carregar os dados do Supabase. Se não conseguir, usa 
 
 O modo leitura fica em `presence/index.html` e não permite edição.
 
-O modo administrativo fica em `presence/admin.html`. Ele libera edição depois da senha local da sessão. Como é um projeto interno, esse modelo é simples e prático, mas não deve ser tratado como autenticação forte para ambiente público.
+O modo administrativo fica em `presence/admin.html`. Ele libera edição pra quem logou como Admin no hall (`index.html` da raiz) — a identidade vem do `localStorage` (`auth.js`), não de uma senha digitada dentro do próprio `admin.html`. Como é um projeto interno, esse modelo é simples e prático (senha em texto puro no cliente), mas não deve ser tratado como autenticação forte para ambiente público.
 
 ## Arquivos Principais
 
