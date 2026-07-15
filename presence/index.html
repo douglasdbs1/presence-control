@@ -471,7 +471,7 @@ body.tv-mode .content{max-width:none;padding:0;background:#0a1330;}
 .tv-risk-list{display:grid;grid-template-columns:1fr;gap:12px;}
 .tv-risk-viewport{height:348px;overflow:hidden;}
 .tv-risk-viewport.roll .tv-risk-list{animation:tvRiskRoll var(--risk-duration,18s) linear infinite alternate;}
-@keyframes tvRiskRoll{from{transform:translateY(0)}to{transform:translateY(var(--risk-offset,0))}}
+@keyframes tvRiskRoll{from{transform:translateY(0)}to{transform:translateY(var(--roll-offset,0))}}
 .tv-main-viewport{height:364px;overflow:hidden;}
 .tv-main-viewport.roll .tv-main-list{animation:tvRiskRoll var(--main-duration,18s) linear infinite alternate;}
 .tv-risk-card{background:#131c42;border:1px solid #262f5c;border-left:8px solid #ff7777;border-radius:8px;padding:18px 22px;min-height:108px;display:flex;align-items:center;justify-content:space-between;gap:18px;}
@@ -1749,7 +1749,7 @@ function tvSlideUpcoming(items){
   const todayTomorrow=items.filter(l=>l._tvDiff===0||l._tvDiff===1).length;
   const rows=items.slice(0,Math.max(3,todayTomorrow));
   const visible=3,rowH=126,extra=Math.max(0,rows.length-visible);
-  const rollStyle=extra?` style="--main-offset:-${extra*rowH}px;--main-duration:${tvSlideMs(0)}ms"`:'';
+  const rollStyle=extra?` style="--roll-offset:-${extra*rowH}px;--main-duration:${tvSlideMs(0)}ms"`:'';
   const list=rows.map(tvCard).join('');
   return `<section class="tv-slide on" data-tv-slide="0">
     <div class="tv-section-title">Próximos go-lives</div>
@@ -1784,7 +1784,7 @@ function tvSlideRisks(){
     .sort((a,b)=>b.age-a.age)
     .slice(0,8);
   const visible=3,rowH=120,extra=Math.max(0,list.length-visible);
-  const rollStyle=extra?` style="--risk-offset:-${extra*rowH}px;--risk-duration:${tvSlideMs(2)}ms"`:'';
+  const rollStyle=extra?` style="--roll-offset:-${extra*rowH}px;--risk-duration:${tvSlideMs(2)}ms"`:'';
   return `<section class="tv-slide" data-tv-slide="2">
     <div class="tv-section-title">Lojas com contrato assinado há mais tempo</div>
     <div class="tv-risk-viewport${extra?' roll':''}"${rollStyle}><div class="tv-risk-list">${list.length?list.map(r=>`<div class="tv-risk-card ${r.age>=60?'':'warn'}">
