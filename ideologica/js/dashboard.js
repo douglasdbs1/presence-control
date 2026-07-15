@@ -201,9 +201,8 @@ function renderKpis(rows){
 }
 
 // Conteúdo exibido ao expandir uma loja (no ranking ou na tabela): quebra por
-// serviço/produto do corte mais recente + histórico de todos os cortes já
-// importados dessa loja, sem respeitar o filtro de mês (histórico é sempre
-// completo, o mês só decide qual valor aparece nos KPIs/ranking).
+// serviço/produto do corte mais recente, com linha de total por bloco e um
+// total geral no fim.
 function lojaDetailHtml(lojaName, periodoFim){
   const historico = allRelatorios
     .filter(r=>r.loja===lojaName)
@@ -213,23 +212,22 @@ function lojaDetailHtml(lojaName, periodoFim){
   const itens = (latest.itens||[]).filter(it=>Number(it.faturamento||0)>0 || Number(it.volume||0)>0);
   const servicos = itens.filter(it=>it.tipo==="servico").sort((a,b)=>Number(b.faturamento||0)-Number(a.faturamento||0));
   const produtos = itens.filter(it=>it.tipo==="produto").sort((a,b)=>Number(b.faturamento||0)-Number(a.faturamento||0));
+  const sumField = (list,f) => list.reduce((s,it)=>s+Number(it[f]||0),0);
+  const totalRow = (list) => {
+    const fat = sumField(list,"faturamento"), vol = sumField(list,"volume"), tix = sumField(list,"tickets");
+    return `<tr class="total-row"><td>Total</td><td class="num">${fmtMoney(fat)}</td><td class="num">${fmtNum(vol)}</td><td class="num">${fmtMoney(tix?fat/tix:0)}</td></tr>`;
+  };
   const catTable = (titulo, list) => !list.length ? "" : `
-    <table class="mini-table"><thead><tr><th>${titulo}</th><th class="num">Faturamento</th><th class="num">Volume</th><th class="num">Tickets</th></tr></thead>
-    <tbody>${list.map(it=>`<tr><td>${it.categoria}</td><td class="num">${fmtMoney(it.faturamento)}</td><td class="num">${fmtNum(it.volume)}</td><td class="num">${fmtNum(it.tickets)}</td></tr>`).join("")}</tbody></table>`;
-  const histTable = `
-    <table class="mini-table"><thead><tr><th>Período</th><th class="num">Faturamento</th><th class="num">Tickets</th></tr></thead>
-    <tbody>${historico.map(r=>`<tr><td>${fmtDate(r.periodo_inicio)} – ${fmtDate(r.periodo_fim)}</td><td class="num">${fmtMoney(r.total_faturado)}</td><td class="num">${fmtNum(r.total_tickets)}</td></tr>`).join("")}</tbody></table>`;
+    <table class="mini-table"><thead><tr><th>${titulo}</th><th class="num">Faturamento</th><th class="num">Volume</th><th class="num">Ticket médio</th></tr></thead>
+    <tbody>${list.map(it=>`<tr><td>${it.categoria}</td><td class="num">${fmtMoney(it.faturamento)}</td><td class="num">${fmtNum(it.volume)}</td><td class="num">${fmtMoney(it.media_ticket)}</td></tr>`).join("")}${totalRow(list)}</tbody></table>`;
+  const totalGeral = sumField(servicos,"faturamento") + sumField(produtos,"faturamento");
   return `
     <div class="loja-detail">
       <div class="loja-detail-col">
         <h4>Detalhe por serviço/produto — corte de ${fmtDate(latest.periodo_fim)}</h4>
         ${catTable("Serviço", servicos)}
         ${catTable("Produto", produtos)}
-        ${!servicos.length && !produtos.length ? '<div class="state-msg">Sem itens registrados nesse corte.</div>' : ""}
-      </div>
-      <div class="loja-detail-col">
-        <h4>Histórico de cortes (${historico.length})</h4>
-        ${histTable}
+        ${!servicos.length && !produtos.length ? '<div class="state-msg">Sem itens registrados nesse corte.</div>' : `<div class="loja-detail-grand-total">Valor total: ${fmtMoney(totalGeral)}</div>`}
       </div>
     </div>`;
 }
