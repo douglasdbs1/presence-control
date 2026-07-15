@@ -204,12 +204,12 @@ function renderKpis(rows){
 // serviço/produto do corte mais recente + histórico de todos os cortes já
 // importados dessa loja, sem respeitar o filtro de mês (histórico é sempre
 // completo, o mês só decide qual valor aparece nos KPIs/ranking).
-function lojaDetailHtml(lojaName){
+function lojaDetailHtml(lojaName, periodoFim){
   const historico = allRelatorios
     .filter(r=>r.loja===lojaName)
     .sort((a,b)=> a.periodo_fim < b.periodo_fim ? 1 : a.periodo_fim > b.periodo_fim ? -1 : 0);
   if(!historico.length) return `<div class="state-msg">Sem dados para essa loja.</div>`;
-  const latest = historico[0];
+  const latest = (periodoFim && historico.find(r=>r.periodo_fim===periodoFim)) || historico[0];
   const itens = (latest.itens||[]).filter(it=>Number(it.faturamento||0)>0 || Number(it.volume||0)>0);
   const servicos = itens.filter(it=>it.tipo==="servico").sort((a,b)=>Number(b.faturamento||0)-Number(a.faturamento||0));
   const produtos = itens.filter(it=>it.tipo==="produto").sort((a,b)=>Number(b.faturamento||0)-Number(a.faturamento||0));
@@ -317,7 +317,7 @@ function renderTable(rows){
       `<button type="button" class="cut-pill${r.periodo_fim===chosen.periodo_fim?" active":""}" data-group="${encodeURIComponent(key)}" data-periodo="${r.periodo_fim}">${cutDay(r.periodo_fim)}</button>`
     ).join("")}</span>` : "";
     return `
-    <tr class="loja-row" data-loja="${encodeURIComponent(chosen.loja)}">
+    <tr class="loja-row" data-loja="${encodeURIComponent(chosen.loja)}" data-periodo="${chosen.periodo_fim}">
       <td><span class="expand-caret">▸</span>${brandTag(chosen.loja)}${displayLoja(chosen.loja)}${pills}</td>
       <td class="muted">${chosen.consultor||"—"}</td>
       <td>${fmtDate(chosen.periodo_inicio)} – ${fmtDate(chosen.periodo_fim)}</td>
@@ -344,7 +344,7 @@ function initCutPillHandler(){
     if(!detailRow || !detailRow.classList.contains("loja-detail-row")) return;
     const opening = detailRow.style.display === "none";
     if(opening){
-      detailRow.querySelector("td").innerHTML = lojaDetailHtml(decodeURIComponent(row.dataset.loja));
+      detailRow.querySelector("td").innerHTML = lojaDetailHtml(decodeURIComponent(row.dataset.loja), row.dataset.periodo);
       detailRow.style.display = "";
       row.classList.add("open");
     }else{
@@ -353,6 +353,10 @@ function initCutPillHandler(){
     }
   });
 }
+// No ranking não existe uma "pill" de corte por loja — a barra reflete o(s)
+// corte(s) já escolhido(s) pelo filtro de mês. Se um mês específico estiver
+// selecionado, mostra o corte mais recente DENTRO desse mês; em "Todos" (que
+// pode somar mais de um mês), mostra o corte mais recente que a loja tiver.
 function initLojaRankingHandler(){
   document.getElementById("rank-loja").addEventListener("click",(e)=>{
     const row = e.target.closest(".bar-row.clickable");
@@ -361,7 +365,13 @@ function initLojaRankingHandler(){
     if(!wrap || !wrap.classList.contains("loja-detail-wrap")) return;
     const opening = wrap.style.display === "none";
     if(opening){
-      wrap.innerHTML = lojaDetailHtml(decodeURIComponent(row.dataset.loja));
+      const loja = decodeURIComponent(row.dataset.loja);
+      let periodoFim = null;
+      if(mesFiltro){
+        const noMes = allRelatorios.filter(r=>r.loja===loja && r.periodo_inicio.startsWith(mesFiltro)).sort((a,b)=>a.periodo_fim<b.periodo_fim?1:-1);
+        if(noMes.length) periodoFim = noMes[0].periodo_fim;
+      }
+      wrap.innerHTML = lojaDetailHtml(loja, periodoFim);
       wrap.style.display = "";
       row.classList.add("open");
     }else{
