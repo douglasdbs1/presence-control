@@ -70,6 +70,9 @@ body{font-family:var(--font);font-weight:600;background:var(--bg);color:var(--te
 .bar-track{flex:1;height:16px;background:var(--surface2);border-radius:4px;overflow:hidden;}
 .bar-fill{height:100%;background:var(--teal-mid);border-radius:4px;}
 .bar-value{width:90px;flex-shrink:0;text-align:right;font-weight:700;color:var(--text);}
+.bar-row.clickable{cursor:pointer;}
+.bar-row.clickable:hover .bar-name{color:var(--teal-mid);}
+.bar-row.open .bar-name{color:var(--teal-mid);font-weight:800;}
 
 /* TABLE */
 .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
@@ -81,6 +84,25 @@ tr:last-child td{border-bottom:none;}
 tr:hover td{background:var(--surface2);}
 .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
 .muted{color:var(--text3);font-weight:500;}
+
+/* LOJA CLICÁVEL (ranking + tabela) */
+.expand-caret{display:inline-block;font-size:9px;color:var(--text3);margin-right:6px;transition:transform .15s;}
+.loja-row{cursor:pointer;}
+.loja-row.open{background:var(--teal-bg);}
+.loja-row.open td{background:var(--teal-bg);}
+.loja-row.open .expand-caret{transform:rotate(90deg);}
+.bar-row.open .expand-caret{transform:rotate(90deg);}
+.loja-detail-row td{padding:0;border-bottom:1px solid var(--border);background:var(--surface2);}
+.loja-detail-wrap{margin:4px 0 14px;padding:14px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;}
+.loja-detail{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:14px 16px;}
+.loja-detail-col h4{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.03em;margin-bottom:8px;}
+.mini-table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:10px;}
+.mini-table th{background:transparent;padding:4px 6px;font-size:9px;cursor:default;}
+.mini-table th:hover{color:var(--text3);}
+.mini-table td{padding:4px 6px;color:var(--text2);}
+@media(max-width:700px){
+  .loja-detail{grid-template-columns:1fr;}
+}
 
 .state-msg{padding:40px;text-align:center;color:var(--text3);font-size:12px;}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--red);color:#fff;font-family:var(--font);font-size:12px;padding:8px 18px;z-index:9999;border-radius:6px;pointer-events:none;}

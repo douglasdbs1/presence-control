@@ -101,25 +101,18 @@ async function loadRelatorios(){
   const tbody = document.getElementById("tbody");
   tbody.innerHTML = `<tr><td colspan="7" class="state-msg">Carregando...</td></tr>`;
   try{
-    const [{data, error}, {data: itensData, error: itensError}] = await Promise.all([
-      supabaseClient
-        .from("faturamento_relatorios")
-        .select("*")
-        .order("periodo_fim",{ascending:false}),
-      supabaseClient
-        .from("faturamento_itens")
-        .select("relatorio_id,volume")
-        .eq("tipo","servico")
-        .ilike("categoria","%tingimento%"),
-    ]);
+    const {data, error} = await supabaseClient
+      .from("faturamento_relatorios")
+      .select("*, itens:faturamento_itens(*)")
+      .order("periodo_fim",{ascending:false});
     if(error) throw error;
-    if(itensError) throw itensError;
     // ignora relatorios de amostra/teste (nunca sao dados reais de loja)
     allRelatorios = (data || []).filter(r => !(r.arquivo_origem||"").startsWith("AMOSTRA_"));
     lojaBandeiraMap = buildLojaBandeiraMap(allRelatorios);
     tingimentoPorRelatorio = new Map();
-    for(const it of (itensData||[])){
-      tingimentoPorRelatorio.set(it.relatorio_id, (tingimentoPorRelatorio.get(it.relatorio_id)||0) + Number(it.volume||0));
+    for(const r of allRelatorios){
+      const vol = (r.itens||[]).filter(it=>it.tipo==="servico" && /tingimento/i.test(it.categoria||"")).reduce((s,it)=>s+Number(it.volume||0),0);
+      if(vol) tingimentoPorRelatorio.set(r.id, vol);
     }
     populateFilterOptions();
     render();
@@ -207,6 +200,40 @@ function renderKpis(rows){
   document.getElementById("kpi-lojas").textContent = fmtNum(lojas);
 }
 
+// Conteúdo exibido ao expandir uma loja (no ranking ou na tabela): quebra por
+// serviço/produto do corte mais recente + histórico de todos os cortes já
+// importados dessa loja, sem respeitar o filtro de mês (histórico é sempre
+// completo, o mês só decide qual valor aparece nos KPIs/ranking).
+function lojaDetailHtml(lojaName){
+  const historico = allRelatorios
+    .filter(r=>r.loja===lojaName)
+    .sort((a,b)=> a.periodo_fim < b.periodo_fim ? 1 : a.periodo_fim > b.periodo_fim ? -1 : 0);
+  if(!historico.length) return `<div class="state-msg">Sem dados para essa loja.</div>`;
+  const latest = historico[0];
+  const itens = (latest.itens||[]).filter(it=>Number(it.faturamento||0)>0 || Number(it.volume||0)>0);
+  const servicos = itens.filter(it=>it.tipo==="servico").sort((a,b)=>Number(b.faturamento||0)-Number(a.faturamento||0));
+  const produtos = itens.filter(it=>it.tipo==="produto").sort((a,b)=>Number(b.faturamento||0)-Number(a.faturamento||0));
+  const catTable = (titulo, list) => !list.length ? "" : `
+    <table class="mini-table"><thead><tr><th>${titulo}</th><th class="num">Faturamento</th><th class="num">Volume</th><th class="num">Tickets</th></tr></thead>
+    <tbody>${list.map(it=>`<tr><td>${it.categoria}</td><td class="num">${fmtMoney(it.faturamento)}</td><td class="num">${fmtNum(it.volume)}</td><td class="num">${fmtNum(it.tickets)}</td></tr>`).join("")}</tbody></table>`;
+  const histTable = `
+    <table class="mini-table"><thead><tr><th>Período</th><th class="num">Faturamento</th><th class="num">Tickets</th></tr></thead>
+    <tbody>${historico.map(r=>`<tr><td>${fmtDate(r.periodo_inicio)} – ${fmtDate(r.periodo_fim)}</td><td class="num">${fmtMoney(r.total_faturado)}</td><td class="num">${fmtNum(r.total_tickets)}</td></tr>`).join("")}</tbody></table>`;
+  return `
+    <div class="loja-detail">
+      <div class="loja-detail-col">
+        <h4>Detalhe por serviço/produto — corte de ${fmtDate(latest.periodo_fim)}</h4>
+        ${catTable("Serviço", servicos)}
+        ${catTable("Produto", produtos)}
+        ${!servicos.length && !produtos.length ? '<div class="state-msg">Sem itens registrados nesse corte.</div>' : ""}
+      </div>
+      <div class="loja-detail-col">
+        <h4>Histórico de cortes (${historico.length})</h4>
+        ${histTable}
+      </div>
+    </div>`;
+}
+
 function groupSum(rows,key){
   const map = new Map();
   for(const r of rows){
@@ -223,15 +250,18 @@ function renderRanking(elId, entries, isLoja){
     return;
   }
   const max = entries[0][1] || 1;
-  el.innerHTML = entries.slice(0,10).map(([name,val])=>`
-    <div class="bar-row">
-      <div class="bar-name">${isLoja?brandTag(name)+displayLoja(name):name}</div>
+  el.innerHTML = entries.slice(0,10).map(([name,val])=>{
+    const row = `
+    <div class="bar-row${isLoja?" clickable":""}"${isLoja?` data-loja="${encodeURIComponent(name)}"`:""}>
+      <div class="bar-name">${isLoja?`<span class="expand-caret">▸</span>`:""}${isLoja?brandTag(name)+displayLoja(name):name}</div>
       <div class="bar-track-row">
         <div class="bar-track"><div class="bar-fill" style="width:${Math.max(2,(val/max)*100)}%"></div></div>
         <div class="bar-value">${fmtMoney(val)}</div>
       </div>
-    </div>
-  `).join("");
+    </div>`;
+    const detail = isLoja ? `<div class="loja-detail-wrap" style="display:none"></div>` : "";
+    return row + detail;
+  }).join("");
 }
 
 // A tabela agrupa por loja+mês (mesmo `periodo_inicio`) pra não repetir a
@@ -287,24 +317,57 @@ function renderTable(rows){
       `<button type="button" class="cut-pill${r.periodo_fim===chosen.periodo_fim?" active":""}" data-group="${encodeURIComponent(key)}" data-periodo="${r.periodo_fim}">${cutDay(r.periodo_fim)}</button>`
     ).join("")}</span>` : "";
     return `
-    <tr>
-      <td>${brandTag(chosen.loja)}${displayLoja(chosen.loja)}${pills}</td>
+    <tr class="loja-row" data-loja="${encodeURIComponent(chosen.loja)}">
+      <td><span class="expand-caret">▸</span>${brandTag(chosen.loja)}${displayLoja(chosen.loja)}${pills}</td>
       <td class="muted">${chosen.consultor||"—"}</td>
       <td>${fmtDate(chosen.periodo_inicio)} – ${fmtDate(chosen.periodo_fim)}</td>
       <td class="num">${fmtMoney(chosen.total_faturado)}</td>
       <td class="num">${fmtNum(chosen.total_tickets)}</td>
       <td class="num">${fmtMoney(ticketMedio)}</td>
       <td class="num muted">${fmtMoney(chosen.valor_anulado)}</td>
-    </tr>`;
+    </tr>
+    <tr class="loja-detail-row" style="display:none"><td colspan="7"></td></tr>`;
   }).join("");
 }
 
 function initCutPillHandler(){
   document.getElementById("tbody").addEventListener("click",(e)=>{
     const pill = e.target.closest(".cut-pill");
-    if(!pill) return;
-    activeCutByGroup.set(decodeURIComponent(pill.dataset.group), pill.dataset.periodo);
-    renderTable(lastTableRows);
+    if(pill){
+      activeCutByGroup.set(decodeURIComponent(pill.dataset.group), pill.dataset.periodo);
+      renderTable(lastTableRows);
+      return;
+    }
+    const row = e.target.closest("tr.loja-row");
+    if(!row) return;
+    const detailRow = row.nextElementSibling;
+    if(!detailRow || !detailRow.classList.contains("loja-detail-row")) return;
+    const opening = detailRow.style.display === "none";
+    if(opening){
+      detailRow.querySelector("td").innerHTML = lojaDetailHtml(decodeURIComponent(row.dataset.loja));
+      detailRow.style.display = "";
+      row.classList.add("open");
+    }else{
+      detailRow.style.display = "none";
+      row.classList.remove("open");
+    }
+  });
+}
+function initLojaRankingHandler(){
+  document.getElementById("rank-loja").addEventListener("click",(e)=>{
+    const row = e.target.closest(".bar-row.clickable");
+    if(!row) return;
+    const wrap = row.nextElementSibling;
+    if(!wrap || !wrap.classList.contains("loja-detail-wrap")) return;
+    const opening = wrap.style.display === "none";
+    if(opening){
+      wrap.innerHTML = lojaDetailHtml(decodeURIComponent(row.dataset.loja));
+      wrap.style.display = "";
+      row.classList.add("open");
+    }else{
+      wrap.style.display = "none";
+      row.classList.remove("open");
+    }
   });
 }
 
@@ -355,5 +418,6 @@ function initFilterHandlers(){
   initFilterHandlers();
   initSortHandlers();
   initCutPillHandler();
+  initLojaRankingHandler();
   await loadRelatorios();
 })();
