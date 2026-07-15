@@ -82,6 +82,35 @@ function displayLoja(loja){
   return LOJA_DISPLAY_OVERRIDES[loja] || loja;
 }
 
+// Enquanto há poucos meses de dados, pills (um por mês existente) são mais
+// diretos que um seletor de data-a-data pra escolher o "até" de cada
+// checkpoint. Cada pill usa o corte mais recente já importado daquele mês.
+function mesPillLabel(ym){
+  const nome = MESES[Number(ym.slice(5,7))-1] || ym;
+  return nome.charAt(0).toUpperCase()+nome.slice(1);
+}
+function lastPeriodoFimForMonth(ym){
+  const datas = allRelatorios.filter(r=>r.periodo_inicio.startsWith(ym)).map(r=>r.periodo_fim).sort();
+  return datas.length ? datas[datas.length-1] : null;
+}
+function renderDateMesPills(inputId, pillsId){
+  const meses = [...new Set(allRelatorios.map(r=>r.periodo_inicio.slice(0,7)))].sort();
+  const currentYm = (document.getElementById(inputId).value||"").slice(0,7);
+  document.getElementById(pillsId).innerHTML = meses.map(m=>
+    `<button type="button" class="pill-btn${currentYm===m?" on":""}" data-mes="${m}">${mesPillLabel(m)}</button>`
+  ).join("");
+}
+function initMesPillHandler(inputId, pillsId){
+  document.getElementById(pillsId).addEventListener("click",(e)=>{
+    const btn = e.target.closest(".pill-btn");
+    if(!btn) return;
+    const input = document.getElementById(inputId);
+    input.value = lastPeriodoFimForMonth(btn.dataset.mes);
+    input.dispatchEvent(new Event("change"));
+    renderDateMesPills(inputId, pillsId);
+  });
+}
+
 async function loadData(){
   const el = document.getElementById("groups");
   el.innerHTML = `<div class="state-msg">Carregando...</div>`;
@@ -96,6 +125,8 @@ async function loadData(){
     lojaBandeiraMap = buildLojaBandeiraMap(allRelatorios);
     populateFilterOptions();
     defaultPeriods();
+    renderDateMesPills("ref-data","ref-mes-pills");
+    renderDateMesPills("cmp-data","cmp-mes-pills");
     render();
   }catch(err){
     console.error(err);
@@ -408,12 +439,16 @@ function initFilterHandlers(){
   ["f-bandeira","f-loja","f-servico","f-consultor","ref-data","cmp-data"].forEach(id=>{
     document.getElementById(id).addEventListener("change",render);
   });
+  initMesPillHandler("ref-data","ref-mes-pills");
+  initMesPillHandler("cmp-data","cmp-mes-pills");
   document.getElementById("btn-clear").addEventListener("click",()=>{
     document.getElementById("f-bandeira").value="";
     document.getElementById("f-loja").value="";
     document.getElementById("f-servico").value="";
     document.getElementById("f-consultor").value="";
     defaultPeriods();
+    renderDateMesPills("ref-data","ref-mes-pills");
+    renderDateMesPills("cmp-data","cmp-mes-pills");
     render();
   });
 }
