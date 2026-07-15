@@ -2,11 +2,11 @@
 
 Dashboard de faturamento das lojas em transição do sistema Ideologica (Allegro.Net) para o Presence.
 
-O projeto é uma aplicação web estática (HTML, CSS e JS puro, sem build), publicada dentro do mesmo repositório e do mesmo GitHub Pages do `presence-control`, em `/ideologica/`. Os dados vêm do mesmo projeto Supabase do presence-control, numa tabela própria.
+O projeto é uma aplicação web estática (HTML, CSS e JS puro, sem build), publicada dentro do mesmo repositório e do mesmo GitHub Pages do `gruporestaura` (antigo `presence-control`), em `/ideologica/`. Os dados vêm do mesmo projeto Supabase do Presence Control, numa tabela própria.
 
 ## Link
 
-`https://douglasdbs1.github.io/presence-control/ideologica/`
+`https://douglasdbs1.github.io/gruporestaura/ideologica/`
 
 ## Fluxo de dados
 
@@ -38,7 +38,7 @@ O nome da loja e o período vêm escritos dentro do próprio arquivo (linhas de 
 1. Rodar `supabase/schema.sql` no SQL Editor do Supabase (mesmo projeto do presence-control) — cria as tabelas e a função `salvar_faturamento`.
 2. Estrutura de pastas no Google Drive (`IDEOLOGICA SISTEMA/<Consultor>/<Mês>/`) já existe, alimentada pelos consultores.
 3. Importação sob demanda: quando pedido ao Claude Code, ele lê os `.xls` novos via conector do Drive e chama a RPC `salvar_faturamento` (anon key + token local, fora do git).
-4. Commitar e dar push nesta pasta para o repositório `presence-control` — como o Pages já serve o repo inteiro, não precisa de nenhuma configuração nova.
+4. Commitar e dar push nesta pasta para o repositório `gruporestaura` — como o Pages já serve o repo inteiro, não precisa de nenhuma configuração nova.
 
 ## Cuidados
 
