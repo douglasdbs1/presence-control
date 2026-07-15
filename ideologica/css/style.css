@@ -79,6 +79,7 @@ body{font-family:var(--font);font-weight:600;background:var(--bg);color:var(--te
 table{width:100%;border-collapse:collapse;font-size:12px;}
 th{text-align:left;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface2);cursor:pointer;user-select:none;}
 th:hover{color:var(--teal-mid);}
+th:first-child,td:first-child{width:26%;white-space:nowrap;}
 td{padding:9px 14px;border-bottom:1px solid var(--border);color:var(--text);}
 tr:last-child td{border-bottom:none;}
 tr:hover td{background:var(--surface2);}
