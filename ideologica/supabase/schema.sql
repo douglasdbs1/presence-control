@@ -43,6 +43,9 @@ alter table faturamento_relatorios add constraint faturamento_relatorios_bandeir
 create index if not exists idx_fr_loja on faturamento_relatorios (loja);
 create index if not exists idx_fr_consultor on faturamento_relatorios (consultor);
 create index if not exists idx_fr_periodo on faturamento_relatorios (periodo_inicio, periodo_fim);
+create unique index if not exists idx_fr_arquivo_periodo
+  on faturamento_relatorios (arquivo_origem, periodo_inicio, periodo_fim)
+  where arquivo_origem is not null;
 
 -- 2. Itens de cada relatório: uma linha por categoria, nas duas tabelas do .xls
 --    (Serviço: Costura, Lavanderia, Tingimento... / Produto: marca/origem da peça)

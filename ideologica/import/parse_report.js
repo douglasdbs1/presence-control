@@ -19,10 +19,12 @@
 // (colunas que mudam de arquivo pra arquivo, celulas em branco, etc).
 
 function extractNumbers(buf) {
-  const needle = Buffer.from([0x03, 0x02, 0x0e, 0x00]);
   const hits = [];
+
+  // Registro NUMBER (opcode 0x0203, tamanho 0x000E): valor IEEE754 de 8 bytes.
+  const needleNum = Buffer.from([0x03, 0x02, 0x0e, 0x00]);
   let idx = 0;
-  while ((idx = buf.indexOf(needle, idx)) !== -1) {
+  while ((idx = buf.indexOf(needleNum, idx)) !== -1) {
     const off = idx + 4;
     if (off + 14 <= buf.length) {
       const row = buf.readUInt16LE(off);
@@ -32,21 +34,78 @@ function extractNumbers(buf) {
     }
     idx += 4;
   }
+
+  // Registro RK (opcode 0x027E, tamanho 0x000A): valor compacto de 4 bytes,
+  // usado quando o proprio Excel grava a celula (em vez do export direto do
+  // Allegro.Net, que so gera NUMBER) — apareceu num arquivo que tinha sido
+  // reaberto/resalvo no Excel, faltando Volume/Tickets/algum Faturamento.
+  // Os 2 bits baixos do valor bruto sao flags: bit0 = dividir por 100,
+  // bit1 = os 30 bits altos sao um inteiro puro (senao viram a metade alta
+  // de um double truncado, com a metade baixa zerada).
+  const needleRk = Buffer.from([0x7e, 0x02, 0x0a, 0x00]);
+  idx = 0;
+  while ((idx = buf.indexOf(needleRk, idx)) !== -1) {
+    const off = idx + 4;
+    if (off + 10 <= buf.length) {
+      const row = buf.readUInt16LE(off);
+      const col = buf.readUInt16LE(off + 2);
+      const rk = buf.readInt32LE(off + 6);
+      const isInt = (rk & 0x02) !== 0;
+      const is100 = (rk & 0x01) !== 0;
+      let val;
+      if (isInt) {
+        val = rk >> 2;
+      } else {
+        const dbuf = Buffer.alloc(8);
+        dbuf.writeUInt32LE(rk & 0xfffffffc, 4);
+        val = dbuf.readDoubleLE(0);
+      }
+      if (is100) val /= 100;
+      if (Math.abs(val) < 1e9) hits.push([row, col, val]);
+    }
+    idx += 4;
+  }
+
   return hits;
 }
 
-// Strings do relatorio (nomes de loja, categorias, cabecalhos) estao em
-// UTF-16LE dentro do binario. Decodifica via latin1 (mapeamento 1:1 byte->
-// char) pra poder rodar uma regex simples de "run de char imprimivel + \0".
+// Strings do relatorio (nomes de loja, categorias, cabecalhos) podem estar
+// em duas codificacoes dentro do mesmo arquivo BIFF8: 2 bytes/char (Unicode
+// nao-comprimido, o que o export normal do Allegro.Net/Crystal Reports usa)
+// ou 1 byte/char (comprimido, quando o proprio Excel grava a string e todo
+// caractere cabe em Latin-1 — aconteceu num arquivo que tinha sido reaberto
+// e resalvo no Excel em vez de vir direto do Allegro.Net). Decodifica via
+// latin1 (mapeamento 1:1 byte->char) e casa as duas formas numa unica
+// regex pra manter a ordem de aparicao no arquivo.
 function extractStrings(buf) {
   const bin = buf.toString('latin1');
-  const re = /(?:[\x20-\x7e\xe0-\xff]\x00){4,}/g;
-  const seen = [];
+  const hits = []; // [offset, string] — duas passadas independentes, mescladas
+                    // por posição no final. Rodar as duas codificações numa
+                    // regex só (alternação) desalinha a fase quando os dois
+                    // formatos aparecem perto um do outro no mesmo arquivo —
+                    // ja causou perda do primeiro caractere de uma string.
+
+  // Passo 1: strings 2 bytes/char (Unicode nao-comprimido) — formato padrao
+  // do export do Allegro.Net/Crystal Reports. Igual ao original.
+  const reWide = /(?:[\x20-\x7e\xe0-\xff]\x00){4,}/g;
   let m;
-  while ((m = re.exec(bin))) {
+  while ((m = reWide.exec(bin))) {
     let s = '';
     for (let i = 0; i < m[0].length; i += 2) s += m[0][i];
-    s = s.trim();
+    hits.push([m.index, s.trim()]);
+  }
+
+  // Passo 2: strings 1 byte/char (comprimido) — usado quando o proprio
+  // Excel grava a celula (ex.: arquivo reaberto/resalvo no Excel em vez de
+  // vir direto do Allegro.Net) e todo caractere cabe em Latin-1.
+  const reCompact = /[\x20-\x7e\xc0-\xff]{4,}/g;
+  while ((m = reCompact.exec(bin))) {
+    hits.push([m.index, m[0].trim()]);
+  }
+
+  hits.sort((a, b) => a[0] - b[0]);
+  const seen = [];
+  for (const [, s] of hits) {
     if (s && !seen.includes(s)) seen.push(s);
   }
   return seen;
@@ -67,12 +126,37 @@ function bandeiraFromArquivo(arquivoOrigem) {
   return null;
 }
 
+function lojaFromArquivo(arquivoOrigem) {
+  const base = (arquivoOrigem || '')
+    .split(/[\\/]/)
+    .pop()
+    .replace(/\.[^.]+$/, '')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+b64$/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  // Os arquivos sao nomeados como "RJ POA CRISTAL 14.xls" ou
+  // "ML Taubate 30.xls"; o numero final e o corte do periodo, nao a loja.
+  const loja = base.replace(/\s+\d{1,2}\s*$/, '').trim();
+  if (!loja) return null;
+  if (/^rj poa$/i.test(loja)) return 'RJ POA Petrópolis';
+  return loja.split(' ').map(w => {
+    if (/^(rj|ml)$/i.test(w)) return w.toUpperCase();
+    if (/^mega$/i.test(w)) return 'Mega';
+    if (/^(de|da|do|das|dos)$/i.test(w)) return w.toLowerCase();
+    if (w.length <= 3 && w === w.toLowerCase()) return w.toUpperCase();
+    return w;
+  }).join(' ');
+}
+
 function toIsoDate(ddmmyyyy) {
   const [dd, mm, yyyy] = ddmmyyyy.split('/');
   return `${yyyy}-${mm}-${dd}`;
 }
 
 const round2 = n => Math.round(n * 100) / 100;
+const plain = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
 // Uma celula em branco (0/indefinido) simplesmente nao gera registro BIFF,
 // o que desalinha a leitura posicional das colunas seguintes daquela linha.
@@ -113,12 +197,21 @@ function parseReport(buf, consultor, arquivoOrigem) {
       if (m) geradoEm = `${toIsoDate(m[1])}T${m[2]}Z`;
     }
   }
+  if (!periodoInicio || !periodoFim) {
+    const periodoPrefix = strings.find(s => plain(s).startsWith('periodo de') && /\d{2}\/\d{0,2}$/.test(s));
+    const periodoSuffix = strings.find(s => /^\d{1,2}\/\d{4}\s+at[eé]\s+\d{2}\/\d{2}\/\d{4}/i.test(s));
+    if (periodoPrefix && periodoSuffix) {
+      const combined = `${periodoPrefix}${periodoSuffix}`;
+      const m = /(\d{2}\/\d{2}\/\d{4}).*?(\d{2}\/\d{2}\/\d{4})/.exec(combined);
+      if (m) { periodoInicio = toIsoDate(m[1]); periodoFim = toIsoDate(m[2]); }
+    }
+  }
 
   // Categorias de Servico: entre "Méd. Tck." (fim do cabecalho) e "Total por
   // Grupo de Serviço:". Categorias de Produto (se houver): entre "Produto" e
   // "Total por Grupo de Produto:" — relatorio pode nao ter secao de Produto.
-  const iHdrEnd = strings.indexOf('Méd. Tck.');
-  const iServTotal = strings.findIndex(s => s.startsWith('Total por Grupo de Servi'));
+  const iHdrEnd = strings.findIndex(s => plain(s).includes('med. tck'));
+  const iServTotal = strings.findIndex((s, i) => i > iHdrEnd && plain(s).startsWith('total por grupo de') && !plain(s).includes('produto'));
   if (iHdrEnd === -1 || iServTotal === -1) {
     throw new Error('Não achei os marcadores esperados do relatório (Méd. Tck. / Total por Grupo de Serviço) — layout mudou?');
   }
@@ -220,6 +313,11 @@ function parseReport(buf, consultor, arquivoOrigem) {
     ...buildItems(produtoNames, 'produto', produtoRows),
   ];
 
+  const lojaArquivo = lojaFromArquivo(arquivoOrigem);
+  if (lojaArquivo && loja && lojaArquivo.toUpperCase() !== loja.toUpperCase()) {
+    warnings.push(`loja do arquivo ("${lojaArquivo}") usada no lugar da loja interna ("${loja}").`);
+  }
+
   const fatServTotal = itens.filter(i => i.tipo === 'servico').reduce((s, i) => s + i.faturamento, 0);
   const fatProdTotal = itens.filter(i => i.tipo === 'produto').reduce((s, i) => s + i.faturamento, 0);
   const expectedTotal = round2(fatServTotal + fatProdTotal);
@@ -250,7 +348,9 @@ function parseReport(buf, consultor, arquivoOrigem) {
   }
 
   const relatorio = {
-    loja, consultor,
+    loja: lojaArquivo || loja,
+    consultor,
+    loja_interna: loja,
     periodo_inicio: periodoInicio,
     periodo_fim: periodoFim,
     total_faturado: totalFaturado,
@@ -266,4 +366,4 @@ function parseReport(buf, consultor, arquivoOrigem) {
   return { relatorio, itens, warnings };
 }
 
-module.exports = { parseReport, extractNumbers, extractStrings, bandeiraFromArquivo };
+module.exports = { parseReport, extractNumbers, extractStrings, bandeiraFromArquivo, lojaFromArquivo };

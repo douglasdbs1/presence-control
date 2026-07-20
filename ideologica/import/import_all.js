@@ -63,12 +63,15 @@ function findXlsFiles(root) {
 }
 
 async function fetchExistingKeys(env) {
-  const res = await fetch(`${env.SUPABASE_URL}/rest/v1/faturamento_relatorios?select=loja,periodo_inicio,periodo_fim`, {
+  const res = await fetch(`${env.SUPABASE_URL}/rest/v1/faturamento_relatorios?select=loja,periodo_inicio,periodo_fim,arquivo_origem`, {
     headers: { apikey: env.SUPABASE_ANON_KEY, Authorization: `Bearer ${env.SUPABASE_ANON_KEY}` },
   });
   if (!res.ok) throw new Error(`Falha ao buscar relatórios existentes (${res.status}): ${await res.text()}`);
   const rows = await res.json();
-  return new Set(rows.map(r => `${r.loja}|||${r.periodo_inicio}|||${r.periodo_fim}`));
+  return {
+    byLoja: new Set(rows.map(r => `${r.loja}|||${r.periodo_inicio}|||${r.periodo_fim}`)),
+    byArquivo: new Set(rows.filter(r => r.arquivo_origem).map(r => `${r.arquivo_origem}|||${r.periodo_inicio}|||${r.periodo_fim}`)),
+  };
 }
 
 async function salvar(env, relatorio, itens) {
@@ -100,7 +103,7 @@ async function main() {
   }
 
   const env = loadEnv();
-  const existing = force ? new Set() : await fetchExistingKeys(env);
+  const existing = force ? { byLoja: new Set(), byArquivo: new Set() } : await fetchExistingKeys(env);
   const files = findXlsFiles(rootArg);
 
   console.log(`${files.length} arquivo(s) .xls encontrado(s) em ${files.length ? new Set(files.map(f=>f.consultor)).size : 0} pasta(s) de consultor.`);
@@ -131,7 +134,9 @@ async function main() {
     for (const w of warnings) problems.push(`aviso "${arquivoOrigem}": ${w}`);
 
     const key = `${relatorio.loja}|||${relatorio.periodo_inicio}|||${relatorio.periodo_fim}`;
-    if (existing.has(key)) {
+    const internalKey = `${relatorio.loja_interna}|||${relatorio.periodo_inicio}|||${relatorio.periodo_fim}`;
+    const arquivoKey = `${relatorio.arquivo_origem}|||${relatorio.periodo_inicio}|||${relatorio.periodo_fim}`;
+    if (existing.byLoja.has(key) || existing.byLoja.has(internalKey) || existing.byArquivo.has(arquivoKey)) {
       skipped++;
       continue;
     }

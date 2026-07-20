@@ -81,6 +81,25 @@ só da assinatura de 4 bytes e dos 14 bytes seguintes.
    porque é sempre o primeiro valor da linha). O `import.js` avisa no
    console quando isso acontece.
 
+3. **Arquivo reaberto/resalvo no Excel usa codificação diferente
+   (corrigido 20/07/2026).** O export direto do Allegro.Net grava texto em
+   BIFF Unicode (2 bytes/char) e números só em registro `NUMBER` (8 bytes).
+   Um arquivo que alguém abriu e resalvou no Excel (em vez de reexportar do
+   Allegro.Net) pode trocar isso: texto vira **comprimido** (1 byte/char,
+   quando cabe em Latin-1) e números viram registro `RK` (4 bytes,
+   compacto) — o parser não reconhecia nenhum dos dois e dava "Não achei os
+   marcadores esperados... layout mudou?". `extractStrings`/`extractNumbers`
+   agora leem as duas codificações. Pegadinha ao mexer nisso de novo: rodar
+   as duas variantes de string numa regex só (alternação) desalinha a fase
+   quando os dois formatos aparecem perto um do outro no mesmo arquivo e
+   "come" o primeiro caractere de uma string — por isso são duas passadas
+   independentes, mescladas por posição no final, não uma alternação.
+   Ainda não tratado: registro `MULRK` (várias células `RK` adjacentes
+   compactadas numa única entrada) — se aparecer, algum campo secundário
+   (Tickets/Méd.Tck.) de uma categoria pode ficar `null` mesmo com o
+   faturamento certo; o total do relatório não é afetado porque vem de uma
+   linha própria de totais.
+
 ## Limitação conhecida: período não identificado
 
 Em pelo menos um arquivo real (o corte de 30 dias com uma imagem grande

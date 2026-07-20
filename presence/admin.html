@@ -430,17 +430,17 @@ body.tv-mode .content{max-width:none;padding:0;background:#0a1330;}
 .tv-time{font-size:clamp(38px,4.8vw,70px);font-weight:850;line-height:1;color:#fff;}
 .tv-date{font-size:clamp(17px,1.5vw,24px);font-weight:700;color:#93a0c4;margin-top:6px;text-transform:uppercase;letter-spacing:.08em;}
 .tv-stage{min-height:0;display:grid;grid-template-columns:1fr 300px;gap:18px;}
-.tv-slides{min-height:0;}
+.tv-slides{min-height:0;height:100%;}
 .tv-rail{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;align-content:start;}
 .tv-rail .tv-stat.ok .n{color:#4fd1a5;}
 .tv-progress{height:6px;border-radius:999px;background:#1a2463;overflow:hidden;}
 .tv-progress-fill{height:100%;width:0;border-radius:999px;background:#4fd1a5;}
 @keyframes tvprog{from{width:0}to{width:100%}}
-.tv-slide{display:none;min-height:100%;animation:tvFade .45s ease;}
-.tv-slide.on{display:block;}
+.tv-slide{display:none;min-height:0;animation:tvFade .45s ease;}
+.tv-slide.on{display:flex;flex-direction:column;height:100%;}
 @keyframes tvFade{from{opacity:.65;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.tv-main-list{display:grid;gap:14px;align-content:start;}
-.tv-gl-card{display:grid;grid-template-columns:118px 1fr auto;gap:18px;align-items:center;background:#131c42;border:1px solid #262f5c;border-left:8px solid #4fd1a5;border-radius:8px;padding:18px 22px;min-height:112px;}
+.tv-main-list{display:grid;gap:14px;min-height:0;flex:1;}
+.tv-gl-card{display:grid;grid-template-columns:118px 1fr auto;gap:18px;align-items:center;background:#131c42;border:1px solid #262f5c;border-left:8px solid #4fd1a5;border-radius:8px;padding:18px 22px;min-height:0;overflow:hidden;}
 .tv-gl-card.today{border-left-color:#ffcf5a;background:#131c42;}
 .tv-gl-card.risk{border-left-color:#ff7777;background:#131c42;}
 .tv-day{font-size:48px;font-weight:850;line-height:.9;color:#fff;}
@@ -459,21 +459,19 @@ body.tv-mode .content{max-width:none;padding:0;background:#0a1330;}
 .tv-stat{background:#131c42;border:1px solid #262f5c;border-radius:8px;padding:18px;}
 .tv-stat .n{font-size:clamp(32px,3.4vw,52px);font-weight:850;line-height:.9;color:#fff;}
 .tv-stat .l{font-size:14px;font-weight:800;color:#93a0c4;text-transform:uppercase;letter-spacing:.08em;margin-top:8px;}
-.tv-section-title{font-size:clamp(30px,3.2vw,48px);font-weight:850;margin-bottom:18px;color:#fff;}
-.tv-week{display:grid;grid-template-columns:1fr;gap:10px;height:100%;}
-.tv-daycol{background:#131c42;border:1px solid #262f5c;border-radius:8px;padding:14px 20px;min-width:0;display:grid;grid-template-columns:178px 1fr;gap:16px;align-items:start;min-height:102px;}
+.tv-section-title{font-size:clamp(30px,3.2vw,48px);font-weight:850;margin-bottom:18px;color:#fff;flex-shrink:0;}
+.tv-week{display:grid;grid-template-columns:1fr;gap:10px;min-height:0;flex:1;}
+.tv-daycol{background:#131c42;border:1px solid #262f5c;border-radius:8px;padding:14px 20px;min-width:0;display:grid;grid-template-columns:178px 1fr;gap:16px;align-items:stretch;min-height:0;overflow:hidden;}
 .tv-daycol.today{border-color:#ffcf5a;box-shadow:inset 0 0 0 1px #ffcf5a;}
 .tv-dayname{font-size:clamp(26px,2.8vw,40px);font-weight:850;text-transform:uppercase;letter-spacing:.04em;color:#fff;line-height:1;}
-.tv-week-items{display:grid;gap:8px;}
-.tv-week-item{background:#1a2463;border:1px solid #33407a;border-radius:7px;padding:10px 14px;margin-bottom:0;}
+.tv-week-items{display:grid;gap:8px;min-height:0;}
+.tv-week-item{background:#1a2463;border:1px solid #33407a;border-radius:7px;padding:10px 14px;margin-bottom:0;min-height:0;overflow:hidden;}
 .tv-week-store{font-size:clamp(24px,2.35vw,34px);font-weight:850;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.04;}
 .tv-week-meta{font-size:clamp(16px,1.45vw,22px);font-weight:800;color:#93a0c4;margin-top:8px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
 .tv-risk-list{display:grid;grid-template-columns:1fr;gap:12px;}
 .tv-risk-viewport{height:348px;overflow:hidden;}
 .tv-risk-viewport.roll .tv-risk-list{animation:tvRiskRoll var(--risk-duration,18s) linear infinite alternate;}
 @keyframes tvRiskRoll{from{transform:translateY(0)}to{transform:translateY(var(--roll-offset,0))}}
-.tv-main-viewport{height:364px;overflow:hidden;}
-.tv-main-viewport.roll .tv-main-list{animation:tvRiskRoll var(--main-duration,18s) linear infinite alternate;}
 .tv-risk-card{background:#131c42;border:1px solid #262f5c;border-left:8px solid #ff7777;border-radius:8px;padding:18px 22px;min-height:108px;display:flex;align-items:center;justify-content:space-between;gap:18px;}
 .tv-risk-card.warn{border-left-color:#ffcf5a;}
 .tv-risk-main{min-width:0;}
@@ -1767,29 +1765,29 @@ function tvAgendaDays(items){
     .slice(0,5);
 }
 function tvSlideUpcoming(items){
-  // mostra todos os go-lives de hoje+amanha (minimo 3 — completa com os
-  // proximos mais proximos se hoje+amanha tiver menos que isso); acima de 3
-  // linhas, rola automaticamente (mesmo mecanismo da tela de contratos aguardando)
+  // Mostra TODOS os go-lives de hoje+amanha, sem limite - se tiver poucos,
+  // completa ate 6 (numero que cabe bem na tela) com os proximos mais
+  // proximos, pra nao deixar a tela com espaco vazio. Sem rolagem: os cards
+  // dividem a altura disponivel entre si (grid-template-rows dinamico).
   const todayTomorrow=items.filter(l=>l._tvDiff===0||l._tvDiff===1).length;
-  const rows=items.slice(0,Math.max(3,todayTomorrow));
-  const visible=3,rowH=126,extra=Math.max(0,rows.length-visible);
-  const rollStyle=extra?` style="--roll-offset:-${extra*rowH}px;--main-duration:${tvSlideMs(0)}ms"`:'';
+  const TARGET=6;
+  const rows=items.slice(0,Math.max(TARGET,todayTomorrow));
   const list=rows.map(tvCard).join('');
   return `<section class="tv-slide on" data-tv-slide="0">
     <div class="tv-section-title">Próximos go-lives</div>
-    <div class="tv-main-viewport${extra?' roll':''}"${rollStyle}><div class="tv-main-list">${list||'<div class="tv-empty">Nenhum go-live marcado nos próximos 30 dias.</div>'}</div></div>
+    <div class="tv-main-list" style="grid-template-rows:repeat(${rows.length||1},1fr)">${list||'<div class="tv-empty">Nenhum go-live marcado nos próximos 30 dias.</div>'}</div>
   </section>`;
 }
 function tvSlideWeek(items){
   const days=tvAgendaDays(items);
   return `<section class="tv-slide" data-tv-slide="1">
     <div class="tv-section-title">Agenda da semana</div>
-    <div class="tv-week">${days.length?days.map(d=>{
+    <div class="tv-week" style="grid-template-rows:repeat(${days.length||1},1fr)">${days.length?days.map(d=>{
       const dayItems=items.filter(l=>tvSameDay(l._tvParsed,d)).slice(0,3);
       const name=d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).replace('.','');
       return `<div class="tv-daycol${tvSameDay(d,TODAY)?' today':''}">
         <div class="tv-dayname">${esc(name)}</div>
-        <div class="tv-week-items">${dayItems.length?dayItems.map(l=>`<div class="tv-week-item"><div class="tv-week-store">${esc(l.loja)}</div><div class="tv-consultor"><span>Consultor:</span> ${esc(l.responsavel||'Sem responsável')}</div><div class="tv-week-meta">${redeTagHtml(l)}${l._tvCrm?'<span class="tv-pill crm">ZOHO</span>':''}</div></div>`).join(''):'<div class="tv-week-meta">Sem go-live marcado.</div>'}</div>
+        <div class="tv-week-items" style="grid-template-rows:repeat(${dayItems.length||1},1fr)">${dayItems.length?dayItems.map(l=>`<div class="tv-week-item"><div class="tv-week-store">${esc(l.loja)}</div><div class="tv-consultor"><span>Consultor:</span> ${esc(l.responsavel||'Sem responsável')}</div><div class="tv-week-meta">${redeTagHtml(l)}${l._tvCrm?'<span class="tv-pill crm">ZOHO</span>':''}</div></div>`).join(''):'<div class="tv-week-meta">Sem go-live marcado.</div>'}</div>
       </div>`;
     }).join(''):'<div class="tv-empty">Nenhum go-live marcado nos próximos 7 dias.</div>'}</div>
   </section>`;

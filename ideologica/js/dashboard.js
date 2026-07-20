@@ -42,8 +42,8 @@ const BRAND_OVERRIDES = {
 };
 function brandFromText(loja){
   const l = (loja||"").toLowerCase();
-  const isRJ = l.includes("restaura jeans") || l.includes("jeans");
-  const isML = l.includes("lavanderia");
+  const isRJ = l.startsWith("rj ") || l.includes("restaura jeans") || l.includes("jeans");
+  const isML = l.startsWith("ml ") || l.includes("lavanderia");
   if((isRJ && isML) || l.includes("mega")) return "mega";
   if(isML) return "ml";
   if(isRJ) return "rj";
@@ -80,6 +80,38 @@ const LOJA_DISPLAY_OVERRIDES = {
 function displayLoja(loja){
   return LOJA_DISPLAY_OVERRIDES[loja] || loja;
 }
+function lojaFromArquivo(arquivoOrigem){
+  const base = (arquivoOrigem||"")
+    .split(/[\\/]/).pop()
+    .replace(/\.[^.]+$/, "")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+b64$/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  const loja = base.replace(/\s+\d{1,2}\s*$/, "").trim();
+  if(!loja) return null;
+  if(/^rj poa$/i.test(loja)) return "RJ POA Petrópolis";
+  return loja.split(" ").map(w=>{
+    if(/^(rj|ml)$/i.test(w)) return w.toUpperCase();
+    if(/^mega$/i.test(w)) return "Mega";
+    if(/^(de|da|do|das|dos)$/i.test(w)) return w.toLowerCase();
+    if(w.length<=3 && w===w.toLowerCase()) return w.toUpperCase();
+    return w;
+  }).join(" ");
+}
+function normalizeRelatorio(r){
+  const lojaArquivo = lojaFromArquivo(r.arquivo_origem);
+  return lojaArquivo ? {...r, loja_original: r.loja, loja: lojaArquivo} : r;
+}
+function dedupeRelatorios(rows){
+  const seen = new Set();
+  return rows.filter(r=>{
+    const key = [r.loja, r.periodo_inicio, r.periodo_fim, r.arquivo_origem, Number(r.total_faturado||0).toFixed(2)].join("|||");
+    if(seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
 function showToast(msg){
   const t=document.createElement("div");
   t.className="toast";
@@ -109,7 +141,10 @@ async function loadRelatorios(){
       .order("periodo_fim",{ascending:false});
     if(error) throw error;
     // ignora relatorios de amostra/teste (nunca sao dados reais de loja)
-    allRelatorios = (data || []).filter(r => !(r.arquivo_origem||"").startsWith("AMOSTRA_"));
+    allRelatorios = (data || [])
+      .filter(r => !(r.arquivo_origem||"").startsWith("AMOSTRA_"))
+      .map(normalizeRelatorio);
+    allRelatorios = dedupeRelatorios(allRelatorios);
     lojaBandeiraMap = buildLojaBandeiraMap(allRelatorios);
     tingimentoPorRelatorio = new Map();
     for(const r of allRelatorios){
