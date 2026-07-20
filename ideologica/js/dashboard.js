@@ -31,6 +31,9 @@ function fmtDate(d){
   const [y,m,day] = d.split("-");
   return `${day}/${m}/${y}`;
 }
+function esc(v){
+  return String(v||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+}
 // Prioridade da bandeira: 1) coluna `bandeira` gravada no import (vem do
 // PREFIXO DO NOME DO ARQUIVO no Drive — RJ/ML/MEGA — sempre a fonte mais
 // confiável, ver bandeiraFromArquivo() em ideologica/import/parse_report.js);
@@ -79,6 +82,72 @@ const LOJA_DISPLAY_OVERRIDES = {
 };
 function displayLoja(loja){
   return LOJA_DISPLAY_OVERRIDES[loja] || loja;
+}
+// O arquivo controla a bandeira e o nome visível, mas não traz UF/cidade em
+// campos separados. Este mapa explícito evita inferências erradas ("RJ" no
+// começo é Restaura Jeans, não o estado). A chave é normalizada para aceitar
+// diferenças de caixa e acentuação entre arquivos.
+const LOJA_LOCATION_OVERRIDES = {
+  "mega higienopolis": ["SP","São Paulo","Higienópolis"],
+  "mega santa rosa": ["RS","Santa Rosa",""],
+  "ml barretos": ["SP","Barretos",""],
+  "ml campinas dom pedro": ["SP","Campinas","Dom Pedro"],
+  "ml campo grande": ["MS","Campo Grande",""],
+  "ml caxias": ["RS","Caxias do Sul",""],
+  "ml recife madalena": ["PE","Recife","Madalena"],
+  "ml salvador": ["BA","Salvador",""],
+  "ml sorocaba": ["SP","Sorocaba",""],
+  "ml taubate": ["SP","Taubaté",""],
+  "ml teutonia": ["RS","Teutônia",""],
+  "rj alfenas": ["MG","Alfenas",""],
+  "rj americana": ["SP","Americana",""],
+  "rj azenha": ["RS","Porto Alegre","Azenha"],
+  "rj camaqua": ["RS","Camaquã",""],
+  "rj canoas": ["RS","Canoas",""],
+  "rj carazinho": ["RS","Carazinho",""],
+  "rj cassino": ["RS","Rio Grande","Cassino"],
+  "rj caxias centro": ["RS","Caxias do Sul","Centro"],
+  "rj caxias sao pelegrino": ["RS","Caxias do Sul","São Pelegrino"],
+  "rj cruz alta": ["RS","Cruz Alta",""],
+  "rj cuiaba": ["MT","Cuiabá",""],
+  "rj farroupilha": ["RS","Farroupilha",""],
+  "rj horizontina": ["RS","Horizontina",""],
+  "rj ijui": ["RS","Ijuí",""],
+  "rj jacana": ["SP","São Paulo","Jaçanã"],
+  "rj lajeado": ["RS","Lajeado",""],
+  "rj lindoia": ["RS","Porto Alegre","Lindóia"],
+  "rj linhares": ["ES","Linhares",""],
+  "rj moinhos": ["RS","Porto Alegre","Moinhos de Vento"],
+  "rj montes claros": ["MG","Montes Claros",""],
+  "rj parauapebas": ["PA","Parauapebas",""],
+  "rj passo fundo": ["RS","Passo Fundo",""],
+  "rj passo fundo sao cristovao": ["RS","Passo Fundo","São Cristóvão"],
+  "rj pelotas": ["RS","Pelotas",""],
+  "rj penha": ["SP","São Paulo","Penha"],
+  "rj picos": ["PI","Picos",""],
+  "rj piracicaba": ["SP","Piracicaba",""],
+  "rj pirassununga": ["SP","Pirassununga",""],
+  "rj poa cristal": ["RS","Porto Alegre","Cristal"],
+  "rj poa petropolis": ["RS","Porto Alegre","Petrópolis"],
+  "rj ponta grossa": ["PR","Ponta Grossa",""],
+  "rj ponta grossa 15 julho": ["PR","Ponta Grossa",""],
+  "rj ponte rasa": ["SP","São Paulo","Ponte Rasa"],
+  "rj portao 15 julho": ["PR","Curitiba","Portão"],
+  "rj salvador": ["BA","Salvador",""],
+  "rj santa cruz do sul": ["RS","Santa Cruz do Sul",""],
+  "rj santo angelo": ["RS","Santo Ângelo",""],
+  "rj vila matilde": ["SP","São Paulo","Vila Matilde"],
+};
+function locationKey(loja){return (loja||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();}
+function lojaLocation(loja){return LOJA_LOCATION_OVERRIDES[locationKey(loja)]||null;}
+function lojaDisplayText(loja){
+  const loc=lojaLocation(loja);
+  return loc?[loc[0],loc[1],loc[2]].filter(Boolean).join(" · "):displayLoja(loja);
+}
+function lojaLineHtml(loja){
+  const loc=lojaLocation(loja);
+  if(!loc)return `<span class="loja-line">${brandTag(loja)}<span class="loja-city">${esc(displayLoja(loja))}</span></span>`;
+  return `<span class="loja-line" title="${esc(displayLoja(loja))}">${brandTag(loja)}<span class="loja-uf">${esc(loc[0])}</span><span class="loja-sep">·</span><span class="loja-city">${esc(loc[1])}</span>${loc[2]?`<span class="loja-sep">·</span><span class="loja-unit">${esc(loc[2])}</span>`:""}</span>`;
 }
 function lojaFromArquivo(arquivoOrigem){
   const base = (arquivoOrigem||"")
@@ -133,7 +202,7 @@ function applyHallConsultorFilter(consultorSel){
 
 async function loadRelatorios(){
   const tbody = document.getElementById("tbody");
-  tbody.innerHTML = `<tr><td colspan="7" class="state-msg">Carregando...</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="6" class="state-msg">Carregando...</td></tr>`;
   try{
     const {data, error} = await supabaseClient
       .from("faturamento_relatorios")
@@ -155,7 +224,7 @@ async function loadRelatorios(){
     render();
   }catch(err){
     console.error(err);
-    tbody.innerHTML = `<tr><td colspan="7" class="state-msg">Erro ao carregar dados do Supabase. Confira js/config.js e se a tabela faturamento_relatorios existe.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="state-msg">Erro ao carregar dados do Supabase. Confira js/config.js e se a tabela faturamento_relatorios existe.</td></tr>`;
     showToast("Erro ao carregar: "+(err.message||err));
   }
 }
@@ -167,7 +236,7 @@ function populateFilterOptions(){
     const lojas = [...new Set(allRelatorios.map(r=>r.loja))].sort();
     for(const l of lojas){
       const opt=document.createElement("option");
-      opt.value=l; opt.textContent=displayLoja(l);
+      opt.value=l; opt.textContent=lojaDisplayText(l);
       lojaSel.appendChild(opt);
     }
   }
@@ -288,7 +357,7 @@ function renderRanking(elId, entries, isLoja){
   el.innerHTML = entries.slice(0,10).map(([name,val])=>{
     const row = `
     <div class="bar-row${isLoja?" clickable":""}"${isLoja?` data-loja="${encodeURIComponent(name)}"`:""}>
-      <div class="bar-name">${isLoja?`<span class="expand-caret">▸</span>`:""}${isLoja?brandTag(name)+displayLoja(name):name}</div>
+      <div class="bar-name">${isLoja?`<span class="expand-caret">▸</span>`:""}${isLoja?lojaLineHtml(name):esc(name)}</div>
       <div class="bar-track-row">
         <div class="bar-track"><div class="bar-fill" style="width:${Math.max(2,(val/max)*100)}%"></div></div>
         <div class="bar-value">${fmtMoney(val)}</div>
@@ -324,7 +393,7 @@ function renderTable(rows){
   lastTableRows = rows;
   const tbody = document.getElementById("tbody");
   if(!rows.length){
-    tbody.innerHTML = `<tr><td colspan="7" class="state-msg">Nenhum relatório encontrado para esse filtro.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="state-msg">Nenhum relatório encontrado para esse filtro.</td></tr>`;
     return;
   }
   const groups = new Map();
@@ -355,15 +424,14 @@ function renderTable(rows){
     const isOpen = openLojaGroups.has(key);
     return `
     <tr class="loja-row${isOpen?" open":""}" data-loja="${encodeURIComponent(chosen.loja)}" data-periodo="${chosen.periodo_fim}" data-key="${encodeURIComponent(key)}">
-      <td><span class="expand-caret">▸</span>${brandTag(chosen.loja)}${displayLoja(chosen.loja)}${pills}</td>
+      <td><span class="expand-caret">▸</span>${lojaLineHtml(chosen.loja)}${pills}</td>
       <td class="muted">${chosen.consultor||"—"}</td>
       <td>${fmtDate(chosen.periodo_inicio)} – ${fmtDate(chosen.periodo_fim)}</td>
       <td class="num">${fmtMoney(chosen.total_faturado)}</td>
       <td class="num">${fmtNum(chosen.total_tickets)}</td>
       <td class="num">${fmtMoney(ticketMedio)}</td>
-      <td class="num muted">${fmtMoney(chosen.valor_anulado)}</td>
     </tr>
-    <tr class="loja-detail-row"${isOpen?"":' style="display:none"'}><td colspan="7">${isOpen?lojaDetailHtml(chosen.loja, chosen.periodo_fim):""}</td></tr>`;
+    <tr class="loja-detail-row"${isOpen?"":' style="display:none"'}><td colspan="6">${isOpen?lojaDetailHtml(chosen.loja, chosen.periodo_fim):""}</td></tr>`;
   }).join("");
 }
 

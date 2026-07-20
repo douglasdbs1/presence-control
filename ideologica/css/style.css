@@ -17,6 +17,11 @@ body{font-family:var(--font);font-weight:600;background:linear-gradient(180deg,#
 .tag-rj{font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;background:linear-gradient(90deg,var(--rj-1),var(--rj-2));color:#fff;letter-spacing:.03em;}
 .tag-ml{font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--ml);color:#fff;letter-spacing:.03em;}
 .tag-mega{font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--teal);color:#fff;letter-spacing:.03em;}
+.loja-line{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;vertical-align:middle;}
+.loja-line .tag-rj,.loja-line .tag-ml,.loja-line .tag-mega{display:inline-flex;align-items:center;justify-content:center;min-width:31px;box-sizing:border-box;}
+.loja-uf{font-weight:850;color:var(--text);min-width:20px;text-align:center;}
+.loja-sep{color:var(--border2);font-weight:700;}
+.loja-city{font-weight:700;color:var(--text);}.loja-unit{color:var(--text2);}
 
 .cut-pills{display:inline-flex;gap:3px;margin-left:6px;vertical-align:middle;}
 .cut-pill{font-family:var(--font);font-size:9px;font-weight:700;line-height:1;padding:3px 6px;border-radius:999px;border:1px solid var(--border2);background:var(--surface2);color:var(--text3);cursor:pointer;}
