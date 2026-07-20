@@ -749,8 +749,7 @@ td.oc{max-width:260px;}
 <nav class="page-nav">
   <button class="pnav-btn" id="pnav-mine" onclick="setPage('mine')"><i class="fa-solid fa-user-check pnav-icon"></i> Minhas lojas</button>
   <button class="pnav-btn on" id="pnav-active" onclick="setPage('active')"><i class="fa-solid fa-heart-pulse pnav-icon"></i> Sistema Presence Ativo</button>
-  <button class="pnav-btn" id="pnav-gl" onclick="setPage('gl')"><i class="fa-solid fa-bolt pnav-icon"></i> Go-Live</button>
-  <button class="pnav-btn" id="pnav-db" onclick="setPage('db')"><i class="fa-solid fa-store pnav-icon"></i> Lojas</button>
+  <button class="pnav-btn" id="pnav-gl" onclick="setPage('gl')"><i class="fa-solid fa-store pnav-icon"></i> Lojas</button>
   <button class="pnav-btn" id="pnav-sup" onclick="setPage('sup')"><i class="fa-solid fa-headset pnav-icon"></i> Suporte</button>
   <button class="pnav-btn edit-only" id="pnav-tv" onclick="setPage('tv')"><i class="fa-solid fa-display pnav-icon"></i> TV</button>
 </nav>
@@ -1243,6 +1242,11 @@ function crmFor(l){
   if(!n||!crmData||!Array.isArray(crmData.implantacao))return null;
   return crmData.implantacao.find(r=>String(r.num||'').replace(/\D/g,'')===n)||null;
 }
+function crmInstalFor(l){
+  const n=String(l.num||'').replace(/\D/g,'');
+  if(!n||!crmData||!Array.isArray(crmData.instalacoes))return null;
+  return crmData.instalacoes.find(r=>String(r.num||'').replace(/\D/g,'')===n)||null;
+}
 function crmMetric(k,fallback=null){
   const v=crmData&&crmData.metricas?crmData.metricas[k]:null;
   return Number.isFinite(Number(v))?Number(v):fallback;
@@ -1529,7 +1533,11 @@ function stageDateInfo(flag,em){
   if(d)return {state:'sched',txt:em};
   return {state:'none',txt:''};
 }
-function instalacaoInfo(l){return stageDateInfo(l.instalacao,l.instalacaoEm);}
+function instalacaoInfo(l){
+  const crm=crmInstalFor(l);
+  if(crm&&/conclu/i.test(crm.status||''))return {state:'done',txt:crm.data||'',fonte:'crm'};
+  return stageDateInfo(l.instalacao,l.instalacaoEm);
+}
 function instBadgeHtml(l){
   const i=instalacaoInfo(l);
   if(i.state==='done'||checklistProgress(l).done>0)return '<span class="inst-badge ok">&#10003; Sistema instalado</span>';
@@ -1627,9 +1635,10 @@ function openChecklistModal(idx){
     return `<label class="check-item stage-check ${checked?'checked':''}${locked?' locked':''}"><input type="checkbox" id="${id}" ${checked?'checked':''} ${locked?'disabled':''} onchange="this.dataset.touched='1';this.closest('.check-item').classList.toggle('checked',this.checked)"><span>${label}<span class="stage-when">${sub}</span></span></label>`;
   };
   const trainChecked=f=>f==='1'||(started&&f!=='0');
+  const instCrm=crmInstalFor(l),instConfirmed=instCrm&&/conclu/i.test(instCrm.status||'');
   document.getElementById('check-stage1').innerHTML=
-    stageCheck('check-inst','Instalação local concluída',l.instalacao,l.instalacaoEm,'Sem data definida com a Presence',l.instalacao==='1'||started,started)+
-    (started?'<div class="stage-when" style="padding:3px 2px 0">Checklist iniciado — o sistema precisa estar instalado.</div>':'');
+    stageCheck('check-inst','Instalação local concluída',instConfirmed?'1':l.instalacao,instConfirmed?(instCrm.data+' · confirmado pela gestão'):l.instalacaoEm,'Sem data definida com a Presence',instConfirmed||l.instalacao==='1'||started,instConfirmed||started)+
+    (started&&!instConfirmed?'<div class="stage-when" style="padding:3px 2px 0">Checklist iniciado — o sistema precisa estar instalado.</div>':'');
   document.getElementById('check-stage2').innerHTML=
     stageCheck('check-tretag','Treinamento retaguarda',l.treinRetag,l.treinRetagEm,'Agendar via link da Presence',trainChecked(l.treinRetag),false)+
     stageCheck('check-tloja','Treinamento balcão / loja',l.treinLoja,l.treinLojaEm,'Agendar via link da Presence',trainChecked(l.treinLoja),false);
@@ -1686,14 +1695,13 @@ function setPage(p){
   document.getElementById('pnav-mine').className='pnav-btn'+(p==='mine'?' on':'');
   document.getElementById('pnav-gl').className='pnav-btn'+(p==='gl'?' on':'');
   document.getElementById('pnav-active').className='pnav-btn'+(p==='active'?' on':'');
-  document.getElementById('pnav-db').className='pnav-btn'+(p==='db'?' on':'');
   document.getElementById('pnav-sup').className='pnav-btn'+(p==='sup'?' on':'');
   document.getElementById('pnav-tv').className='pnav-btn edit-only'+(p==='tv'?' on':'');
   if(p!=='tv')stopTV();
   renderPage();
 }
-function updateSysSub(){const m={active:'Lojas em operação',gl:'Implantações em andamento',db:'Base geral de lojas',sup:'Chamados de suporte',tv:'Painel de monitor'};const el=document.getElementById('sys-sub');if(el)el.textContent=m[currentPage]||'';}
-function renderPage(){updateSysSub();if(currentPage==='mine'){const el=document.getElementById('sys-sub');if(el)el.textContent='Minhas lojas';renderMine();}else if(currentPage==='gl')renderGL();else if(currentPage==='active')renderActive();else if(currentPage==='db')renderDB();else if(currentPage==='tv')renderTV();else renderSupport();}
+function updateSysSub(){const m={active:'Lojas em operação',gl:'Implantação e base geral de lojas',sup:'Chamados de suporte',tv:'Painel de monitor'};const el=document.getElementById('sys-sub');if(el)el.textContent=m[currentPage]||'';}
+function renderPage(){updateSysSub();if(currentPage==='mine'){const el=document.getElementById('sys-sub');if(el)el.textContent='Minhas lojas';renderMine();}else if(currentPage==='gl')renderGL();else if(currentPage==='active')renderActive();else if(currentPage==='tv')renderTV();else renderSupport();}
 
 // ── TV PAGE ──
 function refreshTVIfOpen(){if(currentPage==='tv')renderTV();}
@@ -1993,6 +2001,23 @@ function renderGL(){
     </div>
     <div class="toolbar">
       <div class="tb-row">
+        <div class="quick-tabs">
+          <button class="qtab${glQuick==='all'?' on':''}" onclick="setGLQuick('all')">Todos</button>
+          <button class="qtab${glQuick==='criticos'?' on':''}" onclick="setGLQuick('criticos')">Críticos</button>
+          <button class="qtab${glQuick==='prox7'?' on':''}" onclick="setGLQuick('prox7')">Próximos 7 dias</button>
+          <button class="qtab${glQuick==='semdata'?' on':''}" onclick="setGLQuick('semdata')">Sem data</button>
+          <button class="qtab${glQuick==='ativos'?' on':''}" onclick="setGLQuick('ativos')">Ativos</button>
+          <button class="qtab${glQuick==='antigo'?' on':''}" onclick="setGLQuick('antigo')">Sistema Antigo</button>
+        </div>
+      </div>
+      ${glQuick==='antigo'?`
+      <div class="tb-row">
+        <input class="tb" id="gl-antigo-q" placeholder="Buscar loja ou nº..." oninput="renderGLContent()">
+        <button class="btn-sm" onclick="exportDbCSV()">CSV</button>
+        <button class="btn-add edit-only" onclick="openDbModal()">+ Nova loja</button>
+      </div>
+      `:`
+      <div class="tb-row">
         <div class="view-tabs">
           <button class="vtab${glView==='dash'?' on':''}" onclick="setGLView('dash')">Dashboard</button>
           <button class="vtab${glView==='consult'?' on':''}" onclick="setGLView('consult')">Por consultor</button>
@@ -2012,15 +2037,6 @@ function renderGL(){
         </select>
       </div>
       <div class="tb-row">
-        <div class="quick-tabs">
-          <button class="qtab${glQuick==='all'?' on':''}" onclick="setGLQuick('all')">Todos</button>
-          <button class="qtab${glQuick==='criticos'?' on':''}" onclick="setGLQuick('criticos')">Críticos</button>
-          <button class="qtab${glQuick==='prox7'?' on':''}" onclick="setGLQuick('prox7')">Próximos 7 dias</button>
-          <button class="qtab${glQuick==='semdata'?' on':''}" onclick="setGLQuick('semdata')">Sem data</button>
-          <button class="qtab${glQuick==='ativos'?' on':''}" onclick="setGLQuick('ativos')">Ativos</button>
-        </div>
-      </div>
-      <div class="tb-row">
         <select class="tb" id="gl-uf" onchange="renderGLContent()">
           <option value="">Todos UF</option>
           ${[...new Set(getViewLojas().map(l=>ufFromName(l.loja)).filter(Boolean))].sort().map(u=>`<option value="${u}">${u}</option>`).join('')}
@@ -2038,6 +2054,7 @@ function renderGL(){
         <button class="btn-sm" onclick="document.getElementById('json-input').click()">Carregar</button>
         <button class="btn-add edit-only" onclick="openModal()">+ Nova loja</button>
       </div>
+      `}
     </div>
     <div id="gl-content"></div>
   `;
@@ -2047,13 +2064,35 @@ function renderGL(){
 function setGLView(v){glView=v;renderGL();}
 function setGLQuick(v){glQuick=v;renderGL();}
 
+function renderAntigoTable(){
+  const q=(document.getElementById('gl-antigo-q')||{value:''}).value.toLowerCase();
+  const list=dbExtra.map((l,i)=>({...l,_extraIdx:i})).filter(l=>l.status==='antigo').filter(l=>{
+    if(!q)return true;
+    const txt=((l.nome||'')+' '+(l.num||'')+' '+(l.obs||'')+' '+(l.responsavel||'')).toLowerCase();
+    return txt.includes(q);
+  }).sort((a,b)=>a.nome.localeCompare(b.nome,'pt'));
+  if(!list.length)return '<div class="table-wrap"><div class="no-results">Nenhuma loja em sistema antigo.</div></div>';
+  const rows=list.map(l=>{
+    const alertIcon=l.alerta?'<span style="color:#c0392b;font-size:11px"> ⚠</span>':'';
+    return `<tr onclick="openDbModal(${l._extraIdx})">
+      <td class="lc">${l.nome}${alertIcon}</td>
+      <td class="nc">${l.num||'—'}</td>
+      <td>${redeLabel(l.rede)}</td>
+      <td>${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:'—'}</td>
+      <td class="oc">${l.obs||'—'}</td>
+      <td><button class="lbtn" onclick="event.stopPropagation();openDbModal(${l._extraIdx})">Editar</button></td>
+    </tr>`;
+  }).join('');
+  return `<div class="table-wrap"><table><thead><tr><th>Loja</th><th>Nº</th><th>Rede</th><th>Consultor</th><th>Obs.</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
 function renderGLContent(){
+  const el=document.getElementById('gl-content');
+  if(!el)return;
+  if(glQuick==='antigo'){el.innerHTML=renderAntigoTable();return;}
   const list=getFiltered();
   const st=(document.getElementById('gl-st')||{value:''}).value;
   const active=list.filter(l=>l.status!=='concluido');
   const concluded=list.filter(l=>l.status==='concluido');
-  const el=document.getElementById('gl-content');
-  if(!el)return;
   let html='';
   if(glView==='dash'){
     html=renderDashboard(list);
@@ -2215,111 +2254,7 @@ function exportCSV(){
   const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);a.download='golive_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
 }
 
-// ── DB PAGE ──
-let dbQuick='all';
-function setDbQuick(v){dbQuick=v;renderDB();}
-function renderDB(){
-  const database=getDatabase();
-  const total=database.length,ativo=database.filter(l=>l.status==='ativo').length,trans=database.filter(l=>l.status==='transicao').length,antigo=database.filter(l=>l.status==='antigo').length;
-  const ativoTotal=crmMetric('implantados',ativo);
-  document.getElementById('content').innerHTML=`
-    <div class="db-stats">
-      <div class="db-stat"><div class="lbl">Total de lojas</div><div class="val">${total}</div></div>
-      <div class="db-stat"><div class="lbl">Presence Ativo</div><div class="val g">${ativoTotal}</div></div>
-      <div class="db-stat"><div class="lbl">Contrato assinado</div><div class="val i">${trans}</div></div>
-      <div class="db-stat"><div class="lbl">Sistema Antigo</div><div class="val" style="color:var(--text3)">${antigo}</div></div>
-    </div>
-    <div class="toolbar">
-      <div class="tb-row">
-        <div class="quick-tabs">
-          <button class="qtab${dbQuick==='all'?' on':''}" onclick="setDbQuick('all')">Todas</button>
-          <button class="qtab${dbQuick==='ativo'?' on':''}" onclick="setDbQuick('ativo')">Presence ativo</button>
-          <button class="qtab${dbQuick==='transicao'?' on':''}" onclick="setDbQuick('transicao')">Contrato assinado</button>
-          <button class="qtab${dbQuick==='antigo'?' on':''}" onclick="setDbQuick('antigo')">Sistema antigo</button>
-          <button class="qtab${dbQuick==='semnum'?' on':''}" onclick="setDbQuick('semnum')">Sem nº</button>
-          <button class="qtab${dbQuick==='alerta'?' on':''}" onclick="setDbQuick('alerta')">Sinalizadas</button>
-        </div>
-      </div>
-      <div class="tb-row">
-        <input class="tb" id="db-q" placeholder="Buscar loja ou nº..." oninput="renderDbTable()" style="color:#111110;caret-color:#111110;">
-        <select class="tb" id="db-fr" onchange="renderDbTable()">
-          <option value="">Todas as redes</option>
-          <option value="rj">Restaura Jeans</option>
-          <option value="ml">Minha Lavanderia</option>
-          <option value="both">Mega</option>
-        </select>
-        <select class="tb" id="db-fs" onchange="renderDbTable()">
-          <option value="">Todos os status</option>
-          <option value="antigo">Sistema Antigo / Contrato Pendente</option>
-          <option value="transicao">Contrato assinado</option>
-          <option value="ativo">Presence Ativo</option>
-        </select>
-        <select class="tb" id="db-fres" onchange="renderDbTable()">
-          <option value="">Todos consultores</option>
-          ${TEAM.map(t=>`<option value="${t}">${t}</option>`).join('')}
-        </select>
-        <select class="tb" id="db-uf" onchange="renderDbTable()">
-          <option value="">Todos UF</option>
-          ${[...new Set(getDatabase().map(l=>ufFromName(l.nome)).filter(Boolean))].sort().map(u=>`<option value="${u}">${u}</option>`).join('')}
-        </select>
-        <select class="tb" id="db-numero" onchange="renderDbTable()">
-          <option value="">Com/sem nº</option><option value="com">Com nº Presence</option><option value="sem">Sem nº Presence</option>
-        </select>
-        <select class="tb" id="db-alerta-f" onchange="renderDbTable()">
-          <option value="">Todos contatos</option><option value="1">Com sinalizador ⚠</option><option value="0">Sem sinalizador</option>
-        </select>
-        <button class="btn-sm" onclick="exportDbCSV()">CSV</button>
-        <button class="btn-add edit-only" onclick="openDbModal()">+ Nova loja</button>
-      </div>
-    </div>
-    <div id="db-table"></div>
-  `;
-  renderDbTable();
-}
-
-function renderDbTable(){
-  const q=(document.getElementById('db-q')||{value:''}).value.toLowerCase();
-  const fRede=(document.getElementById('db-fr')||{value:''}).value;
-  const fSt=(document.getElementById('db-fs')||{value:''}).value;
-  const fResp=(document.getElementById('db-fres')||{value:''}).value;
-  const fUf=(document.getElementById('db-uf')||{value:''}).value;
-  const fNumero=(document.getElementById('db-numero')||{value:''}).value;
-  const fAlerta=(document.getElementById('db-alerta-f')||{value:''}).value;
-  const filtered=getDatabase().filter(l=>{
-    const txt=((l.nome||'')+' '+(l.num||'')+' '+(l.obs||'')+' '+(l.responsavel||'')).toLowerCase();
-    if(q&&!txt.includes(q))return false;
-    if(fRede&&l.rede!==fRede)return false;
-    if(fSt&&l.status!==fSt)return false;
-    if(fResp&&l.responsavel!==fResp)return false;
-    if(fUf&&ufFromName(l.nome)!==fUf)return false;
-    if(fNumero==='com'&&!hasPresenceNumber(l))return false;
-    if(fNumero==='sem'&&hasPresenceNumber(l))return false;
-    if(fAlerta==='1'&&!l.alerta)return false;
-    if(fAlerta==='0'&&l.alerta)return false;
-    if(dbQuick==='ativo'&&l.status!=='ativo')return false;
-    if(dbQuick==='transicao'&&l.status!=='transicao')return false;
-    if(dbQuick==='antigo'&&l.status!=='antigo')return false;
-    if(dbQuick==='semnum'&&hasPresenceNumber(l))return false;
-    if(dbQuick==='alerta'&&!l.alerta)return false;
-    return true;
-  });
-  const rows=filtered.map(l=>{
-    const alertIcon=l.alerta?'<span style="color:#c0392b;font-size:11px"> ⚠</span>':'';
-    const editBtn=l._fromGL?'<span style="font-size:10px;color:var(--teal-mid);font-weight:600">via Go-Live</span>':`<button class="lbtn" onclick="event.stopPropagation();openDbModal(${l._extraIdx})">Editar</button>`;
-    return `<tr onclick="${l._fromGL?`openModal(${l._glIdx})`:`openDbModal(${l._extraIdx})`}">
-      <td class="lc">${l.nome}${alertIcon}</td>
-      <td class="nc">${l.num||'—'}</td>
-      <td>${redeLabel(l.rede)}</td>
-      <td>${statusDbLabel(l.status)}</td>
-      <td>${l.responsavel?`<span class="tag-resp">${l.responsavel}</span>`:'—'}</td>
-      <td class="oc">${l.obs||'—'}</td>
-      <td>${editBtn}</td>
-    </tr>`;
-  }).join('');
-  const el=document.getElementById('db-table');
-  if(el) el.innerHTML=filtered.length?`<div class="table-wrap"><table><thead><tr><th>Loja</th><th>Nº</th><th>Rede</th><th>Status</th><th>Consultor</th><th>Obs.</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:'<div class="table-wrap"><div class="no-results">Nenhuma loja encontrada.</div></div>';
-}
-
+// ── SISTEMA ANTIGO (dentro da página Lojas) ──
 function exportDbCSV(){
   const data=getDatabase();
   const hdr=['Nome','Nº','Rede','Status','Consultor','Origem','Obs.'];
@@ -2645,12 +2580,12 @@ function saveDbLoja(){
   const obj={nome:document.getElementById('db-nome').value.trim().toUpperCase(),num:document.getElementById('db-num').value.trim(),rede:document.getElementById('db-rede').value,status:document.getElementById('db-status').value,alerta:document.getElementById('db-alerta').checked,obs:document.getElementById('db-obs').value.trim(),responsavel:''};
   const idx=parseInt(document.getElementById('db-idx').value);
   if(idx===-1)dbExtra.push(obj);else dbExtra[idx]=obj;
-  saveDb();closeDbModal();renderDB();
+  saveDb();closeDbModal();renderGL();
 }
 function deleteDbLoja(){
   if(dbModalIdx<0)return;
   if(!confirm(`Excluir "${dbExtra[dbModalIdx].nome}"?`))return;
-  dbExtra.splice(dbModalIdx,1);saveDb();closeDbModal();renderDB();
+  dbExtra.splice(dbModalIdx,1);saveDb();closeDbModal();renderGL();
 }
 
 // ── DATE PICKER (flatpickr) ──
