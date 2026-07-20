@@ -546,6 +546,12 @@ body.tv-mode .content{max-width:none;padding:0;background:#0a1330;}
 .mine-card:hover{transform:translateY(-2px);border-color:var(--teal-mid);box-shadow:0 10px 24px rgba(21,23,26,.08);}
 .mine-card.ready{border-left-color:var(--teal-mid);}
 .mine-card.warn{border-left-color:#d99b00;}
+.mine-card.stale{box-shadow:inset 0 0 0 1px #f2c66d;}
+.mine-card.critical{border-left-color:var(--red);box-shadow:inset 0 0 0 1px #e8aaa5;}
+.mine-next{font-size:11px;line-height:1.35;color:var(--text2);background:#f6f8f9;border-radius:6px;padding:7px 9px;margin-top:9px;}
+.mine-next b{color:var(--text);}
+.mine-update{font-size:11px;margin-top:8px;font-weight:700;}
+.mine-update.fresh{color:var(--text3);}.mine-update.stale{color:#9a6500;}.mine-update.critical{color:var(--red);}
 .mine-golive-badge{position:absolute;top:10px;right:10px;display:flex;align-items:center;gap:4px;font-size:10px;font-weight:800;padding:3px 8px;border-radius:999px;background:var(--blue-bg);color:var(--blue);white-space:nowrap;}
 .mine-golive-badge.today{background:var(--teal-bg);color:var(--teal);}
 .mine-golive-badge.over{background:var(--red-bg);color:var(--red);}
@@ -1515,13 +1521,31 @@ function renderActiveContent(){
 // ── PAGE NAV ──
 // Minhas lojas / checklist
 let currentMineStores=[];
-let mineSortMode='golive'; // 'golive' | 'contratos' | 'checklist'
+let mineSortMode='golive'; // 'priority' | 'golive' | 'contratos' | 'checklist'
 let currentChecklistKey='';
 let currentChecklistLoja=null;
 function consultorLogout(){hallSignOut();}
 function checklistKey(l){return (l.num&&l.num.trim())?'num:'+l.num.trim():'loja:'+normLojaName(l.loja)+'|'+redeFromGrupo(l.grupo,l.rede);}
 function checklistFor(l){return checklistCadastros[checklistKey(l)]||{itens:{},obs:'',updatedAt:'',updatedBy:''};}
 function checklistProgress(l){const c=checklistFor(l),done=CHECKLIST_ITENS.filter(i=>c.itens&&c.itens[i.key]).length,total=CHECKLIST_ITENS.length;return {done,total,pct:Math.round(done/total*100)};}
+function checklistNext(l){const c=checklistFor(l);return CHECKLIST_ITENS.find(i=>!(c.itens&&c.itens[i.key]))||null;}
+function checklistUpdateInfo(l){
+  const c=checklistFor(l),d=c.updatedAt?new Date(c.updatedAt):null;
+  if(!d||Number.isNaN(d.getTime()))return {days:null,level:'critical',text:'Nunca atualizado'};
+  const days=Math.max(0,Math.floor((Date.now()-d.getTime())/86400000));
+  const level=days>7?'critical':days>3?'stale':'fresh';
+  const when=d.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  return {days,level,text:`Atualizado ${when}${days>0?` · há ${days} dia${days===1?'':'s'}`:''}`};
+}
+function minePriorityScore(l){
+  const p=checklistProgress(l),u=checklistUpdateInfo(l),a=contractAgeInfo(l),inst=instalacaoInfo(l),rec=tvRecord(l);
+  let score=(100-p.pct);
+  score+=u.days==null?45:u.days>7?35:u.days>3?15:0;
+  if(inst.state==='none')score+=20;
+  if(a)score+=a.days>=50?35:a.days>=40?20:a.days>=25?8:0;
+  if(rec._tvParsed&&rec._tvDiff<=7)score+=rec._tvDiff<0?45:30;
+  return score;
+}
 function stageDateInfo(flag,em){
   const d=parseDate(em||'');
   if(flag==='1')return {state:'done',txt:em||''};
@@ -1560,8 +1584,8 @@ function contractAgeInfo(l){
 }
 function contractAgeBar(l){
   const a=contractAgeInfo(l);
-  if(!a)return `<div class="mine-deadline empty"><div class="mine-deadline-top"><span>Sem data de assinatura</span><span>--/60</span></div><div class="mine-deadline-track"><div class="mine-deadline-fill"></div></div></div>`;
-  return `<div class="mine-deadline"><div class="mine-deadline-top"><span>Assinado ${esc(a.label)}</span><span style="color:${a.color}">${a.days}/60</span></div><div class="mine-deadline-track"><div class="mine-deadline-fill" style="width:${a.pct}%;background:${a.color}"></div></div></div>`;
+  if(!a)return `<div class="mine-deadline empty"><div class="mine-deadline-top"><span>Contrato · sem data de assinatura</span><span>--/60 dias</span></div><div class="mine-deadline-track"><div class="mine-deadline-fill"></div></div></div>`;
+  return `<div class="mine-deadline"><div class="mine-deadline-top"><span>Contrato · assinado ${esc(a.label)}</span><span style="color:${a.color}">${a.days}/60 dias</span></div><div class="mine-deadline-track"><div class="mine-deadline-fill" style="width:${a.pct}%;background:${a.color}"></div></div></div>`;
 }
 // Ordenação de "Minhas lojas": 'golive' cruza Presence + Zoho (tvRecord, a
 // mesma lógica da TV) pra achar a data de go-live mais confiável; 'contratos'
@@ -1569,6 +1593,10 @@ function contractAgeBar(l){
 // checklist preenchido. Lojas sem data ficam sempre por último.
 function setMineSort(mode){mineSortMode=mode;renderMine();}
 function mineSortCompare(a,b){
+  if(mineSortMode==='priority'){
+    const diff=minePriorityScore(b)-minePriorityScore(a);
+    return diff||String(a.loja).localeCompare(String(b.loja),'pt');
+  }
   if(mineSortMode==='checklist'){
     const pa=checklistProgress(a).pct,pb=checklistProgress(b).pct;
     if(pa!==pb)return pb-pa;
@@ -1598,8 +1626,8 @@ function renderMine(){
   currentMineStores=mineStores();
   const who=consultorUser?consultorUser.nome:'Admin';
   const doneCount=currentMineStores.filter(l=>checklistProgress(l).done===CHECKLIST_ITENS.length).length;
-  const cards=currentMineStores.map((l,i)=>{const p=checklistProgress(l),c=checklistFor(l),cls=p.done===p.total?' ready':p.done?' warn':'';const updated=c.updatedAt?`Atualizado ${new Date(c.updatedAt).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}`:'Sem atualização';return `<div class="mine-card${cls}" onclick="openChecklistModal(${i})">${mineGoliveBadgeHtml(l)}<div><div class="mine-card-title">${esc(l.loja)}</div><div class="mine-card-meta">${redeTagHtml(l)}${l.num?`<span class="store-num-pill after">${esc(l.num)}</span>`:''}<span class="tag-resp">${esc(l.responsavel||'Sem consultor')}</span>${badgeHtml(l.status)}${instBadgeHtml(l)}</div></div><div class="mine-progress"><div class="mine-progress-top"><span>${p.done}/${p.total} itens concluídos</span><span>${p.pct}%</span></div><div class="mine-track"><div class="mine-fill" style="width:${p.pct}%"></div></div><div class="mine-sub" style="margin-top:8px">${esc(updated)}</div>${contractAgeBar(l)}</div></div>`;}).join('');
-  const sortToggle=`<div class="mine-sort-toggle"><button class="mine-sort-opt${mineSortMode==='golive'?' on':''}" onclick="setMineSort('golive')">Próximos go-lives</button><button class="mine-sort-opt${mineSortMode==='contratos'?' on':''}" onclick="setMineSort('contratos')">Contratos</button><button class="mine-sort-opt${mineSortMode==='checklist'?' on':''}" onclick="setMineSort('checklist')">Checklist preenchido</button></div>`;
+  const cards=currentMineStores.map((l,i)=>{const p=checklistProgress(l),u=checklistUpdateInfo(l),next=checklistNext(l),cls=p.done===p.total?' ready':` ${u.level}${p.done?' warn':''}`;return `<div class="mine-card${cls}" onclick="openChecklistModal(${i})">${mineGoliveBadgeHtml(l)}<div><div class="mine-card-title">${esc(l.loja)}</div><div class="mine-card-meta">${redeTagHtml(l)}${l.num?`<span class="store-num-pill after">${esc(l.num)}</span>`:''}<span class="tag-resp">${esc(l.responsavel||'Sem consultor')}</span>${badgeHtml(l.status)}${instBadgeHtml(l)}</div>${next?`<div class="mine-next"><b>Próximo:</b> ${esc(next.label)}</div>`:`<div class="mine-next"><b>Checklist concluído</b></div>`}</div><div class="mine-progress"><div class="mine-progress-top"><span>Checklist · ${p.done}/${p.total} itens</span><span>${p.pct}%</span></div><div class="mine-track"><div class="mine-fill" style="width:${p.pct}%"></div></div><div class="mine-update ${u.level}">${esc(u.text)}</div>${contractAgeBar(l)}</div></div>`;}).join('');
+  const sortToggle=`<div class="mine-sort-toggle"><button class="mine-sort-opt${mineSortMode==='priority'?' on':''}" onclick="setMineSort('priority')">Prioridade</button><button class="mine-sort-opt${mineSortMode==='golive'?' on':''}" onclick="setMineSort('golive')">Próximos go-lives</button><button class="mine-sort-opt${mineSortMode==='contratos'?' on':''}" onclick="setMineSort('contratos')">Contratos</button><button class="mine-sort-opt${mineSortMode==='checklist'?' on':''}" onclick="setMineSort('checklist')">Checklist preenchido</button></div>`;
   document.getElementById('content').innerHTML=`<div class="mine-head"><div><div class="mine-title">Minhas lojas</div><div class="mine-sub">${currentMineStores.length} loja(s) em acompanhamento. ${doneCount} com checklist completo.</div></div><div class="mine-user">${sortToggle}<span class="tag-resp">${esc(who)}</span>${consultorUser?'<button class="btn-sm" onclick="consultorLogout()">Sair</button>':''}</div></div>${cards?`<div class="mine-grid">${cards}</div>`:'<div class="mine-empty">Nenhuma loja em implantação para este consultor.</div>'}`;
 }
 function openChecklistModal(idx){
