@@ -19,6 +19,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const { parseReport } = require('./parse_report');
 
 function loadEnv() {
@@ -62,8 +63,23 @@ function findXlsFiles(root) {
   return out;
 }
 
+function reportContentKey(relatorio, itens) {
+  const normalizedItems = (itens || []).map(item => [
+    item.tipo, item.categoria, Number(item.faturamento || 0),
+    Number(item.percentual || 0), Number(item.volume || 0),
+    Number(item.percentual_volume || 0), Number(item.media_servico || 0),
+    Number(item.tickets || 0), Number(item.media_ticket || 0),
+  ]).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+  return JSON.stringify([
+    relatorio.consultor, relatorio.periodo_inicio, relatorio.periodo_fim,
+    Number(relatorio.total_faturado || 0), Number(relatorio.total_taxa_adicional || 0),
+    Number(relatorio.valor_anulado || 0), Number(relatorio.total_tickets || 0),
+    Number(relatorio.total_volume || 0), normalizedItems,
+  ]);
+}
+
 async function fetchExistingKeys(env) {
-  const res = await fetch(`${env.SUPABASE_URL}/rest/v1/faturamento_relatorios?select=loja,periodo_inicio,periodo_fim,arquivo_origem`, {
+  const res = await fetch(`${env.SUPABASE_URL}/rest/v1/faturamento_relatorios?select=loja,consultor,periodo_inicio,periodo_fim,total_faturado,total_taxa_adicional,valor_anulado,total_tickets,total_volume,arquivo_origem,itens:faturamento_itens(tipo,categoria,faturamento,percentual,volume,percentual_volume,media_servico,tickets,media_ticket)`, {
     headers: { apikey: env.SUPABASE_ANON_KEY, Authorization: `Bearer ${env.SUPABASE_ANON_KEY}` },
   });
   if (!res.ok) throw new Error(`Falha ao buscar relatórios existentes (${res.status}): ${await res.text()}`);
@@ -71,6 +87,7 @@ async function fetchExistingKeys(env) {
   return {
     byLoja: new Set(rows.map(r => `${r.loja}|||${r.periodo_inicio}|||${r.periodo_fim}`)),
     byArquivo: new Set(rows.filter(r => r.arquivo_origem).map(r => `${r.arquivo_origem}|||${r.periodo_inicio}|||${r.periodo_fim}`)),
+    byContent: new Set(rows.map(r => reportContentKey(r, r.itens))),
   };
 }
 
@@ -103,15 +120,31 @@ async function main() {
   }
 
   const env = loadEnv();
-  const existing = force ? { byLoja: new Set(), byArquivo: new Set() } : await fetchExistingKeys(env);
+  const existing = force ? { byLoja: new Set(), byArquivo: new Set(), byContent: new Set() } : await fetchExistingKeys(env);
   const files = findXlsFiles(rootArg);
 
   console.log(`${files.length} arquivo(s) .xls encontrado(s) em ${files.length ? new Set(files.map(f=>f.consultor)).size : 0} pasta(s) de consultor.`);
 
   let imported = 0, skipped = 0, failed = 0;
   const problems = [];
+  // Um mesmo relatório salvo com nomes de lojas diferentes duplica todas as
+  // somas. Detecta pelo conteúdo bruto antes de confiar no nome do arquivo.
+  const filesByHash = new Map();
+  for (const file of files) {
+    const hash = crypto.createHash('sha256').update(fs.readFileSync(file.filePath)).digest('hex');
+    if (!filesByHash.has(hash)) filesByHash.set(hash, []);
+    filesByHash.get(hash).push(file);
+  }
+  const duplicatePaths = new Set();
+  for (const group of filesByHash.values()) {
+    if (group.length < 2) continue;
+    group.forEach(file => duplicatePaths.add(file.filePath));
+    failed += group.length;
+    problems.push(`ERRO DE DUPLICIDADE: arquivos com conteúdo idêntico bloqueados: ${group.map(file=>`"${path.basename(file.filePath)}"`).join(' e ')}.`);
+  }
 
   for (const { filePath, consultor } of files) {
+    if (duplicatePaths.has(filePath)) continue;
     const arquivoOrigem = path.basename(filePath);
     let relatorio, itens, warnings;
     try {
@@ -138,6 +171,11 @@ async function main() {
     const arquivoKey = `${relatorio.arquivo_origem}|||${relatorio.periodo_inicio}|||${relatorio.periodo_fim}`;
     if (existing.byLoja.has(key) || existing.byLoja.has(internalKey) || existing.byArquivo.has(arquivoKey)) {
       skipped++;
+      continue;
+    }
+    if (existing.byContent.has(reportContentKey(relatorio, itens))) {
+      failed++;
+      problems.push(`ERRO DE DUPLICIDADE "${arquivoOrigem}": conteúdo já existe no Supabase ligado a outro nome de loja/arquivo.`);
       continue;
     }
 

@@ -173,11 +173,24 @@ function normalizeRelatorio(r){
   return lojaArquivo ? {...r, loja_original: r.loja, loja: lojaArquivo} : r;
 }
 function dedupeRelatorios(rows){
+  const contentKey = r => {
+    const itens=(r.itens||[]).map(it=>[it.tipo,it.categoria,Number(it.faturamento||0),Number(it.percentual||0),Number(it.volume||0),Number(it.percentual_volume||0),Number(it.media_servico||0),Number(it.tickets||0),Number(it.media_ticket||0)]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)));
+    return JSON.stringify([r.consultor,r.periodo_inicio,r.periodo_fim,Number(r.total_faturado||0),Number(r.total_taxa_adicional||0),Number(r.valor_anulado||0),Number(r.total_tickets||0),Number(r.total_volume||0),itens]);
+  };
   const seen = new Set();
+  const seenContent = new Map();
+  const duplicates = [];
+  window.ideologicaDuplicateReports = duplicates;
   return rows.filter(r=>{
     const key = [r.loja, r.periodo_inicio, r.periodo_fim, r.arquivo_origem, Number(r.total_faturado||0).toFixed(2)].join("|||");
     if(seen.has(key)) return false;
     seen.add(key);
+    const ckey=contentKey(r);
+    if(seenContent.has(ckey)){
+      duplicates.push({mantido:seenContent.get(ckey),bloqueado:r});
+      return false;
+    }
+    seenContent.set(ckey,r);
     return true;
   });
 }
@@ -207,13 +220,19 @@ async function loadRelatorios(){
     const {data, error} = await supabaseClient
       .from("faturamento_relatorios")
       .select("*, itens:faturamento_itens(*)")
-      .order("periodo_fim",{ascending:false});
+      .order("periodo_fim",{ascending:false})
+      .order("id",{ascending:true});
     if(error) throw error;
     // ignora relatorios de amostra/teste (nunca sao dados reais de loja)
     allRelatorios = (data || [])
       .filter(r => !(r.arquivo_origem||"").startsWith("AMOSTRA_"))
       .map(normalizeRelatorio);
     allRelatorios = dedupeRelatorios(allRelatorios);
+    const qualityWarning=document.getElementById("data-quality-warning");
+    const duplicateCount=(window.ideologicaDuplicateReports||[]).length;
+    qualityWarning.hidden=!duplicateCount;
+    qualityWarning.textContent=duplicateCount?`Atenção: ${duplicateCount} relatório(s) de conteúdo idêntico foram bloqueados das somas. Revise os arquivos de origem.`:"";
+    if(duplicateCount)console.error("Relatórios duplicados bloqueados:",window.ideologicaDuplicateReports);
     lojaBandeiraMap = buildLojaBandeiraMap(allRelatorios);
     tingimentoPorRelatorio = new Map();
     for(const r of allRelatorios){

@@ -20,6 +20,14 @@ período) e mostra só os arquivos novos. Confere a lista, roda de novo sem
 quantos já existiam (ignorados) e quais deram erro — não trava o lote inteiro
 por causa de um arquivo ruim.
 
+Antes de importar, o lote calcula o SHA-256 de todos os arquivos. Se dois
+arquivos tiverem conteúdo idêntico, ambos são bloqueados e reportados como
+erro, mesmo que tenham nomes de lojas diferentes. Isso impede que uma cópia
+renomeada duplique faturamento no dashboard.
+O conteúdo parseado também é comparado com os relatórios já existentes no
+Supabase, protegendo contra cópias renomeadas que apareçam em importações de
+dias diferentes.
+
 O nome do consultor vem do nome da PASTA (`<Consultor>`), não do campo
 "Colaborador" dentro do relatório — esse campo interno às vezes é outra
 pessoa (quem gerou o relatório no balcão, não o consultor responsável).
