@@ -82,7 +82,6 @@ body{font-family:var(--font);font-weight:600;background:linear-gradient(180deg,#
 
 /* TABLE */
 .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
-.data-quality-warning{padding:9px 14px;background:var(--red-bg);color:var(--red);border-bottom:1px solid #e8aaa5;font-size:11px;font-weight:800;}
 table{width:100%;border-collapse:collapse;font-size:12px;}
 th{text-align:left;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface2);cursor:pointer;user-select:none;}
 th:hover{color:var(--teal-mid);}

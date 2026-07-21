@@ -228,10 +228,7 @@ async function loadRelatorios(){
       .filter(r => !(r.arquivo_origem||"").startsWith("AMOSTRA_"))
       .map(normalizeRelatorio);
     allRelatorios = dedupeRelatorios(allRelatorios);
-    const qualityWarning=document.getElementById("data-quality-warning");
     const duplicateCount=(window.ideologicaDuplicateReports||[]).length;
-    qualityWarning.hidden=!duplicateCount;
-    qualityWarning.textContent=duplicateCount?`Atenção: ${duplicateCount} relatório(s) de conteúdo idêntico foram bloqueados das somas. Revise os arquivos de origem.`:"";
     if(duplicateCount)console.error("Relatórios duplicados bloqueados:",window.ideologicaDuplicateReports);
     lojaBandeiraMap = buildLojaBandeiraMap(allRelatorios);
     tingimentoPorRelatorio = new Map();
