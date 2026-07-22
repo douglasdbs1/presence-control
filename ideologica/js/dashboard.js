@@ -110,11 +110,13 @@ function displayLoja(loja){
 // diferenças de caixa e acentuação entre arquivos.
 const LOJA_LOCATION_OVERRIDES = {
   "mega campinas cambui": ["SP","Campinas","Cambuí"],
+  "mega franscisco beltrao": ["PR","Francisco Beltrão",""],
   "mega higienopolis": ["SP","São Paulo","Higienópolis"],
   "mega livramento": ["RS","Santana do Livramento",""],
   "mega santa maria": ["RS","Santa Maria",""],
   "mega santa rosa": ["RS","Santa Rosa",""],
   "ml barretos": ["SP","Barretos",""],
+  "ml botucatu": ["SP","Botucatu",""],
   "ml campinas dom pedro": ["SP","Campinas","Dom Pedro"],
   "ml campo grande": ["MS","Campo Grande",""],
   "ml caxias": ["RS","Caxias do Sul",""],
@@ -150,6 +152,8 @@ const LOJA_LOCATION_OVERRIDES = {
   "rj montes claros": ["MG","Montes Claros",""],
   "rj parauapebas": ["PA","Parauapebas",""],
   "rj passo fundo": ["RS","Passo Fundo",""],
+  "rj passo fundo centro": ["RS","Passo Fundo","Centro"],
+  "rj passo fundo s crsitovao": ["RS","Passo Fundo","São Cristóvão"],
   "rj passo fundo sao cristovao": ["RS","Passo Fundo","São Cristóvão"],
   "rj pelotas": ["RS","Pelotas",""],
   "rj penha": ["SP","São Paulo","Penha"],
