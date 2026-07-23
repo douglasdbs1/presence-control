@@ -970,6 +970,7 @@ td.oc{max-width:260px;}
   </div>
   <div class="mfooter">
     <div class="check-note">Lembrete: cadastros iniciais ficam com o franqueado; o consultor acompanha, orienta e valida.</div>
+    <button class="btn-del" id="check-btn-done" onclick="markLojaConcluida()" style="display:none" title="Já está rodando na Presence (go-live feito) — sai de Minhas Lojas.">Retirar (já concluído)</button>
     <button class="btn-cancel" onclick="closeChecklistModal()">Cancelar</button>
     <button class="btn-save" onclick="saveChecklistModal()">Salvar</button>
   </div>
@@ -1679,6 +1680,7 @@ function openChecklistModal(idx){
   document.getElementById('check-list').innerHTML=CHECKLIST_ITENS.map(i=>`<label class="check-item ${c.itens&&c.itens[i.key]?'checked':''}"><input type="checkbox" data-check="${i.key}" ${c.itens&&c.itens[i.key]?'checked':''} onchange="this.closest('.check-item').classList.toggle('checked',this.checked);updateStageAuto()"><span>${esc(i.label)}</span></label>`).join('');
   document.getElementById('check-obs').value=c.obs||'';
   document.getElementById('check-meta').textContent=c.updatedAt?`Última atualização: ${new Date(c.updatedAt).toLocaleString('pt-BR')} por ${c.updatedBy||'-'} | ${p.done}/${p.total} concluídos`:'Ainda sem atualização.';
+  document.getElementById('check-btn-done').style.display=adminUnlocked?'':'none';
   document.getElementById('ov-check').classList.add('open');
 }
 function updateStageAuto(){
@@ -1716,6 +1718,30 @@ async function saveChecklistModal(){
     saveLocal();
   }
   closeChecklistModal();await persistChecklist();
+}
+// Único motivo de tirar uma loja de "Minhas lojas" sem ser pelo checklist:
+// o sistema já está rodando na Presence (go-live feito), então ao inves de
+// apagar o registro (perderia checklist/log), só marca status='concluido' —
+// mineStores() já filtra por status!=='concluido', então ela some da lista
+// mas continua intacta em Lojas/histórico.
+async function markLojaConcluida(){
+  if(!adminUnlocked||!currentChecklistLoja)return;
+  const nome=currentChecklistLoja.loja;
+  if(!confirm(`"${nome}" já está rodando na Presence (go-live concluído)?\n\nEla vai sair de Minhas Lojas, mas o histórico continua em Lojas.`))return;
+  if(currentChecklistLoja._stub){
+    const dbLoja=dbExtra[currentChecklistLoja._dbIdx];
+    if(dbLoja)dbLoja.status='ativo';
+    saveDbLocal();
+  }else{
+    currentChecklistLoja.status='concluido';
+    saveLocal();
+  }
+  closeChecklistModal();
+  if(!supabaseEnabled){showToast('Loja marcada como concluída (salvo localmente).');renderMine();return;}
+  const {error}=await supabaseClient.rpc("save_presence_control_state",{p_token:ADMIN_RPC_TOKEN,p_payload:statePayload()});
+  if(error){console.error("Supabase save error:",error);showToast('Erro ao salvar no Supabase.',true);return;}
+  showToast(`"${nome}" marcada como concluída — saiu de Minhas Lojas.`);
+  renderMine();
 }
 
 let currentPage='active';
